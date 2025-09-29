@@ -6,6 +6,7 @@
   
   <properties>
   	<telegram.elements.version>9.1.0</telegram.elements.version>
+  	<junit.elements.version>5.12.2</junit.elements.version>
   </properties>
   
   <dependencies>
@@ -19,5 +20,11 @@
   	  <artifactId>telegrambots-client</artifactId>
   	  <version>${telegram.elements.version}</version>
 	</dependency>
+	<dependency>
+       <groupId>org.junit.jupiter</groupId>
+       <artifactId>junit-jupiter-engine</artifactId>
+       <version>${junit.elements.version}</version>
+       <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
