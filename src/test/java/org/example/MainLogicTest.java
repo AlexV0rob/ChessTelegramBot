@@ -4,30 +4,52 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Class for testing work of MainLogic class.
+ * Тестирование класса MainLogic.
  */
 class MainLogicTest {
 	/**
-	 * MainLogic's echoMessage method test
+	 * Проверка метода echoMessage
 	 */
     @Test
     void echoMessageTest() {
-        assertEquals("You have sent: TEST", new MainLogic().processInput("TEST"));
+        assertEquals(
+        		"Вы отправили: TEST",
+        		
+        		new MainLogic().processInput("TEST")
+        		);
     }
     
     /**
-	 * MainLogic's startCommand method test
+	 * Проверка метода startCommand
 	 */
     @Test
     void startCommandTest() {
-        assertEquals("Hello, fellow citizen! I'm a bot about chess. My current options are:\n - return your messages;\n - show help window;\n\nThis is all by now but the list of abilities will be updated during development. Type /help for more information.", new MainLogic().processInput("/start"));
+        assertEquals("Здравствуй, путник! Я бот о шахматах. Сейчас я умею:\n"
+        		+ " - возвращать твои сообщения;\n"
+        		+ " - показывать окно помощи;\n\n"
+        		+ "Пока что я могу только это,"
+        		+ " но список возможностей будет пополняться с течением разработки."
+        		+ " Отправь /help для большей информации.",
+        		
+        		new MainLogic().processInput("/start")
+        		);
     }
     
     /**
-	 * MainLogic's helpCommand method test
+	 * Проверка метода helpCommand
 	 */
     @Test
     void helpCommandTest() {
-        assertEquals("I can now:\n - return your messages;\n - show help window;\n\nCurrently available commands:\n/help - shows this message\n/start - restarts bot\n\nMore oprions will be available soon.", new MainLogic().processInput("/help"));
+        assertEquals(
+        		"Сейчас я могу:\n"
+        		+ " - возврашать твоё сообщение;\n"
+        		+ " - показывать это окно;\n\n"
+        		+ "Доступные команды:\n"
+        		+ "/help - позволяет это сообщение\n"
+        		+ "/start - перезапускает бота\n\n"
+        		+ "Скоро будет больше возможностей.",
+        		
+        		new MainLogic().processInput("/help")
+        		);
     }
 }
