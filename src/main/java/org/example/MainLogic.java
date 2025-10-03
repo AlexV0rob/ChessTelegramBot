@@ -1,84 +1,88 @@
 package org.example;
 
 /**
- * Does the main management
+ * Отвечает за основную логику
  */
 public class MainLogic {
 	/**
-	 * Does the prime management calling auxiliary methods
-	 * @param input keeps user's input
-	 * @return outgoing message
+	 * Выполняет первичное управление сообщением от пользователя
+	 * @param input содержит текст сообщения
+	 * @return ответное сообщение
 	 */
 	public String processInput(String input) {
 		switch (input) {
-		//If input is a command /start
+		//Если введена команда /start
 		case "/start":
 			return startCommand();
-		//If input is a command /help
+		//Если введена команда /help
 		case "/help":
 			return helpCommand();
-		//Just some text
+		//Введён просто какой-то текст
 		default:
 			return echoMessage(input);
 		}
 	}
 	
 	/**
-	 * Creates and returns /start message
-	 * @return message which sends to /start command
+	 * Формирует и возвращает сообщение команды /start
+	 * @return ответ на команду /start
 	 */
 	private String startCommand() {
-		//Constant start line
-		String startMessage = "Hello, fellow citizen! I'm a bot about chess. My current options are:\n";
+		//Стандартная заголовочная строка
+		String startMessage = "Здравствуй, путник! Я бот о шахматах. Сейчас я умею:\n";
 		
-		//List of abilities
-		startMessage += " - return your messages;\n";
-		startMessage += " - show help window;\n";
+		//Список возможностей
+		startMessage += " - возвращать твои сообщения;\n";
+		startMessage += " - показывать окно помощи;\n";
 		
-		//New line for more comfortable reading
+		//Пустая строка для лучшей читаемости
 		startMessage += "\n";
 		
-		//Constant end line
-		startMessage += "This is all by now but the list of abilities will be updated during development. Type /help for more information.";
+		//Стандартная заключающая строка
+		startMessage += "Пока что я могу только это,"
+				+ " но список возможностей будет пополняться с течением разработки."
+				+ " Отправь /help для большей информации.";
+		
 		return startMessage;
 	}
 	
 	/**
-	 * Creates and returns /help message
-	 * @return message which sends to /help command
+	 * Создаёт и возвращает сообщение команды /help
+	 * @return ответ на команду /help
 	 */
 	private String helpCommand() {
-		//Constant start line
-		String helpMessage = "I can now:\n";
+		//Стандартная заголовочная строка
+		String helpMessage = "Сейчас я могу:\n";
 		
-		//List of abilities
-		helpMessage += " - return your messages;\n";
-		helpMessage += " - show help window;\n";
+		//Список возможностей
+		helpMessage += " - возврашать твоё сообщение;\n";
+		helpMessage += " - показывать это окно;\n";
 		
-		//New line for more comfortable reading
+		//Пустая строка для лучшей читаемости
 		helpMessage += "\n";
 		
-		//Constant line as header for command block
-		helpMessage += "Currently available commands:\n";
+		//Стандартная строка с заголовком блока команд
+		helpMessage += "Доступные команды:\n";
 		
-		//List of commands
-		helpMessage += "/help - shows this message\n";
-		helpMessage += "/start - restarts bot\n";
+		//Список команд
+		helpMessage += "/help - позволяет это сообщение\n";
+		helpMessage += "/start - перезапускает бота\n";
 		
-		//New line for more comfortable reading
+		//Пустая строка для лучшей читаемости
 		helpMessage += "\n";
 		
-		//Constant end line
-		helpMessage += "More oprions will be available soon.";
+		//Стандартная заключающая строка
+		helpMessage += "Скоро будет больше возможностей.";
+		
 		return helpMessage;
 	}
 	
 	/**
-	 * Implements the echo functionality
-	 * @return message which sends to any non-command input
+	 * Реализует функционал эхо
+	 * @return ответ на любой не-коммандный ввод
 	 */
 	private String echoMessage(String message) {
-		//Takes user's message and return it with a little change
-		return "You have sent: " + message;
+		//Берёт сообщение пользователя и возвращает с небольшим изменением
+		return "Вы отправили: " + message;
 	}
 }
