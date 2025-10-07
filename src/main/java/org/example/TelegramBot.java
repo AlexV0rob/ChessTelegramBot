@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 /**
- * Класс, который подключается к телеграму и обрабатывает входящие команды
+ * Класс, который подключается к телеграму 
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	/**
@@ -16,7 +16,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	private final TelegramClient telegramClient;
 	
 	/**
-	 * Экземпляр класса MainLogic
+	 * Экземпляр класса MainLogic, обрабатывает входящие сообщения
 	 */
 	private MainLogic mainLogic = new MainLogic();
 	
@@ -28,9 +28,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         telegramClient = new OkHttpTelegramClient(botToken);
     }
 	
-	/**
-	 * Получает на вход update и передаёт управление MainLogic.java
-	 */
     @Override
     public void consume(Update update) {
     	//Смотрим, получили ли сообщение и есть ли в нём текст
@@ -40,14 +37,12 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
             String response = mainLogic.processInput(incomingMessage);
             
-            //Создаём исходящее сообщение
             SendMessage outgoingMessage = SendMessage
             		.builder()
                     .chatId(chatId)
                     .text(response)
                     .build();
             
-            //Пытаемся отослать исходящее сообщение
             try {
                 telegramClient.execute(outgoingMessage);
             } catch (TelegramApiException e) {
