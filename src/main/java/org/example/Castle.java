@@ -1,9 +1,9 @@
-package org.chessmen;
+package org.example;
 
-public class Bishop implements  Chessmen{
+public class Castle implements  Chessmen{
 	protected Position currentPosition;
 	public boolean checkMove(Position startPos, Position endPos) {
-		 if(Math.abs(startPos.x-endPos.x)==Math.abs(startPos.y-endPos.y))
+		if((startPos.x == endPos.y)||(startPos.y == endPos.y))
 			return true;
 		return false;
 	}  

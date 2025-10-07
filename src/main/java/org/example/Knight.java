@@ -1,4 +1,5 @@
-package org.chessmen;
+package org.example;
+
 public class Knight implements  Chessmen{
 	protected Position currentPosition;
 	public boolean checkMove(Position startPos, Position endPos) {

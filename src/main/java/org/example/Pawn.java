@@ -1,4 +1,4 @@
-package org.chessmen;
+package org.example;
 
 public class Pawn implements  Chessmen{
 	protected Position currentPosition;
