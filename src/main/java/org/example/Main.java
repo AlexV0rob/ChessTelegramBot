@@ -1,12 +1,12 @@
-package org.example;
-
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
 /**
- * 
+ * Пытается создать экземпляр бота 
  */
 public class Main {
-
+	/**
+	 * Точка входа программы. 
+	 */
 	public static void main(String[] args) {
 		//Берем токен бота из Environment
 		String botToken = System.getenv("telegram_bot_token");
@@ -19,6 +19,5 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
-}
+}	
