@@ -3,7 +3,7 @@ package org.example;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
 /**
- * Пытается создать экземпляр бота 
+ * Основной класс, где происходит запуск бота
  */
 public class Main {
 	/**
@@ -24,3 +24,4 @@ public class Main {
     }
 
 }	
+
