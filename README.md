@@ -1,2 +1,4 @@
 # ChessTelegramBot
-An educational project about making a Telegram bot. We decided to create a bot that can play chess, lets users play with each other and makes some kind of MMR (matchmaking rating). Wish us luck, and Lord help us.
+Образовательный проект о создании Telegram-бота. Мы решили создать бота, который умеет играть в шахматы, позволяет пользователям играть друг с другом и составляет своего рода рейтинга.
+Предстоящие задачи:
+1. Создать echo-бота на Java, реагирующего на команды ( например на /start и /help);
