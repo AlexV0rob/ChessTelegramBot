@@ -2,22 +2,19 @@ package org.example;
 
 public class Pawn implements  Chessmen{
 	protected Position currentPosition;
-	public boolean checkMove(int startPos, int endPos) {
-		if((startPos.x == endPos.x)&&(endPos.y - startPos.x == 1 ))
-			return true;
-		return false;
-	}
-	public void Move(Position startPos, Position endPos,byte[][] chessDesk)
-	{
-		if(checkMove(startPos, endPos,chessDesk))
-		{
-			byte tmp = chessDesk[startPos.x][startPos.y] ;
-			chessDesk[startPos.x][startPos.y] = 0b01;
-			chessDesk[endPos.x][endPos.y] = tmp;
+	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
+		Position endPos= new Position(rawEndPos);
+		Position startPos= new Position(rawStartPos);
+		if(chessDesk[rawEndPos] == 0){
 
+			if((endPos.line - startPos.line == 1) && (startPos.column == endPos.column))
+				return true;
 		}
-		else
+		else if(chessDesk[rawEndPos] % 2 != isBlack)
 		{
+			if((endPos.line - startPos.line == 1) && (Math.abs(startPos.column -  endPos.column)== 0))
+				return true;
 		}
-	}
+		return false;
+	} 
 }

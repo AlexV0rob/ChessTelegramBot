@@ -1,23 +1,13 @@
 package org.example;
 
 public class Castle implements  Chessmen{
-	protected Position currentPosition;
-	public boolean checkMove(int startPos, int endPos) {
-		if((startPos.x == endPos.y)||(startPos.y == endPos.y))
-			return true;
+	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
+		if((chessDesk[rawEndPos] == 0 ) || (chessDesk[rawEndPos] % 2 != isBlack)){
+			Position endPos= new Position(rawEndPos);
+			Position startPos= new Position(rawStartPos);
+			if((startPos.line == endPos.line)||(startPos.column == endPos.column))
+				return true;
+		}
 		return false;
 	}  
-	public void Move(Position startPos, Position endPos,byte[][] chessDesk)
-	{
-		if(checkMove(startPos, endPos,chessDesk))
-		{
-			byte tmp = chessDesk[startPos.x][startPos.y] ;
-			chessDesk[startPos.x][startPos.y] = 0b01;
-			chessDesk[endPos.x][endPos.y] = tmp;
-
-		}
-		else
-		{
-		}
-	}
 }

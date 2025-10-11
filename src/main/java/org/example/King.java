@@ -1,23 +1,14 @@
 package org.example;
 
 public class King implements  Chessmen{
-	protected Position currentPosition;
-	public boolean checkMove(int startPos, int endPos) {
-		if((Math.abs(startPos.x- endPos.x)<=1)&&(Math.abs(startPos.y- endPos.y)<=1))
-			return true;
+	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
+		if((chessDesk[rawEndPos] == 0 ) || (chessDesk[rawEndPos] % 2 != isBlack))
+		{
+			Position endPos= new Position(rawEndPos);
+			Position startPos= new Position(rawStartPos);
+			if((Math.abs(startPos.line- endPos.line)<=1)&&(Math.abs(startPos.column- endPos.column)<=1))
+				return true;
+		}
 		return false;
-	}
-	public void Move(Position startPos, Position endPos,byte[][] chessDesk)
-	{
-		if(checkMove(startPos, endPos,chessDesk))
-		{
-			byte tmp = chessDesk[startPos.x][startPos.y] ;
-			chessDesk[startPos.x][startPos.y] = 0b01;
-			chessDesk[endPos.x][endPos.y] = tmp;
-
-		}
-		else
-		{
-		}
 	}
 }

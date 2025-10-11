@@ -1,6 +1,20 @@
 package org.example;
 
 public interface Chessmen {
-	boolean checkMove(Position startPos, Position endPos,byte[][] chessDesk);
-	void Move(Position startPos, Position endPos,byte[][] chessDesk);
+	boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack);
+	default void Move(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack)
+	{
+
+		if(CheckMove(rawStartPos, rawEndPos ,chessDesk,isBlack))
+		{
+			byte tmp = chessDesk[rawStartPos] ;
+			chessDesk[rawStartPos] = 0;
+			chessDesk[rawEndPos] = tmp;
+
+		}
+		else
+		{
+			//TO DO
+		}
+	}
 }
