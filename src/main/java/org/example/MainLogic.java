@@ -3,18 +3,19 @@ package org.example;
 import java.util.ArrayList;
 
 /**
- * Отвечает за основную логику
+ * Выполняет обработку пользовательского ввода
  */
 public class MainLogic {
 	/**
-	 * Выполняет первичное управление сообщением от пользователя
-	 * @param input содержит текст сообщения
-	 * @return ответное сообщение
+	 * Определить тип пользовательского ввода и передать управление
+	 * соответствующему обработчику
+	 * @param userInput
+	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String) 
 	 */
-	public ArrayList<String> processInput(String input, User curUser) {
+	public ArrayList<String> processInput(String userInput, User curUser) {
 		ArrayList<String> responses;
-		if (input.charAt(0) == '/') {
-			responses = new CommandHandler().processCommand(input, curUser);
+		if (userInput.charAt(0) == '/') {
+			responses = new CommandHandler().processCommand(userInput, curUser);
 		} else {
 			/*
 			 * Коды режимов:
@@ -24,22 +25,20 @@ public class MainLogic {
 			 */
 			switch (curUser.getMode()) {
 			case 0:
-				//TODO MenuHandler
-				responses = new ArrayList<String>();
-				responses.add("Прости, не очень понял запрос");
-				responses.add("Чем займёмся?");
+				responses = new MenuHandler().processMenu(userInput, curUser);
 				break;
 			case 1:
 				responses = new ArrayList<String>();
-				responses.add(new EchoHandler().echoMessage(input));
+				responses.add(new EchoHandler().echoMessage(userInput));
 				break;
 			case 2:
 				//TODO GameHandler
 				//responses = new GameHandler(curUser.getBoard());
+				//break;
+				
+			//Если режим другой, то произошла ошибка, выходим в главное меню
 			default:
-				responses = new ArrayList<String>();
-				curUser.changeMode((byte) 0);
-				responses.add("Чем займёмся?");
+				responses = new CommandHandler().processCommand("/menu", curUser);
 			}
 		}
 		return responses;

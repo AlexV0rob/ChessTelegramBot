@@ -1,22 +1,25 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Тест класса Echo
  */
 public class EchoTest {
 	/**
+	 * Префикс, добавляемый перед сообщением пользователя
+	 * в режиме эхо
+	 */
+	private final String PREFIX = "Вы отправили: ";
+	
+	/**
 	 * Проверка метода echoMessage
 	 */
     @Test
     void echoMessageTest() {
-    	//Префикс
-    	String prefix = "Вы отправили: ";
-    	//Проверка, что сообщение возвращается с префиксом
-        assertEquals(
-        		prefix + "TEST",        		
+        Assertions.assertEquals(
+        		PREFIX + "TEST",        		
         		new EchoHandler().echoMessage("TEST")
         		);
     }
