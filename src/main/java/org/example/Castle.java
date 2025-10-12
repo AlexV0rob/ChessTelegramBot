@@ -1,6 +1,6 @@
 package org.example;
 
-public class Castle implements  Chessmen{
+class Castle implements  Chessmen{
 	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
 		if((chessDesk[rawEndPos] == 0 ) || (chessDesk[rawEndPos] % 2 != isBlack)){
 			Position endPos= new Position(rawEndPos);
@@ -9,5 +9,5 @@ public class Castle implements  Chessmen{
 				return true;
 		}
 		return false;
-	}  
+	}
 }

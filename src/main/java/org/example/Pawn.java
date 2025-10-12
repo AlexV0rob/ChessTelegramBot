@@ -2,7 +2,7 @@ package org.example;
 
 public class Pawn implements  Chessmen{
 	protected Position currentPosition;
-	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
+	public  boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
 		Position endPos= new Position(rawEndPos);
 		Position startPos= new Position(rawStartPos);
 		if(chessDesk[rawEndPos] == 0){

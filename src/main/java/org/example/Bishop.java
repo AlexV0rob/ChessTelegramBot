@@ -15,5 +15,5 @@ public class Bishop implements  Chessmen{
 				 return true;
 		 }
 		return false;
-	} 
+	}
 }
