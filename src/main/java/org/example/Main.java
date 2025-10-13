@@ -2,9 +2,18 @@ package org.example;
 
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
-/**
- * 
- */
+class User
+{
+	boolean isWhite;
+	byte[] chessDesk;
+	byte[] getDesk()
+	{
+		return chessDesk;
+	}
+	boolean doesWhitesMove() {
+		return isWhite;
+	}
+}
 public class Main {
 
 	public static void main(String[] args) {

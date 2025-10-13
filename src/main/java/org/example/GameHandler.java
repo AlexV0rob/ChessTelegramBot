@@ -5,7 +5,7 @@ package org.example;
 public class GameHandler{
 	public boolean ProgressHandler(User user, int rawStartPos, int rawEndPos, byte figureCode)
 	{
-		boolean isNormalMove;
+		boolean isNormalMove = false;
 		if((rawStartPos > 63 || rawStartPos < 0 )&&(rawEndPos > 63 || rawEndPos < 0))
 			return false;
 		byte[] curDesk = user.getDesk();
