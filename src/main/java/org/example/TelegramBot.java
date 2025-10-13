@@ -106,6 +106,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                        	.keyboard(createInlineKeyboard(newButtons))
                        	.build())
                	.build();
+            
             try {
             	telegramClient.execute(newMessage);
             } catch (TelegramApiException e) {

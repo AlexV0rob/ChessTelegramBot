@@ -10,7 +10,7 @@ public class MainLogic {
 	 * Определить тип пользовательского ввода и передать управление
 	 * соответствующему обработчику
 	 * @param userInput
-	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String) 
+	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String)
 	 */
 	public ArrayList<String> processInput(String userInput, User curUser) {
 		ArrayList<String> responses;
@@ -41,7 +41,5 @@ public class MainLogic {
 			}
 		}
 		return responses;
-	}	
-	
-	
+	}
 }
