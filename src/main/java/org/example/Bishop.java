@@ -18,7 +18,10 @@ public class Bishop implements  Chessmen{
 		 }
 		return false;
 	}
-	//Проверяем что на пути у нашего слона нету преград
+	/*Проверяем что на пути у нашего слона нету преград
+	 * делением с остатком на 7 нужно для проверки что путь является левой диагональю.
+	 * 
+	 */
 	 public boolean IsThereObstacle(int rawStartPos, int rawEndPos,byte[] chessDesk){
 		if(rawEndPos > rawStartPos) {
 			if((rawEndPos-rawStartPos) % 7 == 0) {
