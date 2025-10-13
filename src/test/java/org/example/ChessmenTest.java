@@ -20,8 +20,8 @@ public class ChessmenTest {
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen pawn = new Pawn();
-        assertEquals(false ,  pawn.checkMove(8,63,board,true));
-        assertEquals(true ,  pawn.checkMove(8,16,board,true));
+        assertEquals(false, pawn.checkMove(8,63,board,true));
+        assertEquals(true, pawn.checkMove(8,16,board,true));
     }
 	/**
 	 * Проверка ходов Слона
