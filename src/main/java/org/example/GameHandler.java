@@ -49,8 +49,8 @@ public class GameHandler{
 			byte tmp = curDesk[rawStartPos] ;
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
-			if(check(user,rawEndPos,lastChessmen)){
-				if(checkmate(user))
+			if(check(curDesk,user.doesWhitesMove(), rawEndPos,lastChessmen)){
+				if(checkmate(curDesk, user.doesWhitesMove()))
 					return 3;
 				return 2;
 			}
@@ -62,11 +62,10 @@ public class GameHandler{
 	/**
 	 * проверка на шах
 	 */
-	public boolean check(User user, int rawStartPos,Chessmen chessmen)
+	public boolean check(byte[]curBoard, boolean isWhiteMove, int rawStartPos,Chessmen chessmen)
 	{
-		byte[] curBoard = user.getBoard();
 		int i = 0 ;
-		if(user.doesWhitesMove()){
+		if(isWhiteMove){
 			for(; i < 64;++i)
 				if(curBoard[i] == 11)
 					break;
@@ -82,12 +81,11 @@ public class GameHandler{
 		}
 		return false;
 	}
-	public boolean checkmate(User user){
-		byte[] curBoard = user.getBoard();
+	public boolean checkmate(byte[] curBoard, boolean isWhiteMove){
 		int countOfValidMove = 0;
 		int kingPos = 0 ;
 		Chessmen king = new King();
-		if(user.doesWhitesMove()) {
+		if(isWhiteMove) {
 			for(; kingPos < 64;++kingPos)
 				if(curBoard[kingPos] == 11)
 					break;
