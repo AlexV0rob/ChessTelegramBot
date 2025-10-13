@@ -20,8 +20,8 @@ public class ChessmenTest {
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen pawn = new Pawn();
-        assertEquals(false ,  pawn.CheckMove(8,63,board,true));
-        assertEquals(true ,  pawn.CheckMove(8,16,board,true));
+        assertEquals(false ,  pawn.checkMove(8,63,board,true));
+        assertEquals(true ,  pawn.checkMove(8,16,board,true));
     }
 	/**
 	 * Проверка ходов Слона
@@ -38,8 +38,8 @@ public class ChessmenTest {
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen casltle = new Castle();
-        assertEquals(false, casltle.CheckMove(0,1,board,true));
-        assertEquals(true, casltle.CheckMove(0,16,board,true));
+        assertEquals(false, casltle.checkMove(0,1,board,false));
+        assertEquals(true, casltle.checkMove(0,16,board,false));
     }
 	/**
 	 * Проверка ходов Слона
@@ -56,8 +56,8 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen bishop = new Bishop();
-        assertEquals(false , bishop.CheckMove(2,9,board,true));
-        assertEquals(true , bishop.CheckMove(2,11,board,true));
+        assertEquals(false , bishop.checkMove(2,9,board,false));
+        assertEquals(true , bishop.checkMove(2,11,board,false));
     }
 	/**
 	 * Проверка ходов Короля
@@ -74,8 +74,8 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen king = new King();
-        assertEquals(false , king.CheckMove(4,11,board,true));
-        assertEquals(true , king.CheckMove(3,12,board,true));
+        assertEquals(false , king.checkMove(4,11,board,false));
+        assertEquals(true , king.checkMove(3,12,board,false));
     }
 	/**
 	 * Проверка ходов коня
@@ -92,7 +92,7 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen knight = new Knight();
-        assertEquals(false , knight.CheckMove(1,11,board,true));
+        assertEquals(false , knight.checkMove(1,17,board,false));
     }
 	/**
 	 * Проверка ходов Королевы
@@ -109,7 +109,7 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen queen = new Queen();
-        assertEquals(false , queen.CheckMove(3,11,board,true));
-        assertEquals(true , queen.CheckMove(3,12,board,true));
+        assertEquals(false , queen.checkMove(3,11,board,false));
+        assertEquals(true , queen.checkMove(3,12,board,false));
     }  
 }
