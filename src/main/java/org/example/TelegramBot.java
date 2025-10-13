@@ -29,7 +29,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	public TelegramBot(String botToken) {
         telegramClient = new OkHttpTelegramClient(botToken);
     }
-	
     @Override
     public void consume(Update update) {
     	//Смотрим, получили ли сообщение и есть ли в нём текст
