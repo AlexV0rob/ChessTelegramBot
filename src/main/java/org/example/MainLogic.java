@@ -1,84 +1,60 @@
 package org.example;
 
 /**
- * Does the main management
+ * Выполняет обработку пользовательского ввода
  */
 public class MainLogic {
 	/**
-	 * Does the prime management calling auxiliary methods
-	 * @param input keeps user's input
-	 * @return outgoing message
+	 * Константа, содержащая сообщение команды /start
 	 */
-	public String processInput(String input) {
-		switch (input) {
-		//If input is a command /start
+	private final String START_MESSAGE = """
+			Здравствуй, путник! Я бот о шахматах. Сейчас я умею:
+			 - возвращать твои сообщения;
+			 - показывать окно помощи;
+
+			Пока что я могу только это, но список возможностей  
+			""" + """
+			будет пополняться с течением разработки. 
+			Отправь /help для большей информации.
+			""";
+	/**
+	 * Константа, содержащая сообщение команды /help
+	 */
+	private final String HELP_MESSAGE = """
+			Сейчас я могу:
+			 - возврашать твоё сообщение;
+			 - показывать это окно;
+				
+			Доступные команды:
+			/help - позволяет это сообщение
+			/start - перезапускает бота
+
+			Скоро будет больше возможностей.
+			""";
+	
+	/**
+	 * Определить тип пользовательского ввода и передать управление соответствующему методу
+	 * @param userInput
+	 * @return экземпляр String, содержит ответное сообщение 
+	 */
+	public String processInput(String userInput) {
+		//Проверка ввода и вызов соответствующего метода
+		switch (userInput) {
 		case "/start":
-			return startCommand();
-		//If input is a command /help
+			return START_MESSAGE;
 		case "/help":
-			return helpCommand();
-		//Just some text
+			return HELP_MESSAGE;
 		default:
-			return echoMessage(input);
+			return echoMessage(userInput);
 		}
 	}
 	
 	/**
-	 * Creates and returns /start message
-	 * @return message which sends to /start command
+	 * Вернуть ответ на любой ввод, не являющийся командой
+	 * @param userMessage
+	 * @return экземпляр String, содержит сообщение пользователя с префиксом "Вы отправили: "
 	 */
-	private String startCommand() {
-		//Constant start line
-		String startMessage = "Hello, fellow citizen! I'm a bot about chess. My current options are:\n";
-		
-		//List of abilities
-		startMessage += " - return your messages;\n";
-		startMessage += " - show help window;\n";
-		
-		//New line for more comfortable reading
-		startMessage += "\n";
-		
-		//Constant end line
-		startMessage += "This is all by now but the list of abilities will be updated during development. Type /help for more information.";
-		return startMessage;
-	}
-	
-	/**
-	 * Creates and returns /help message
-	 * @return message which sends to /help command
-	 */
-	private String helpCommand() {
-		//Constant start line
-		String helpMessage = "I can now:\n";
-		
-		//List of abilities
-		helpMessage += " - return your messages;\n";
-		helpMessage += " - show help window;\n";
-		
-		//New line for more comfortable reading
-		helpMessage += "\n";
-		
-		//Constant line as header for command block
-		helpMessage += "Currently available commands:\n";
-		
-		//List of commands
-		helpMessage += "/help - shows this message\n";
-		helpMessage += "/start - restarts bot\n";
-		
-		//New line for more comfortable reading
-		helpMessage += "\n";
-		
-		//Constant end line
-		helpMessage += "More oprions will be available soon.";
-		return helpMessage;
-	}
-	
-	/**
-	 * Implements the echo functionality
-	 * @return message which sends to any non-command input
-	 */
-	private String echoMessage(String message) {
-		//Takes user's message and return it with a little change
-		return "You have sent: " + message;
+	private String echoMessage(String userMessage) {
+		return "Вы отправили: " + userMessage;
 	}
 }
