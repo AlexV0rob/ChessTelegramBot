@@ -3,14 +3,27 @@ package org.example;
  * Класс для реализации логики перемещения коня
  */
 class Knight implements  Chessmen{
-	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
+	public boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
 		
 		if((chessDesk[rawEndPos] == 0 ) || ((chessDesk[rawEndPos] % 2 != 0 ) != isWhite))
 		{
 			Position endPos= new Position(rawEndPos);
 			Position startPos= new Position(rawStartPos);
-			if(Math.sqrt((startPos.line - endPos.line)*(startPos.line - endPos.line) 
-					+ (startPos.column - endPos.column)*(startPos.column - endPos.column))==5)
+			if (((startPos.line - 2 == endPos.line) && (startPos.column + 1 == endPos.column)))
+					return true;
+			else if(((startPos.line - 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
+					return true;
+			else if(((startPos.line + 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
+				return true;
+			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
+				return true;
+			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
+				return true;
+			else if(((startPos.line + 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
+				return true;
+			else if(((startPos.line - 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
+				return true;
+			else if(((startPos.line - 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
 				return true;
 		}
 		return false;
