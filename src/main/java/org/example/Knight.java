@@ -1,5 +1,7 @@
 package org.example;
-
+/**
+ * Класс для реализации логики перемещения коня
+ */
 class Knight implements  Chessmen{
 	public boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
 		

@@ -1,5 +1,7 @@
 package org.example;
-
+/**
+ * Класс для реализации логики перемещения пешки
+ */
 public class Pawn implements  Chessmen{
 	protected Position currentPosition;
 	public  boolean CheckMove(int rawStartPos, int rawEndPos,byte[] chessDesk, byte isBlack) {
