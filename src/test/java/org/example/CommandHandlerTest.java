@@ -6,69 +6,45 @@ import org.junit.jupiter.api.Assertions;
 /**
  * Тестирование работы команд
  */
-public class CommandHandlerTest {
+public class CommandHandlerTest {	
 	/**
-	 * Количество режимов в данный момент и соответствующее число пользователей
-	 */
-	int modesAmount = 3;
-	private User[] users = new User[modesAmount];
-	private CommandHandlerTest() {
-		for (byte i = 0; i < modesAmount; ++i) {
-			users[i] = new User();
-		}
-	}
-	
-	/**
-	 * Проверка неизвестной команды
+	 * Тест неизвестной команды
 	 */
 	@Test
     void unknownCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
-    	
+		User user = new User();
+		
     	//Режим не должен поменяться
-    	for (int i = 0; i < modesAmount; ++i) {
-    		byte oldMode = users[i].getMode();
-    		new CommandHandler().processCommand("/something", users[i]);
-    		Assertions.assertEquals(oldMode, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/lorem", user);
+    	Assertions.assertEquals(oldMode, user.getMode());
     }
 	
     /**
-	 * Проверка команды /start (перезапуск бота)
+	 * Тест команды /start (перезапуск бота)
 	 */
     @Test
     void startCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
-    	
+    	User user = new User();
+		user.changeMode((byte) 1);
+		
     	//Режим должен стать 0
-    	for (int i = 0; i < modesAmount; ++i) {
-    		new CommandHandler().processCommand("/start", users[i]);
-    		Assertions.assertEquals((byte) 0, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/start", user);
+    	Assertions.assertEquals((byte) 0, user.getMode());
     }
     
     /**
-	 * Проверка команды /help (показать окно помощи)
+	 * Тест команды /help (показать окно помощи)
 	 */
     @Test
     void helpCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
+    	User user = new User();
     	
     	//Режим не должен поменяться
-    	for (int i = 0; i < modesAmount; ++i) {
-    		byte oldMode = users[i].getMode();
-    		new CommandHandler().processCommand("/help", users[i]);
-    		Assertions.assertEquals(oldMode, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/help", user);
+    	Assertions.assertEquals(oldMode, user.getMode());
     }
     
     /**
@@ -76,16 +52,13 @@ public class CommandHandlerTest {
      */
     @Test
     void menuCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
-    	
+    	User user = new User();
+		user.changeMode((byte) 1);
+		
     	//Режим должен стать 0
-    	for (int i = 0; i < modesAmount; ++i) {
-    		new CommandHandler().processCommand("/menu", users[i]);
-    		Assertions.assertEquals((byte) 0, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/menu", user);
+    	Assertions.assertEquals((byte) 0, user.getMode());
     }
     
     /**
@@ -93,16 +66,12 @@ public class CommandHandlerTest {
      */
     @Test
     void echoCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
-    	
+    	User user = new User();
+		user.changeMode((byte) 0);
     	//Режим должен стать 1
-    	for (int i = 0; i < modesAmount; ++i) {
-			new CommandHandler().processCommand("/echo", users[i]);
-    		Assertions.assertEquals((byte) 1, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/echo", user);
+    	Assertions.assertEquals((byte) 1, user.getMode());
     }
     
     /**
@@ -111,15 +80,12 @@ public class CommandHandlerTest {
      */
     @Test
     void newsinglegameCommandTest() {
-    	//Выставить всем пользователям разные режимы
-    	for (byte i = 0; i < modesAmount; ++i) {
-    		users[i].changeMode(i);
-		}
-    	
+    	User user = new User();
+		user.changeMode((byte) 0);
+		
     	//Режим должен стать 2
-    	for (int i = 0; i < modesAmount; ++i) {
-    		new CommandHandler().processCommand("/newsinglegame", users[i]);
-    		Assertions.assertEquals((byte) 2, users[i].getMode());
-    	}
+    	byte oldMode = user.getMode();
+    	new CommandHandler().processCommand("/newsinglegame", user);
+    	Assertions.assertEquals((byte) 2, user.getMode());
     }
 }

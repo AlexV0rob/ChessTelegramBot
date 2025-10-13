@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 public class CommandHandler {
 	/**
-	 * Константа, содержащая сообщение команды /start
+	 * Сообщение команды /start
 	 */
 	private final String START_MESSAGE = """
 			Здравствуй, путник! Я бот о шахматах. Сейчас я умею:
@@ -20,7 +20,7 @@ public class CommandHandler {
 			Отправь /help для большей информации.
 			""";
 	/**
-	 * Константа, содержащая сообщение команды /help
+	 * Сообщение команды /help
 	 */
 	private final String HELP_MESSAGE = """
 			Сейчас я могу:
@@ -37,27 +37,27 @@ public class CommandHandler {
 			Скоро будет больше возможностей.
 			""";
 	/**
-	 * Константа, содержащая сообщение команды /menu
+	 * Сообщение команды /menu
 	 */
 	private final String MENU_MESSAGE = "Чем займёмся?";
 	/**
-	 * Константа, содержащая сообщение команды /echo
+	 * Сообщение команды /echo
 	 */
 	private final String ECHO_MESSAGE = """
 			Я буду повторять твои сообщения.
 			Чтобы выйти, отправь /menu
 			""";
 	/**
-	 * Константа, содержит пригласителное сообщение для хода
+	 * Пригласителное сообщение для хода
 	 */
 	private final String YOUR_MOVE = "Ваш ход: ";
 	
 	/**
-	 * Константа, содержащая сообщение команды /newsinglegame
+	 * Сообщение команды /newsinglegame
 	 */
 	private final String SINGLEGAME_MESSAGE = "Новая партия началась";	
 	/**
-	 * Константа, содержащая ответ на неизветную команду
+	 * Ответ на неизветную команду
 	 */
 	private final String UNKNOWN_MESSAGE = "Неизвестная команда";
 	
@@ -77,6 +77,7 @@ public class CommandHandler {
 		 */
 		ArrayList<String> messages = new ArrayList<String>();
 		
+		//Меняем режим или добавляем базовые сообщения
 		switch (command) {
 		case "/start":
 			messages.add(START_MESSAGE);
@@ -97,6 +98,7 @@ public class CommandHandler {
 			messages.add(UNKNOWN_MESSAGE);
 		}
 		
+		//Добавляем пригласительные сообщения режима
 		switch(curUser.getMode()) {
 		case 0:
 			messages.add(MENU_MESSAGE);
@@ -106,6 +108,8 @@ public class CommandHandler {
 			break;
 		case 2:
 			messages.add(SINGLEGAME_MESSAGE);
+			messages.add("Ход белых");
+			messages.add(new MoveMaker().printBoard(curUser));
 			messages.add(YOUR_MOVE);
 			break;
 		}

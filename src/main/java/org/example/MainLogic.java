@@ -32,9 +32,8 @@ public class MainLogic {
 				responses.add(new EchoHandler().echoMessage(userInput));
 				break;
 			case 2:
-				//TODO GameHandler
-				//responses = new GameHandler(curUser.getBoard());
-				//break;
+				responses = new MoveMaker().fromStringToQuery(userInput, curUser);
+				break;
 				
 			//Если режим другой, то произошла ошибка, выходим в главное меню
 			default:

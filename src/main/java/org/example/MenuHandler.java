@@ -20,7 +20,7 @@ public class MenuHandler {
 	 */
 	private final String HELP = "Открыть окно помощи";
 	/**
-	 * 
+	 * Сообщение при неопределённом вводе
 	 */
 	private final String DIDNT_UNDERSTAND = "Прости, не понял запрос";
 	
@@ -28,9 +28,10 @@ public class MenuHandler {
 	 * Обработать пользовательский ввод в меню и передать управление
 	 * обработчику команд
 	 * @param userInput
-	 * @return экземпляр ArrayList<String>, содержит ответные сообщения
+	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String)
 	 */
 	public ArrayList<String> processMenu(String userInput, User curUser) {
+		//Проверка пользовательского ввода и передача управления соответствующей команде
 		switch (userInput) {
 		case HELP:
 			return new CommandHandler().processCommand("/help", curUser);

@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.lang.Math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -24,8 +25,7 @@ import java.util.HashMap;
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	/**
-	 * Экземпляр класса TelegramClient 
-
+	 * Экземпляр класса TelegramClient
 	 */
 	private final TelegramClient telegramClient;
 	
@@ -75,27 +75,54 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             
             //Обработка текста callback запроса
             User curUser = users.get(chatId);
+            boolean oldSide = curUser.doesWhitesMove();
             ArrayList<MoveButton> newButtons = new MoveMaker()
             		.assembleMove(callbackText, curUser);
             
-            //Новый текст сообщения - нулевая кнопка, после извлечения её убираем
-            String newText = newButtons.get(0).getButtonMessage();
-            newButtons.remove(0);
+            String[] texts = new String[3];
+            int buttonsCount = newButtons.size();
+            
+            //Извлечение служебных данных, не имеющих отношения к кнопкам
+            for (int i = buttonsCount - 1; i >= 0; --i) {
+            	if (newButtons.get(i).getCallbackQuery().equals("side")) {
+            		texts[0] = newButtons.get(i).getButtonMessage();
+            		newButtons.remove(i);
+            	} else if (newButtons.get(i).getCallbackQuery().equals("board")) {
+            		texts[1] = newButtons.get(i).getButtonMessage();
+            		newButtons.remove(i);
+            	} else if (newButtons.get(i).getCallbackQuery().equals("message")) {
+            		texts[2] = newButtons.get(i).getButtonMessage();
+            		newButtons.remove(i);
+            	}
+            }
             
             //Изменяем сообщение с текстом хода
             EditMessageText newMessage = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(Math.toIntExact(messageId))
-                .text(newText)
-                .replyMarkup(InlineKeyboardMarkup
-                        .builder()
-                        .keyboard(createInlineKeyboard(newButtons))
-                        .build())
-                .build();
+            	.chatId(chatId)
+               	.messageId(Math.toIntExact(messageId))
+               	.text(texts[2])
+               	.replyMarkup(InlineKeyboardMarkup
+                       	.builder()
+                       	.keyboard(createInlineKeyboard(newButtons))
+                       	.build())
+               	.build();
             try {
-                telegramClient.execute(newMessage);
+            	telegramClient.execute(newMessage);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+               	e.printStackTrace();
+            }
+            //Сторона поменялась, необходимо перерисовать доску
+            if (curUser.doesWhitesMove() != oldSide) {
+            	texts[2] = "Ваш ход: ";
+            	ArrayList<SendMessage> newMoveMessages = createMessages(
+            			chatId, new ArrayList<String>(Arrays.asList(texts)), curUser);
+            	for (SendMessage message : newMoveMessages) {
+                	try {
+                    	telegramClient.execute(message);
+                	} catch (TelegramApiException e) {
+                    	e.printStackTrace();
+                	}
+                }
             }
         }
     }

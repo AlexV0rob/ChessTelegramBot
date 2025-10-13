@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 /**
  * Тест класса Echo
  */
-public class EchoTest {
+public class EchoHandlerTest {
 	/**
 	 * Префикс, добавляемый перед сообщением пользователя
 	 * в режиме эхо

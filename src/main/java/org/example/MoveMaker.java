@@ -2,6 +2,8 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,19 +29,25 @@ public class MoveMaker {
 	 * Количество фигур, различая чёрные и белые
 	 */
 	private final int FIGURES_COUNT = FIGURES.length * 2 - 1;
+	/**
+	 * Значки, обозначающие фигуры на доске
+	 */
+	private String[] FIGURES_SYMBOLS = {"  ", "BP", "WP", "BR", "WR", "BN", "WN",
+											"BB", "WB", "BQ", "WQ", "BK", "WK"};
 	
 	/**
 	 * Определить, на какой стадии находится ход, и отдать на обработку
 	 * @param callbackText
 	 * @param curUser
 	 * @return экземпляр ArrayList, содержит текст следующего сообщения
-	 * и кнопки для него
+	 * и кнопки для него (класс MoveButton)
 	 */
 	public ArrayList<MoveButton> assembleMove(String callbackText, User curUser) {
 		int numberOfParts = StringUtils.countMatches(callbackText, '_');
 		String[] parts = StringUtils.split(callbackText, '_');
 		/*
 		 * Количество частей означает готовность сообщения хода
+		 * 0 - запрос пуст, нужно добавить фигуры 
 		 * 1 - известна фигура
 		 * 2 - выбрана начальная позиция
 		 * 3 - выбрана буква конечной позиции
@@ -48,7 +56,11 @@ public class MoveMaker {
 		 */
 		ArrayList<MoveButton> newButtons = new ArrayList<MoveButton>();
 		switch(numberOfParts) {
+		case 0:
+			newButtons = whichFiguresLeft(curUser);
+			break;
 		case 1:
+			//Находим все позиции фигуры выбранного типа на доске
 			int curFigure = (int) parts[1].charAt(0);
 			for (int i = 0; i < 64; ++i) {
 				if (curUser.getBoard()[i] == curFigure) {
@@ -59,6 +71,7 @@ public class MoveMaker {
 			}
 			break;
 		case 2:
+			//Клавиатура букв
 			for (int i = 0; i < 8; ++i) {
 				newButtons.add(new MoveButton(
 						callbackText + "_" + ((char) i),
@@ -66,6 +79,7 @@ public class MoveMaker {
 			}
 			break;
 		case 3:
+			//Клавиатура цифр
 			for (int i = 7; i >= 0; --i) {
 				newButtons.add(new MoveButton(
 						callbackText + "_" + ((char) i),
@@ -77,18 +91,29 @@ public class MoveMaker {
 			int startPosition = (int) parts[2].charAt(0);
 			int finishPosition = (int) parts[3].charAt(0) +
 					(int) parts[4].charAt(0) * 8;
+			boolean oldSide = curUser.doesWhitesMove();
 			String move = Integer.toString(figureCode) + ' ' + 
 					Integer.toString(startPosition) + ' ' +
 					Integer.toString(finishPosition);
 			curUser.changeSide();
 			//TODO Послать ход обработчику
-			
-			newButtons = whichFiguresLeft(curUser);
+			if (curUser.doesWhitesMove() != oldSide) {
+				newButtons = whichFiguresLeft(curUser);
+				String board = printBoard(curUser);
+				
+				newButtons.add(0, new MoveButton("board", board));
+				if (curUser.doesWhitesMove()) {
+					newButtons.add(0, new MoveButton("side", "Ход белых"));
+				} else {
+					newButtons.add(0, new MoveButton("side", "Ход чёрных"));
+				}
+			}
 			break;
 		}
 		
 		//Добавление нового текста сообщения, ставится в позицию 0
-		newButtons.add(0, new MoveButton("", currentMessage(numberOfParts, parts)));
+		newButtons.add(0, new MoveButton("message",
+				currentMessage(numberOfParts, parts)));
 		return newButtons;
 	}
 	
@@ -120,6 +145,97 @@ public class MoveMaker {
 			}
 		}
 		return leftFigures;
+	}
+	
+	/**
+	 * Получить запрос на передвижение фигуры из пользовательского ввода
+	 * @param messageText
+	 * @param curUser
+	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String)
+	 */
+	public ArrayList<String> fromStringToQuery(String messageText, User curUser) {
+		String[] parts = StringUtils.split(messageText);
+		
+		int figureCode = 0, startPosition = 0, finishLetter = 0, finishDigit = 0;
+		for (int i = 0; i < FIGURES_COUNT; ++i) {
+			if (parts[0].equalsIgnoreCase(FIGURES[0])) {
+				figureCode = i;
+				break;
+			}
+		}
+		
+		for (int i = 0; i < 8; ++i) {
+			if (String.valueOf(parts[1].charAt(0))
+					.equalsIgnoreCase(LETTERS[i])) {
+				startPosition += i * 8;
+			}
+		}
+		for (int i = 7; i >= 0; --i) {
+			if (String.valueOf(parts[1].charAt(1))
+					.equalsIgnoreCase(LETTERS[i])) {
+				startPosition += i;
+			}
+		}
+		
+		for (int i = 0; i < 8; ++i) {
+			if (String.valueOf(parts[2].charAt(0))
+					.equalsIgnoreCase(LETTERS[i])) {
+				finishLetter = i;
+			}
+		}
+		
+		for (int i = 7; i >= 0; --i) {
+			if (String.valueOf(parts[2].charAt(1))
+					.equalsIgnoreCase(LETTERS[i])) {
+				finishDigit = i;
+			}
+		}
+		
+		String query = "move_" + ((char) figureCode) + "_" + ((char) startPosition) +
+				"_" + ((char) finishLetter) + "_" + ((char) finishDigit);
+		ArrayList<MoveButton> buttons = assembleMove(query, curUser);
+		
+		String[] messages = new String[3];
+        int buttonsCount = buttons.size();
+        
+        for (int i = 0; i < buttonsCount; ++i) {
+        	if (buttons.get(i).getCallbackQuery().equals("side")) {
+        		messages[0] = buttons.get(i).getButtonMessage();
+        	} else if (buttons.get(i).getCallbackQuery().equals("board")) {
+        		messages[1] = buttons.get(i).getButtonMessage();
+        	}
+        }
+        messages[2] = "Ваш ход: ";
+		return new ArrayList<String>(Arrays.asList(messages));
+	}
+	
+	/**
+	 * Нарисовать текущее состояние доски
+	 * @param curUser
+	 * @return экземпляр String, содержит текстовое представление доски
+	 */
+	public String printBoard(User curUser) {
+		String boardString = "";
+		byte[] board = curUser.getBoard();
+		if (curUser.doesWhitesMove()) {
+			for (int i = 0, row = 1; i < board.length; ++i, ++row) {
+				boardString += "[" + FIGURES_SYMBOLS[board[i]] + "]";
+				if (row == 8) {
+					boardString += "\n";
+					row = 0;
+				}
+			}
+			
+		} else {
+			for (int i = board.length - 1, row = 1; i >= 0; --i, ++row) {
+				boardString += "[" + FIGURES_SYMBOLS[board[i]] + "]";
+				if (row == 8) {
+					boardString += "\n";
+					row = 0;
+				}
+			}
+		}
+		return boardString;
 	}
 	
 	/**
