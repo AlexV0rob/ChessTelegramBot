@@ -62,7 +62,12 @@ public class GameHandler{
 			return 0;
 	}
 	/**
-	 * проверка на шах
+	 * Проверка на шах
+	 * @param curBoard
+	 * @param isWhiteMove
+	 * @param rawStartPos
+	 * @param chessman
+	 * @return есть ли шах, или нет
 	 */
 	public boolean check(byte[]curBoard, boolean isWhiteMove, int rawStartPos,Chessmen chessmen)
 	{
@@ -83,6 +88,12 @@ public class GameHandler{
 		}
 		return false;
 	}
+	/**
+	 * Проверка на мат
+	 * @param curBoard
+	 * @param isWhiteMove
+	 * @return есть ли мат или нет
+	 */
 	public boolean checkmate(byte[] curBoard, boolean isWhiteMove){
 		int countOfValidMove = 0;
 		int kingPos = 0 ;
