@@ -82,6 +82,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             String[] texts = new String[3];
             int buttonsCount = newButtons.size();
             boolean hasError = false;
+            boolean isWin = false;
             
             //Извлечение служебных данных, не имеющих отношения к кнопкам
             for (int i = buttonsCount - 1; i >= 0; --i) {
@@ -98,6 +99,10 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             		texts[2] = newButtons.get(i).getButtonMessage();
             		newButtons.remove(i);
             		hasError = true;
+            	} else if (newButtons.get(i).getCallbackQuery().equals("win")) {
+            		texts[2] = newButtons.get(i).getButtonMessage();
+            		newButtons.remove(i);
+            		isWin = true;
             	}
             }
             
@@ -116,6 +121,22 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             	telegramClient.execute(newMessage);
             } catch (TelegramApiException e) {
                	e.printStackTrace();
+            }
+            if (isWin) {
+            	curUser.changeMode((byte) 0);
+            	ArrayList<String> messages = new ArrayList<String>();
+            	messages.add(texts[2]);
+            	messages.addAll(new CommandHandler().processCommand("/menu", curUser));
+            	
+            	ArrayList<SendMessage> newMoveMessages = createMessages(
+            			chatId, messages, curUser);
+            	for (SendMessage message : newMoveMessages) {
+                	try {
+                    	telegramClient.execute(message);
+                	} catch (TelegramApiException e) {
+                    	e.printStackTrace();
+                	}
+                }
             }
             //Сторона поменялась, необходимо перерисовать доску
             if (curUser.doesWhitesMove() != oldSide || hasError) {

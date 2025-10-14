@@ -30,7 +30,8 @@ public class MoveMakerTest {
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
 					!newCallbackQuery.equals("side") &&
-					!newCallbackQuery.equals("error")) {
+					!newCallbackQuery.equals("error") &&
+					!newCallbackQuery.equals("win")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[1].charAt(0);
 			
@@ -59,7 +60,8 @@ public class MoveMakerTest {
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
 					!newCallbackQuery.equals("side") &&
-					!newCallbackQuery.equals("error")) {
+					!newCallbackQuery.equals("error") &&
+					!newCallbackQuery.equals("win")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[2].charAt(0);
 			
@@ -88,7 +90,8 @@ public class MoveMakerTest {
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
 					!newCallbackQuery.equals("side") &&
-					!newCallbackQuery.equals("error")) {
+					!newCallbackQuery.equals("error") &&
+					!newCallbackQuery.equals("win")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[3].charAt(0);
 			
@@ -119,7 +122,8 @@ public class MoveMakerTest {
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
 					!newCallbackQuery.equals("side") &&
-					!newCallbackQuery.equals("error")) {
+					!newCallbackQuery.equals("error") &&
+					!newCallbackQuery.equals("win")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[4].charAt(0);
 			
@@ -149,7 +153,8 @@ public class MoveMakerTest {
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
 					!newCallbackQuery.equals("side") &&
-					!newCallbackQuery.equals("error")) {
+					!newCallbackQuery.equals("error") &&
+					!newCallbackQuery.equals("win")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[1].charAt(0);
 			
