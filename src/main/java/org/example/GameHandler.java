@@ -8,8 +8,8 @@ public class GameHandler{
 		boolean isNormalMove = false;
 		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
 			return false;
-		byte[] curDesk = user.getDesk();
-		switch((figureCode + 1) % 2)
+		byte[] curDesk = user.getBoard();
+		switch((figureCode + 1) / 2)
 		{
 		case 1:
 			Chessmen pawn = new Pawn();

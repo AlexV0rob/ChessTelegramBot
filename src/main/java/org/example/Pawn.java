@@ -11,7 +11,7 @@ public class Pawn implements  Chessmen{
 
 			if((Math.abs(endPos.line - startPos.line) == 1) && (startPos.column == endPos.column))
 				return true;
-			else if((startPos.line == 1 ||  startPos.line == 6)&&
+			else if((startPos.line == 1 || startPos.line == 6)&&
 					((Math.abs(endPos.line - startPos.line) == 2) && (startPos.column == endPos.column)))
 				return true;
 		}
