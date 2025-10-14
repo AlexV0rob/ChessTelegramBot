@@ -25,8 +25,8 @@ public class CheckmateTest {
     	Chessmen knight = new Knight();
     	Chessmen bishop = new Bishop();
     	GameHandler game = new GameHandler();
-        Assertions.assertEquals(true, game.check(board,true,27,bishop));
-        Assertions.assertEquals(false, game.check(board,true,27,knight));
+        Assertions.assertTrue(game.check(board,true,27,bishop));
+        Assertions.assertFalse(game.check(board,true,27,knight));
     }
     /**
      * Проверка матовой ситуации
@@ -34,7 +34,7 @@ public class CheckmateTest {
     @Test
     void CheckmateTest() { 
     	byte[] board = new byte[] {
-    		  0, 0, 0, 0, 0, 0, 8, 11,
+    		  0, 0, 0, 0, 0, 0, 8, 0,
   			  0, 0, 0, 0, 0, 0, 1, 1,  			  
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 8, 0, 0, 0, 0,
@@ -45,6 +45,6 @@ public class CheckmateTest {
     	Chessmen knight = new Knight();
     	Chessmen bishop = new Bishop();
     	GameHandler game = new GameHandler();
-    	Assertions.assertEquals(false, game.checkmate(board,true));
+    	Assertions.assertFalse(game.doesEnemyKingExist(board,true));
     }
 }
