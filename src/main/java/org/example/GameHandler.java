@@ -6,8 +6,10 @@ public class GameHandler{
 	public byte ProgressHandler(User user, int rawStartPos, int rawEndPos, byte figureCode){
 		Chessmen lastChessmen = null;
 		boolean isNormalMove = false;
+		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
+			return false;
 		byte[] curDesk = user.getBoard();
-		switch((figureCode + 1) % 2)
+		switch((figureCode + 1) / 2)
 		{
 		case 1:
 			Chessmen pawn = new Pawn();

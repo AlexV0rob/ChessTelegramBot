@@ -81,6 +81,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             
             String[] texts = new String[3];
             int buttonsCount = newButtons.size();
+            boolean hasError = false;
             
             //Извлечение служебных данных, не имеющих отношения к кнопкам
             for (int i = buttonsCount - 1; i >= 0; --i) {
@@ -93,6 +94,10 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             	} else if (newButtons.get(i).getCallbackQuery().equals("message")) {
             		texts[2] = newButtons.get(i).getButtonMessage();
             		newButtons.remove(i);
+            	} else if (newButtons.get(i).getCallbackQuery().equals("error")) {
+            		texts[2] = newButtons.get(i).getButtonMessage();
+            		newButtons.remove(i);
+            		hasError = true;
             	}
             }
             
@@ -113,10 +118,14 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                	e.printStackTrace();
             }
             //Сторона поменялась, необходимо перерисовать доску
-            if (curUser.doesWhitesMove() != oldSide) {
-            	texts[2] = "Ваш ход: ";
+            if (curUser.doesWhitesMove() != oldSide || hasError) {
+            	if (!hasError) {
+            		texts[2] = "Ваш ход: ";
+            	}
+            	ArrayList<String> messagesTexts = new ArrayList<String>(
+            			Arrays.asList(texts));
             	ArrayList<SendMessage> newMoveMessages = createMessages(
-            			chatId, new ArrayList<String>(Arrays.asList(texts)), curUser);
+            			chatId, messagesTexts, curUser);
             	for (SendMessage message : newMoveMessages) {
                 	try {
                     	telegramClient.execute(message);

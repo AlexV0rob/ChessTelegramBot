@@ -29,7 +29,8 @@ public class MoveMakerTest {
 			String newCallbackQuery = response.get(i).getCallbackQuery();
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
-					!newCallbackQuery.equals("side")) {
+					!newCallbackQuery.equals("side") &&
+					!newCallbackQuery.equals("error")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[1].charAt(0);
 			
@@ -57,7 +58,8 @@ public class MoveMakerTest {
 			String newCallbackQuery = response.get(i).getCallbackQuery();
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
-					!newCallbackQuery.equals("side")) {
+					!newCallbackQuery.equals("side") &&
+					!newCallbackQuery.equals("error")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[2].charAt(0);
 			
@@ -85,7 +87,8 @@ public class MoveMakerTest {
 			String newCallbackQuery = response.get(i).getCallbackQuery();
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
-					!newCallbackQuery.equals("side")) {
+					!newCallbackQuery.equals("side") &&
+					!newCallbackQuery.equals("error")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[3].charAt(0);
 			
@@ -115,7 +118,8 @@ public class MoveMakerTest {
 			String newCallbackQuery = response.get(i).getCallbackQuery();
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
-					!newCallbackQuery.equals("side")) {
+					!newCallbackQuery.equals("side") &&
+					!newCallbackQuery.equals("error")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[4].charAt(0);
 			
@@ -144,7 +148,8 @@ public class MoveMakerTest {
 			String newCallbackQuery = response.get(i).getCallbackQuery();
 			if (!newCallbackQuery.equals("message") &&
 					!newCallbackQuery.equals("board") &&
-					!newCallbackQuery.equals("side")) {
+					!newCallbackQuery.equals("side") &&
+					!newCallbackQuery.equals("error")) {
 				int partsCount = StringUtils.countMatches(newCallbackQuery, '_');
 				int lastPart = (int) StringUtils.split(newCallbackQuery, '_')[1].charAt(0);
 			
@@ -163,11 +168,22 @@ public class MoveMakerTest {
 		user.changeMode((byte) 2);
 		user.newBoard();
 		String messageQuery = "пешка e2 e4";
+		String badQuery = "что-то t9 z12";
 		
 		ArrayList<String> response = new MoveMaker()
 				.fromStringToQuery(messageQuery, user);
-		int messagesCount = response.size();
+		ArrayList<String> badResponse = new MoveMaker()
+				.fromStringToQuery(badQuery, user);
+		boolean responseContains = false, badContains = false;
+		for (String message : response) {
+			responseContains = responseContains || message.contains("Ошибка");
+		}
+		for (String message : badResponse) {
+			badContains = badContains || message.contains("Ошибка");
+		}
 		
-		Assertions.assertTrue(messagesCount == 3);
+		Assertions.assertFalse(responseContains);
+		Assertions.assertTrue(badContains);
 	}
 }
+	

@@ -32,8 +32,8 @@ public class MoveMaker {
 	/**
 	 * Значки, обозначающие фигуры на доске
 	 */
-	private String[] FIGURES_SYMBOLS = {"  ", "BP", "WP", "BR", "WR", "BN", "WN",
-											"BB", "WB", "BQ", "WQ", "BK", "WK"};
+	private String[] FIGURES_SYMBOLS = {"      ", " BP", "WP", " BR", "WR", " BN", "WN",
+											" BB", "WB", " BQ", "WQ", " BK", "WK"};
 	
 	/**
 	 * Определить, на какой стадии находится ход, и отдать на обработку
@@ -55,6 +55,8 @@ public class MoveMaker {
 		 * Все остальные означают, что запрос ошибочный
 		 */
 		ArrayList<MoveButton> newButtons = new ArrayList<MoveButton>();
+		String newMessage = "";
+		String messageType = "message";
 		switch(numberOfParts) {
 		case 0:
 			newButtons = whichFiguresLeft(curUser);
@@ -69,6 +71,7 @@ public class MoveMaker {
 							LETTERS[i % 8] + DIGITS[i / 8]));
 				}
 			}
+			newMessage = currentMessage(numberOfParts, parts);
 			break;
 		case 2:
 			//Клавиатура букв
@@ -77,6 +80,7 @@ public class MoveMaker {
 						callbackText + "_" + ((char) i),
 						LETTERS[i]));
 			}
+			newMessage = currentMessage(numberOfParts, parts);
 			break;
 		case 3:
 			//Клавиатура цифр
@@ -85,35 +89,39 @@ public class MoveMaker {
 						callbackText + "_" + ((char) i),
 						DIGITS[i]));
 			}
+			newMessage = currentMessage(numberOfParts, parts);
 			break;
 		case 4:
-			int figureCode = (int) parts[1].charAt(0);
+			byte figureCode = (byte) parts[1].charAt(0);
 			int startPosition = (int) parts[2].charAt(0);
 			int finishPosition = (int) parts[3].charAt(0) +
 					(int) parts[4].charAt(0) * 8;
-			boolean oldSide = curUser.doesWhitesMove();
-			String move = Integer.toString(figureCode) + ' ' + 
-					Integer.toString(startPosition) + ' ' +
-					Integer.toString(finishPosition);
-			curUser.changeSide();
-			//TODO Послать ход обработчику
-			if (curUser.doesWhitesMove() != oldSide) {
-				newButtons = whichFiguresLeft(curUser);
-				String board = printBoard(curUser);
-				
-				newButtons.add(0, new MoveButton("board", board));
-				if (curUser.doesWhitesMove()) {
-					newButtons.add(0, new MoveButton("side", "Ход белых"));
-				} else {
-					newButtons.add(0, new MoveButton("side", "Ход чёрных"));
-				}
+			boolean success = new GameHandler()
+					.ProgressHandler(curUser, startPosition, finishPosition, figureCode);
+			if (success) {
+				curUser.changeSide();
+				newMessage = currentMessage(numberOfParts, parts);
+			} else {
+				newMessage = """
+						Ошибка! Невозможный ход!
+						Введите верный ход:
+						""";
+				messageType = "error";
+			}
+			newButtons = whichFiguresLeft(curUser);
+			String board = printBoard(curUser);
+			
+			newButtons.add(0, new MoveButton("board", board));
+			if (curUser.doesWhitesMove()) {
+				newButtons.add(0, new MoveButton("side", "Ход белых"));
+			} else {
+				newButtons.add(0, new MoveButton("side", "Ход чёрных"));
 			}
 			break;
 		}
 		
 		//Добавление нового текста сообщения, ставится в позицию 0
-		newButtons.add(0, new MoveButton("message",
-				currentMessage(numberOfParts, parts)));
+		newButtons.add(0, new MoveButton(messageType, newMessage));
 		return newButtons;
 	}
 	
@@ -156,9 +164,9 @@ public class MoveMaker {
 	public ArrayList<String> fromStringToQuery(String messageText, User curUser) {
 		String[] parts = StringUtils.split(messageText);
 		
-		int figureCode = 0, startPosition = 0, finishLetter = 0, finishDigit = 0;
-		for (int i = 0; i < FIGURES_COUNT; ++i) {
-			if (parts[0].equalsIgnoreCase(FIGURES[0])) {
+		int figureCode = 0, startPosition = 64, finishLetter = 9, finishDigit = 9;
+		for (int i = 0; i < FIGURES.length; ++i) {
+			if (parts[0].equalsIgnoreCase(FIGURES[i])) {
 				figureCode = i;
 				break;
 			}
@@ -167,13 +175,15 @@ public class MoveMaker {
 		for (int i = 0; i < 8; ++i) {
 			if (String.valueOf(parts[1].charAt(0))
 					.equalsIgnoreCase(LETTERS[i])) {
-				startPosition += i * 8;
+				startPosition = i;
+				break;
 			}
 		}
-		for (int i = 7; i >= 0; --i) {
+		for (int i = 0; i < 8; ++i) {
 			if (String.valueOf(parts[1].charAt(1))
-					.equalsIgnoreCase(LETTERS[i])) {
-				startPosition += i;
+					.equals(DIGITS[i])) {
+				startPosition += i * 8;
+				break;
 			}
 		}
 		
@@ -181,13 +191,15 @@ public class MoveMaker {
 			if (String.valueOf(parts[2].charAt(0))
 					.equalsIgnoreCase(LETTERS[i])) {
 				finishLetter = i;
+				break;
 			}
 		}
 		
-		for (int i = 7; i >= 0; --i) {
+		for (int i = 0; i < 8; ++i) {
 			if (String.valueOf(parts[2].charAt(1))
-					.equalsIgnoreCase(LETTERS[i])) {
+					.equals(DIGITS[i])) {
 				finishDigit = i;
+				break;
 			}
 		}
 		
@@ -197,16 +209,26 @@ public class MoveMaker {
 		
 		String[] messages = new String[3];
         int buttonsCount = buttons.size();
+        boolean hasError = false;
+        String errorMessage = "";
         
         for (int i = 0; i < buttonsCount; ++i) {
         	if (buttons.get(i).getCallbackQuery().equals("side")) {
         		messages[0] = buttons.get(i).getButtonMessage();
         	} else if (buttons.get(i).getCallbackQuery().equals("board")) {
         		messages[1] = buttons.get(i).getButtonMessage();
+        	} else if (buttons.get(i).getCallbackQuery().equals("error")) {
+        		hasError = true;
+        		errorMessage = buttons.get(i).getButtonMessage();
         	}
         }
         messages[2] = "Ваш ход: ";
-		return new ArrayList<String>(Arrays.asList(messages));
+        if (hasError) {
+        	messages[2] = errorMessage;
+        }
+        ArrayList<String> messagesList = new ArrayList<String>(Arrays.asList(messages));
+        
+		return messagesList;
 	}
 	
 	/**
@@ -254,21 +276,42 @@ public class MoveMaker {
 		String message = "Ваш ход: ";
 		int partIndex = 1;
 		if (partIndex <= partsCount) {
-			message += FIGURES[((int) callbackParts[partIndex].charAt(0) + 1) / 2];
+			int index = ((int) callbackParts[partIndex].charAt(0) + 1) / 2;
+			if (index < 0 || index >= FIGURES.length) {
+				index = 0;
+			}
+			message += FIGURES[index];
 			++partIndex;
 		}
 		
 		if (partIndex <= partsCount) {
-			message += ' ' + LETTERS[(int) callbackParts[partIndex].charAt(0) % 8]
-					+ DIGITS[(int) callbackParts[partIndex].charAt(0) / 8];
+			int indexLetter = (int) callbackParts[partIndex].charAt(0) % 8;
+			int indexDigit = (int) callbackParts[partIndex].charAt(0) / 8;
+			if (indexLetter < 0 || indexLetter >= 8) {
+				indexLetter = 0;
+			}
+			if (indexDigit < 0 || indexDigit >= 8) {
+				indexDigit = 0;
+			}
+			message += ' ' + LETTERS[indexLetter]
+					+ DIGITS[indexDigit];
 			++partIndex;
 		}
 		if (partIndex <= partsCount) {
-			message += ' ' + LETTERS[(int) callbackParts[partIndex].charAt(0)];
+			int indexLetter = (int) callbackParts[partIndex].charAt(0);
+			if (indexLetter < 0 || indexLetter >= 8) {
+				indexLetter = 0;
+			}
+			
+			message += ' ' + LETTERS[indexLetter];
 			++partIndex;
 		}
 		if (partIndex <= partsCount) {
-			message += DIGITS[(int) callbackParts[partIndex].charAt(0)];
+			int indexDigit = (int) callbackParts[partIndex].charAt(0);
+			if (indexDigit < 0 || indexDigit >= 8) {
+				indexDigit = 0;
+			}
+			message += DIGITS[indexDigit];
 			++partIndex;
 		}
 		return message;
