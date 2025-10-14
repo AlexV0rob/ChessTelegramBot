@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -96,17 +95,27 @@ public class MoveMaker {
 			int startPosition = (int) parts[2].charAt(0);
 			int finishPosition = (int) parts[3].charAt(0) +
 					(int) parts[4].charAt(0) * 8;
-			boolean success = new GameHandler()
+			byte success = new GameHandler()
 					.ProgressHandler(curUser, startPosition, finishPosition, figureCode);
-			if (success) {
-				curUser.changeSide();
-				newMessage = currentMessage(numberOfParts, parts);
-			} else {
+			if (success == 0) {
 				newMessage = """
 						Ошибка! Невозможный ход!
 						Введите верный ход:
 						""";
 				messageType = "error";
+			} else {
+				if (success == 3) {
+					newMessage = "Шах и мат! Победили" +
+						(curUser.doesWhitesMove() ? "белые" : "чёрные");
+					messageType = "win";
+				} else if (success == 2) {
+					newMessage = "Шах! Ваш ход: ";
+					messageType = "message";
+				} else if (success == 1) {
+					newMessage = "Ваш ход: ";
+					messageType = "message";
+				}
+				curUser.changeSide();
 			}
 			newButtons = whichFiguresLeft(curUser);
 			String board = printBoard(curUser);

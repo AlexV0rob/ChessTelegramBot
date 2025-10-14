@@ -7,7 +7,7 @@ public class GameHandler{
 		Chessmen lastChessmen = null;
 		boolean isNormalMove = false;
 		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
-			return false;
+			return 0;
 		byte[] curDesk = user.getBoard();
 		switch((figureCode + 1) / 2)
 		{
