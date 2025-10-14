@@ -1,9 +1,12 @@
 package org.example;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Проверка работы фигур
+ */
 public class ChessmenTest {
 
 	/**
@@ -20,8 +23,8 @@ public class ChessmenTest {
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen pawn = new Pawn();
-        assertEquals(false, pawn.checkMove(8,63,board,true));
-        assertEquals(true, pawn.checkMove(8,16,board,true));
+    	Assertions.assertEquals(false, pawn.checkMove(8,63,board,true));
+    	Assertions.assertEquals(true, pawn.checkMove(8,16,board,true));
     }
 	/**
 	 * Проверка ходов Слона
@@ -38,8 +41,8 @@ public class ChessmenTest {
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen casltle = new Castle();
-        assertEquals(false, casltle.checkMove(0,1,board,false));
-        assertEquals(true, casltle.checkMove(0,16,board,false));
+    	Assertions.assertEquals(false, casltle.checkMove(0,1,board,false));
+        Assertions.assertEquals(true, casltle.checkMove(0,16,board,false));
     }
 	/**
 	 * Проверка ходов Слона
@@ -56,8 +59,8 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen bishop = new Bishop();
-        assertEquals(false , bishop.checkMove(2,9,board,false));
-        assertEquals(true , bishop.checkMove(2,11,board,false));
+    	Assertions.assertEquals(false , bishop.checkMove(2,9,board,false));
+    	Assertions.assertEquals(true , bishop.checkMove(2,11,board,false));
     }
 	/**
 	 * Проверка ходов Короля
@@ -74,8 +77,8 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen king = new King();
-        assertEquals(false , king.checkMove(4,11,board,false));
-        assertEquals(true , king.checkMove(3,12,board,false));
+    	Assertions.assertEquals(false , king.checkMove(4,11,board,false));
+    	Assertions.assertEquals(true , king.checkMove(3,12,board,false));
     }
 	/**
 	 * Проверка ходов коня
@@ -92,7 +95,7 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen knight = new Knight();
-        assertEquals(false , knight.checkMove(1,17,board,false));
+    	Assertions.assertEquals(false , knight.checkMove(1,17,board,false));
     }
 	/**
 	 * Проверка ходов Королевы
@@ -109,7 +112,7 @@ public class ChessmenTest {
   			  2, 2, 0, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen queen = new Queen();
-        assertEquals(false , queen.checkMove(3,11,board,false));
-        assertEquals(true , queen.checkMove(3,12,board,false));
+    	Assertions.assertEquals(false , queen.checkMove(3,11,board,false));
+    	Assertions.assertEquals(true , queen.checkMove(3,12,board,false));
     }  
 }

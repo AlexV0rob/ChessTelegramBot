@@ -1,11 +1,17 @@
 package org.example;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Проверка работы шаха и мата
+ */
 public class CheckmateTest {
-    @Test
+    /**
+     * Проверка шаховой ситуации
+     */
+	@Test
     void CheckTest() { //27
     	byte[] board = new byte[] {
     		  11, 0, 0, 0, 0, 0, 0, 0,
@@ -19,9 +25,12 @@ public class CheckmateTest {
     	Chessmen knight = new Knight();
     	Chessmen bishop = new Bishop();
     	GameHandler game = new GameHandler();
-        assertEquals(true, game.check(board,true,27,bishop));
-        assertEquals(false, game.check(board,true,27,knight));
+        Assertions.assertEquals(true, game.check(board,true,27,bishop));
+        Assertions.assertEquals(false, game.check(board,true,27,knight));
     }
+    /**
+     * Проверка матовой ситуации
+     */
     @Test
     void CheckmateTest() { 
     	byte[] board = new byte[] {
@@ -36,6 +45,6 @@ public class CheckmateTest {
     	Chessmen knight = new Knight();
     	Chessmen bishop = new Bishop();
     	GameHandler game = new GameHandler();
-        assertEquals(false, game.checkmate(board,true));
+    	Assertions.assertEquals(false, game.checkmate(board,true));
     }
 }
