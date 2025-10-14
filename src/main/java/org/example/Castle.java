@@ -9,7 +9,7 @@ class Castle implements  Chessmen{
 		if((chessDesk[rawEndPos] == 0 ) || ((chessDesk[rawEndPos] % 2 == 0 ) != isWhite)){
 			Position endPos= new Position(rawEndPos);
 			Position startPos= new Position(rawStartPos);
-			if(((startPos.line == endPos.line) ^ (startPos.column == endPos.column)) && IsThereObstacle(rawStartPos, rawEndPos,chessDesk))
+			if(((startPos.line == endPos.line) ^ (startPos.column == endPos.column)))
 				return true;
 		}
 		return false;

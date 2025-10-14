@@ -52,7 +52,7 @@ public class GameHandler{
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
 			if(check(curDesk, user.doesWhitesMove(), rawEndPos,lastChessmen)){
-				if(doesEnemyKingExist(curDesk, user.doesWhitesMove()))
+				if(!doesEnemyKingExist(curDesk, user.doesWhitesMove()))
 					return 3;
 				return 2;
 			}
