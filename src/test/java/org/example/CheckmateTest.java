@@ -43,8 +43,8 @@ public class CheckmateTest {
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  4, 6, 8, 10, 12, 0, 6, 4};
     	Chessmen knight = new Knight();
-    	Chessmen bishop = new Bishop();
     	GameHandler game = new GameHandler();
-    	Assertions.assertFalse(game.IsThisMoveOnKing(board,7,true));
+    	Assertions.assertFalse(game.IsThisMoveOnKing(board,13,true));
+    	Assertions.assertTrue(game.IsThisMoveOnKing(board,7,true));
     }
 }
