@@ -48,14 +48,16 @@ public class GameHandler{
 		}
 		if(isNormalMove)
 		{
+			if(IsThisMoveOnKing(curDesk, rawEndPos,user.doesWhitesMove())){
+				return 3;
+			}
 			byte tmp = curDesk[rawStartPos] ;
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
-			if(check(curDesk, user.doesWhitesMove(), rawEndPos,lastChessmen)){
-				if(!doesEnemyKingExist(curDesk, user.doesWhitesMove()))
-					return 3;
+			if(check(curDesk, user.doesWhitesMove(), rawEndPos,lastChessmen)) {
 				return 2;
 			}
+
 			return 1;
 		}
 		else
@@ -94,19 +96,10 @@ public class GameHandler{
 	 * @param isWhiteMove
 	 * @return есть ли король или нет
 	 */
-	public boolean doesEnemyKingExist(byte[] curBoard, boolean isWhiteMove){
-		int kingPos = 0 ;
-		if(isWhiteMove) {
-			for(; kingPos < 64; ++kingPos)
-				if(curBoard[kingPos] == 11)
-					break;
-		}
-		else{
-			for(; kingPos < 64; ++kingPos)
-				if(curBoard[kingPos] == 12)
-					break;
-		}
-		return (kingPos < 64);
+	public boolean 	IsThisMoveOnKing(byte[]curBoard,int rawPosition, boolean isWhiteMove){
+		if(isWhiteMove)
+			return curBoard[rawPosition] == 11;
+		return curBoard[rawPosition] == 12;
 	}	
 	
 }
