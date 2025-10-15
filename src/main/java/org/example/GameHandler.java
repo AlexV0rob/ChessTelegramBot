@@ -91,10 +91,10 @@ public class GameHandler{
 		return false;
 	}
 	/**
-	 * Проверка на наличие короля противоположной масти
+	 * Проверка на рубку короля
 	 * @param curBoard
 	 * @param isWhiteMove
-	 * @return есть ли король или нет
+	 * @return есть ли в конечной точки король
 	 */
 	public boolean 	IsThisMoveOnKing(byte[]curBoard,int rawPosition, boolean isWhiteMove){
 		if(isWhiteMove)
