@@ -48,14 +48,16 @@ public class GameHandler{
 		}
 		if(isNormalMove)
 		{
+			if(IsThisMoveOnKing(curDesk, rawEndPos,user.doesWhitesMove())){
+				return 3;
+			}
 			byte tmp = curDesk[rawStartPos] ;
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
-			if(check(curDesk,user.doesWhitesMove(), rawEndPos,lastChessmen)){
-				if(checkmate(curDesk, user.doesWhitesMove()))
-					return 3;
+			if(check(curDesk, user.doesWhitesMove(), rawEndPos,lastChessmen)) {
 				return 2;
 			}
+
 			return 1;
 		}
 		else
@@ -73,14 +75,14 @@ public class GameHandler{
 	{
 		int i = 0 ;
 		if(isWhiteMove){
-			for(; i < 64;++i)
+			for(; i < 64; ++i)
 				if(curBoard[i] == 11)
 					break;
 			if(chessmen.checkMove(rawStartPos, i, curBoard, true))
 				return true;
 		}
 		else{
-			for(; i < 64;++i)
+			for(; i < 64; ++i)
 				if(curBoard[i] == 12)
 					break;
 			if(chessmen.checkMove(rawStartPos, i, curBoard, false))
@@ -89,39 +91,15 @@ public class GameHandler{
 		return false;
 	}
 	/**
-	 * Проверка на мат
+	 * Проверка на рубку короля
 	 * @param curBoard
 	 * @param isWhiteMove
-	 * @return есть ли мат или нет
+	 * @return есть ли в конечной точки король
 	 */
-	public boolean checkmate(byte[] curBoard, boolean isWhiteMove){
-		int countOfValidMove = 0;
-		int kingPos = 0 ;
-		Chessmen king = new King();
-		if(isWhiteMove) {
-			for(; kingPos < 64;++kingPos)
-				if(curBoard[kingPos] == 11)
-					break;
-		}
-		else{
-			for(; kingPos < 64;++kingPos)
-				if(curBoard[kingPos] == 12)
-					break;
-		}
-		//Перебираем все варианты ходов короля
-		int[] number = {1,7,8,9};
-		for(int i : number ) {
-			if((kingPos + i < 64)){
-				if(king.checkMove(kingPos, kingPos+i, curBoard, false))
-					countOfValidMove++;
-			}
-			if(kingPos - i >= 0) {
-				if(king.checkMove(kingPos, kingPos-i, curBoard, false))
-					countOfValidMove++; 
-			}
-				
-		}
-		return (countOfValidMove == 0);
+	public boolean 	IsThisMoveOnKing(byte[]curBoard,int rawPosition, boolean isWhiteMove){
+		if(isWhiteMove)
+			return curBoard[rawPosition] == 11;
+		return curBoard[rawPosition] == 12;
 	}	
 	
 }

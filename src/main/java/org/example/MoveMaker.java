@@ -105,7 +105,7 @@ public class MoveMaker {
 				messageType = "error";
 			} else {
 				if (success == 3) {
-					newMessage = "Шах и мат! Победили" +
+					newMessage = "Шах и мат! Победили " +
 						(curUser.doesWhitesMove() ? "белые" : "чёрные");
 					messageType = "win";
 				} else if (success == 2) {
