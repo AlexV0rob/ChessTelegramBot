@@ -7,24 +7,17 @@ class Knight implements  Chessmen{
 		
 		if((chessDesk[rawEndPos] == 0 ) || ((chessDesk[rawEndPos] % 2 != 0 ) != isWhite))
 		{
-			Position endPos= new Position(rawEndPos);
-			Position startPos= new Position(rawStartPos);
-			if (((startPos.line - 2 == endPos.line) && (startPos.column + 1 == endPos.column)))
-					return true;
-			else if(((startPos.line - 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
-					return true;
-			else if(((startPos.line + 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
-				return true;
-			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
-			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
-			else if(((startPos.line + 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
-				return true;
-			else if(((startPos.line - 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
-				return true;
-			else if(((startPos.line - 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
+			byte[] shifts = {6, 7, 10, 15, 17};
+			// проверяем все сдвиги, соотвествующие возможным ходам коня
+			for(byte shift : shifts)
+			{
+				if(rawStartPos + shift < 63)
+					if( rawStartPos + shift == rawEndPos)
+						return true;
+				if(rawStartPos - shift > 0)
+					if( rawStartPos - shift == rawEndPos)
+						return true;
+			}
 		}
 		return false;
 	}
