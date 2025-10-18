@@ -1,60 +1,43 @@
 package org.example;
 
+import java.util.ArrayList;
+
 /**
  * Выполняет обработку пользовательского ввода
  */
 public class MainLogic {
 	/**
-	 * Константа, содержащая сообщение команды /start
+	 * Определить тип пользовательского ввода и передать управление
+	 * соответствующему обработчику
 	 */
-	private final String START_MESSAGE = """
-			Здравствуй, путник! Я бот о шахматах. Сейчас я умею:
-			 - возвращать твои сообщения;
-			 - показывать окно помощи;
-
-			Пока что я могу только это, но список возможностей  
-			""" + """
-			будет пополняться с течением разработки. 
-			Отправь /help для большей информации.
-			""";
-	/**
-	 * Константа, содержащая сообщение команды /help
-	 */
-	private final String HELP_MESSAGE = """
-			Сейчас я могу:
-			 - возврашать твоё сообщение;
-			 - показывать это окно;
+	public ArrayList<String> processInput(String userInput, User curUser) {
+		ArrayList<String> responses;
+		if (userInput.charAt(0) == '/') {
+			responses = new CommandHandler().processCommand(userInput, curUser);
+		} else {
+			/*
+			 * Коды режимов:
+			 * 0 - главное меню
+			 * 1 - режим эхо
+			 * 2 - одиночная игра (игра на одном устройстве)
+			 */
+			switch (curUser.getMode()) {
+			case 0:
+				responses = new MenuHandler().processMenu(userInput, curUser);
+				break;
+			case 1:
+				responses = new ArrayList<String>();
+				responses.add(new EchoHandler().echoMessage(userInput));
+				break;
+			case 2:
+				responses = new MoveMaker().fromStringToQuery(userInput, curUser);
+				break;
 				
-			Доступные команды:
-			/help - позволяет это сообщение
-			/start - перезапускает бота
-
-			Скоро будет больше возможностей.
-			""";
-	
-	/**
-	 * Определить тип пользовательского ввода и передать управление соответствующему методу
-	 * @param userInput
-	 * @return экземпляр String, содержит ответное сообщение 
-	 */
-	public String processInput(String userInput) {
-		//Проверка ввода и вызов соответствующего метода
-		switch (userInput) {
-		case "/start":
-			return START_MESSAGE;
-		case "/help":
-			return HELP_MESSAGE;
-		default:
-			return echoMessage(userInput);
+			//Если режим другой, то произошла ошибка, выходим в главное меню
+			default:
+				responses = new CommandHandler().processCommand("/menu", curUser);
+			}
 		}
-	}
-	
-	/**
-	 * Вернуть ответ на любой ввод, не являющийся командой
-	 * @param userMessage
-	 * @return экземпляр String, содержит сообщение пользователя с префиксом "Вы отправили: "
-	 */
-	private String echoMessage(String userMessage) {
-		return "Вы отправили: " + userMessage;
+		return responses;
 	}
 }
