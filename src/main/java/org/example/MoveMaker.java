@@ -36,10 +36,6 @@ public class MoveMaker {
 	
 	/**
 	 * Определить, на какой стадии находится ход, и отдать на обработку
-	 * @param callbackText
-	 * @param curUser
-	 * @return экземпляр ArrayList, содержит текст следующего сообщения
-	 * и кнопки для него (класс MoveButton)
 	 */
 	public ArrayList<MoveButton> assembleMove(String callbackText, User curUser) {
 		int numberOfParts = StringUtils.countMatches(callbackText, '_');
@@ -136,8 +132,6 @@ public class MoveMaker {
 	
 	/**
 	 * Проверить, какие фигуры остались на доске
-	 * @param curUser
-	 * @return экземпляр ArrayList, содержит MoveButton с этими фигурами
 	 */
 	public ArrayList<MoveButton> whichFiguresLeft(User curUser) {
 		ArrayList<MoveButton> leftFigures = new ArrayList<MoveButton>();
@@ -166,9 +160,6 @@ public class MoveMaker {
 	
 	/**
 	 * Получить запрос на передвижение фигуры из пользовательского ввода
-	 * @param messageText
-	 * @param curUser
-	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String)
 	 */
 	public ArrayList<String> fromStringToQuery(String messageText, User curUser) {
 		String[] parts = StringUtils.split(messageText);
@@ -242,8 +233,6 @@ public class MoveMaker {
 	
 	/**
 	 * Нарисовать текущее состояние доски
-	 * @param curUser
-	 * @return экземпляр String, содержит текстовое представление доски
 	 */
 	public String printBoard(User curUser) {
 		String boardString = "";
@@ -271,9 +260,6 @@ public class MoveMaker {
 	
 	/**
 	 * Составить новый текст сообщения из разделённого текста callback запроса
-	 * @param partsCount
-	 * @param callbackParts
-	 * @return экземпляр String, содержит новый текст
 	 */
 	private String currentMessage(int partsCount, String[] callbackParts) {
 		/*

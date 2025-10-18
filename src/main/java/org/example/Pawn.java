@@ -4,6 +4,7 @@ package org.example;
  */
 public class Pawn implements  Chessmen{
 	protected Position currentPosition;
+	@Override
 	public  boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
 		Position endPos= new Position(rawEndPos);
 		Position startPos= new Position(rawStartPos);

@@ -64,8 +64,6 @@ public class CommandHandler {
 	/**
 	 * Определить тип команды, поменять на соответсвующий режим
 	 * и отправить ответ
-	 * @param command
-	 * @return экземпляр ArrayList<String>, содержит ответные сообщения
 	 */
 	public ArrayList<String> processCommand(String command, User curUser) {
 		/*

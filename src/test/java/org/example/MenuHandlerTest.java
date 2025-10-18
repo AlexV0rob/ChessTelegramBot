@@ -48,7 +48,7 @@ public class MenuHandlerTest {
     	 * сообщением DIDNT_UNDERSTAND
     	 */
     	commandResponse.add(0, DIDNT_UNDERSTAND);
-    	Assertions.assertEquals(menuResponse, commandResponse);
+    	Assertions.assertIterableEquals(menuResponse, commandResponse);
     	Assertions.assertEquals(oldMode, menuMode);
     	Assertions.assertEquals(menuMode, commandMode);
     }
@@ -70,7 +70,7 @@ public class MenuHandlerTest {
     	byte commandMode = user.getMode();
     	
     	//Вывод и режим должны соответствовать команде /help
-    	Assertions.assertEquals(menuResponse, commandResponse);
+    	Assertions.assertIterableEquals(menuResponse, commandResponse);
     	Assertions.assertEquals(oldMode, menuMode);
     	Assertions.assertEquals(menuMode, commandMode);
     }
@@ -92,7 +92,7 @@ public class MenuHandlerTest {
     	byte commandMode = user.getMode();
     	
     	//Вывод и режим должны соответствовать команде /echo
-    	Assertions.assertEquals(menuResponse, commandResponse);
+    	Assertions.assertIterableEquals(menuResponse, commandResponse);
     	Assertions.assertEquals((byte) 1, menuMode);
     	Assertions.assertEquals(menuMode, commandMode);
     }
@@ -114,7 +114,7 @@ public class MenuHandlerTest {
     	byte commandMode = user.getMode();
     	
     	//Вывод и режим должны соответствовать команде /newsinglegame
-    	Assertions.assertEquals(menuResponse, commandResponse);
+    	Assertions.assertIterableEquals(menuResponse, commandResponse);
     	Assertions.assertEquals((byte) 2, menuMode);
     	Assertions.assertEquals(menuMode, commandMode);
     }

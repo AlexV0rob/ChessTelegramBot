@@ -3,7 +3,7 @@ package org.example;
  * Класс для реализации логики перемещения слона
  */
 public class Bishop implements  Chessmen{
-
+	@Override
 	public boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
 		/* Проверяем правильность хода в два этапа:
 		  1) Смотрим что интересующая нас клетка нас не занята или там находится шахматная фигура оппонента
@@ -22,6 +22,7 @@ public class Bishop implements  Chessmen{
 	 * делением с остатком на 7 проверяется приадлежность хода к левой диагонали
 	 * а делением с остатком на 9 проверяется приадлежность хода к правой диагонали
 	 */
+
 	 public boolean IsThereObstacle(int rawStartPos, int rawEndPos,byte[] chessDesk){
 		if(rawEndPos > rawStartPos) {
 			if((rawEndPos-rawStartPos) % 7 == 0) {

@@ -16,8 +16,6 @@ public class MoveButton {
 	
 	/**
 	 * Создать новую кнопку
-	 * @param callbackQuery
-	 * @param buttonText
 	 */
 	public MoveButton(String callbackQuery, String buttonText) {
 		query = callbackQuery;
@@ -26,14 +24,12 @@ public class MoveButton {
 	
 	/**
 	 * Узнать текст callback запроса
-	 * @return экземпляр String
 	 */
 	public String getCallbackQuery() {
 		return query;
 	}
 	/**
-	 * Узнать текст кнопки
-	 * @return экзмепляр String
+	 * Узнать текст кнопки	 
 	 */
 	public String getButtonMessage() {
 		return text;
