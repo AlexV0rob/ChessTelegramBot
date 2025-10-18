@@ -27,8 +27,6 @@ public class MenuHandler {
 	/**
 	 * Обработать пользовательский ввод в меню и передать управление
 	 * обработчику команд
-	 * @param userInput
-	 * @return экземпляр ArrayList, содержит ответные сообщения (класс String)
 	 */
 	public ArrayList<String> processMenu(String userInput, User curUser) {
 		//Проверка пользовательского ввода и передача управления соответствующей команде

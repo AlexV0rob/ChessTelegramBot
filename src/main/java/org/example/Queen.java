@@ -3,6 +3,7 @@ package org.example;
  * Класс для реализации логики перемещения Королевы
  */
 public class Queen implements  Chessmen{
+	@Override
 	public boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
 		Chessmen castle = new Castle();
 		Chessmen bishop = new Bishop();

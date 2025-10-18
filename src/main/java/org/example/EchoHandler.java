@@ -11,7 +11,6 @@ public class EchoHandler {
 	
 	/**
 	 * Отправить сообщение обратно
-	 * @return экзмепляр String, содержит сообщение пользователя с префиксом
 	 */
 	public String echoMessage(String message) {
 		return PREFIX + message;

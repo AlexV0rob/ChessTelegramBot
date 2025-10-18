@@ -3,6 +3,7 @@ package org.example;
  * Класс для реализации логики перемещения Ладьи
  */
 class Castle implements  Chessmen{
+	@Override
 	public boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
 		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
 			return false;

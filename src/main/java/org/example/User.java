@@ -42,7 +42,6 @@ public class User {
 	
 	/**
 	 * Поменять режим
-	 * @param newMode
 	 */
 	public void changeMode(byte newMode) {
 		mode = newMode;
@@ -72,7 +71,6 @@ public class User {
 	
 	/**
 	 * Получить текущий режим
-	 * @return
 	 */
 	public byte getMode() {
 		return mode;
@@ -80,7 +78,6 @@ public class User {
 	
 	/**
 	 * Получить текущее состояние доски
-	 * @return
 	 */
 	public byte[] getBoard() {
 		return board;

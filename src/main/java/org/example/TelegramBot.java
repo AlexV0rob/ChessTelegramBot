@@ -160,10 +160,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Создать сообщения из текстов ответов
-     * @param chatId
-     * @param texts
-     * @param curUser
-     * @return экземпляр ArrayList, содержит сообщения (класс SendMessage)
      */
     private ArrayList<SendMessage> createMessages(long chatId,
     		ArrayList<String> texts, User curUser) {
@@ -187,9 +183,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Построить сообщения в меню (Reply клавиатура)
-     * @param chatId
-     * @param texts
-     * @return экземпляр ArrayList, содержит сообщения (класс SendMessage)
      */
     private ArrayList<SendMessage> buildMenuMessages(long chatId, ArrayList<String> texts) {
     	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
@@ -214,9 +207,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Построить сообщения в режиме эхо (Reply клавиатура)
-     * @param chatId
-     * @param texts
-     * @return экземпляр ArrayList, содержит сообщения (класс SendMessage)
      */
     private ArrayList<SendMessage> buildEchoMessages(long chatId, ArrayList<String> texts) {
     	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
@@ -240,9 +230,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Построить сообщения в режиме игры (Inline клавиатура)
-     * @param chatId
-     * @param texts
-     * @return экземпляр ArrayList, содержит сообщения (класс SendMessage)
      */
     private ArrayList<SendMessage> buildGameMessages(long chatId,
     		ArrayList<String> texts, User curUser) {
@@ -266,9 +253,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Построить обычные сообщения (без клавиатур)
-     * @param chatId
-     * @param texts
-     * @return экземпляр ArrayList, содержит сообщения (класс SendMessage)
      */
     private ArrayList<SendMessage> buildRegularMessages(long chatId, ArrayList<String> texts) {
     	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
@@ -285,8 +269,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     /**
      * Создать Inline клавиатуру
-     * @param buttons
-     * @return экземпляр ArrayList, содержит ряды клавиатуры (класс InlineKeyboardRow)
      */
     private ArrayList<InlineKeyboardRow> createInlineKeyboard(ArrayList<MoveButton> buttons) {
     	/*

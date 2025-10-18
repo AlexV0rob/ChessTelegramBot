@@ -65,11 +65,6 @@ public class GameHandler{
 	}
 	/**
 	 * Проверка на шах
-	 * @param curBoard
-	 * @param isWhiteMove
-	 * @param rawStartPos
-	 * @param chessman
-	 * @return есть ли шах, или нет
 	 */
 	public boolean check(byte[]curBoard, boolean isWhiteMove, int rawStartPos,Chessmen chessmen)
 	{
@@ -92,9 +87,6 @@ public class GameHandler{
 	}
 	/**
 	 * Проверка на рубку короля
-	 * @param curBoard
-	 * @param isWhiteMove
-	 * @return есть ли в конечной точки король
 	 */
 	public boolean 	IsThisMoveOnKing(byte[]curBoard,int rawPosition, boolean isWhiteMove){
 		if(isWhiteMove)
