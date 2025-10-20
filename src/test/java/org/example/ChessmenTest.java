@@ -14,8 +14,9 @@ public class ChessmenTest {
 	 */
     @Test
     void PawnTest() {
-    	byte[] board = new byte[] {3, 5, 7, 9, 11, 7, 5, 3,
-  			  1, 1, 1, 1, 1, 1, 1, 1,
+    	byte[] board = new byte[] {
+    		  -4, -6, -8, -10, -12, -8, -6, -4,
+  			  -2, -2, -2, -2, -2, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
@@ -30,17 +31,17 @@ public class ChessmenTest {
 	 * Проверка ходов Слона
 	 */
     @Test
-    void CastleTest() {
+    void RookTest() {
     	byte[] board = new byte[] {
-    		  3, 5, 7, 9, 11, 7, 5, 3,
-  			  0, 1, 1, 1, 1, 1, 1, 1,
+      		  -4, -6, -8, -10, -12, -8, -6, -4,
+      		  0, -2, -2, -2, -2, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  2, 2, 2, 2, 2, 2, 2, 2,
   			  4, 6, 8, 10, 12, 8, 6, 4};
-    	Chessmen casltle = new Castle();
+    	Chessmen casltle = new Rook();
     	Assertions.assertFalse( casltle.checkMove(0,1,board,false));
         Assertions.assertTrue(casltle.checkMove(0,16,board,false));
     }
@@ -50,8 +51,8 @@ public class ChessmenTest {
     @Test
     void BishopTest() {
     	byte[] board = new byte[] {
-    		  3, 5, 7, 9, 11, 7, 5, 3,
-  			  1, 1, 1, 0, 1, 1, 1, 1,
+      		  -4, -6, -8, -10, -12, -8, -6, -4,
+    		  -2, -2, -2, 0, -2, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
@@ -68,8 +69,8 @@ public class ChessmenTest {
     @Test
     void KingTest() {
     	byte[] board = new byte[] {
-    		  3, 5, 7, 9, 11, 7, 5, 3,
-  			  1, 1, 0, 1, 0, 1, 1, 1,
+      		  -4, -6, -8, -10, -12, -8, -6, -4,
+      		  -2, -2, 0, -2, 0, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
@@ -78,7 +79,7 @@ public class ChessmenTest {
   			  4, 6, 8, 10, 12, 8, 6, 4};
     	Chessmen king = new King();
     	Assertions.assertFalse(king.checkMove(4,11,board,false));
-    	Assertions.assertTrue(king.checkMove(3,12,board,false));
+    	Assertions.assertTrue(king.checkMove(4,12,board,false));
     }
 	/**
 	 * Проверка ходов коня
@@ -86,8 +87,8 @@ public class ChessmenTest {
     @Test
     void KnightTest() {
     	byte[] board = new byte[] {
-    		  3, 5, 7, 9, 11, 7, 5, 3,
-  			  1, 1, 0, 0, 0, 1, 1, 1,
+      		  -4, -6, -8, -10, -12, -8, -6, -4,
+    		  -2, -2, 0, 0, 0, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
@@ -104,8 +105,8 @@ public class ChessmenTest {
     @Test
     void QueenTest() {
     	byte[] board = new byte[] {
-    		  3, 5, 7, 9, 11, 7, 5, 3,
-  			  1, 1, 0, 1, 0, 1, 1, 1,
+      		  -4, -6, -8, -10, -12, -8, -6, -4,
+      		  -2, -2, 0, -2, 0, -2, -2, -2,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,
   			  0, 0, 0, 0, 0, 0, 0, 0,

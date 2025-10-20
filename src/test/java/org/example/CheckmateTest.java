@@ -8,43 +8,44 @@ import org.junit.jupiter.api.Test;
  * Проверка работы шаха и мата
  */
 public class CheckmateTest {
-    /**
-     * Проверка шаховой ситуации
-     */
+	/**
+	 * Проверка шаховой ситуации
+	 */
 	@Test
-    void CheckTest() { //27
-    	byte[] board = new byte[] {
-    		  11, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,  			  
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 8, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  4, 6, 8, 10, 12, 0, 6, 4};
-    	Chessmen knight = new Knight();
-    	Chessmen bishop = new Bishop();
-    	GameHandler game = new GameHandler();
-        Assertions.assertTrue(game.check(board,true,27,bishop));
-        Assertions.assertFalse(game.check(board,true,27,knight));
-    }
-    /**
-     * Проверка матовой ситуации
-     */
-    @Test
-    void CheckmateTest() { 
-    	byte[] board = new byte[] {
-    		  0, 0, 0, 0, 0, 0, 8,11,
-  			  0, 0, 0, 0, 0, 0, 1, 1,  			  
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 8, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  4, 6, 8, 10, 12, 0, 6, 4};
-    	Chessmen knight = new Knight();
-    	GameHandler game = new GameHandler();
-    	Assertions.assertFalse(game.IsThisMoveOnKing(board,13,true));
-    	Assertions.assertTrue(game.IsThisMoveOnKing(board,7,true));
-    }
+	void CheckTest() { // 27
+		byte[] board = new byte[] { 
+				-12, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 8, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				4, 6, 8, 10, 12, 0, 6, 4 };
+		Chessmen Rook = new Rook();
+		Chessmen bishop = new Bishop();
+		GameHandler game = new GameHandler();
+		Assertions.assertTrue(game.check(board, true, 27, bishop));
+		Assertions.assertFalse(game.check(board, true, 27, Rook));
+	}
+
+	/**
+	 * Проверка матовой ситуации
+	 */
+	@Test
+	void CheckmateTest() {
+		byte[] board = new byte[] {
+				0, 0, 0, 0, 0, 0, 8, -12,
+				0, 0, 0, 0, 0, 0, -2, -2, 
+				0, 0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 8, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 0, 
+				4, 6, 8, 10, 12,0, 6, 4 };
+		Chessmen knight = new Knight();
+		GameHandler game = new GameHandler();
+		Assertions.assertFalse(game.isThisMoveOnKing(board, 13, true));
+		Assertions.assertTrue(game.isThisMoveOnKing(board, 7, true));
+	}
 }

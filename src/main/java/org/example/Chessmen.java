@@ -6,5 +6,5 @@ public interface Chessmen {
 	/**
 	 * Проверить ход на правльность
 	 */
-	boolean  checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite);	
+	boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite);
 }

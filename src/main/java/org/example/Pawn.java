@@ -1,26 +1,31 @@
 package org.example;
+
 /**
  * Класс для реализации логики перемещения пешки
  */
-public class Pawn implements  Chessmen{
-	protected Position currentPosition;
+public class Pawn implements Chessmen {
+	/**
+	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
+	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
+	 * @param chessDesk - одномерный массив с позициями всех фигур на шахматной доске
+	 * @return можно ли сходить на предполагаемую конечную позицию 
+	 */
 	@Override
-	public  boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
-		Position endPos= new Position(rawEndPos);
-		Position startPos= new Position(rawStartPos);
-		if(chessDesk[rawEndPos] == 0){
+	public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite) {
+		Position pos = new Position();
+		int[] startPos = pos.convertPosition(rawStartPos);
+		int[] endPos = pos.convertPosition(rawEndPos);
+		if (chessDesk[rawEndPos] == 0) {
 
-			if((Math.abs(endPos.line - startPos.line) == 1) && (startPos.column == endPos.column))
+			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (startPos[1] == endPos[1]))
 				return true;
-			else if((startPos.line == 1 || startPos.line == 6)&&
-					((Math.abs(endPos.line - startPos.line) == 2) && (startPos.column == endPos.column)))
+			else if ((startPos[0] == 1 || startPos[0] == 6)
+					&& ((Math.abs(endPos[0] - startPos[0]) == 2) && (startPos[0]== endPos[0])))
 				return true;
-		}
-		else if(((chessDesk[rawEndPos] % 2 == 0 ) != isWhite))
-		{
-			if((Math.abs(endPos.line - startPos.line) == 1) && (Math.abs(startPos.column -  endPos.column) == 1))
+		}else if (((chessDesk[rawEndPos] > 0) != isWhite)) {
+			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (Math.abs(startPos[1] - endPos[1]) == 1))
 				return true;
 		}
 		return false;
-	} 
+	}
 }
