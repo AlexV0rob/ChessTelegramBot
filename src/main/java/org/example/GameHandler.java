@@ -3,46 +3,47 @@ package org.example;
  * Класс для произведения хода у конкретного пользователя
  */
 public class GameHandler{
-	public byte ProgressHandler(User user, int rawStartPos, int rawEndPos, byte figureCode){
+	public byte ProgressHandler(int rawStartPos, int rawEndPos, byte figureCode){
 		Chessmen lastChessmen = null;
 		boolean isNormalMove = false;
 		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
 			return 0;
-		byte[] curDesk = user.getBoard();
+		byte[] curDesk = new byte[64];
+		boolean doesWhitesMove = false;
 		switch((figureCode + 1) / 2)
 		{
 		case 1:
 			Chessmen pawn = new Pawn();
-			isNormalMove = pawn.checkMove(rawStartPos, rawEndPos,curDesk, user.doesWhitesMove());
+			isNormalMove = pawn.checkMove(rawStartPos, rawEndPos,curDesk, doesWhitesMove);
 			lastChessmen = pawn;
 			break;
 		case 2:
 			Chessmen castle = new Castle();
-			isNormalMove = castle.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
+			isNormalMove = castle.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
 			lastChessmen = castle;
 			break;
 
 
 		case 3:
 			Chessmen knight = new Knight();
-			isNormalMove = knight.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
+			isNormalMove = knight.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
 			lastChessmen = knight;
 			break;
 
 		case 4:
 			Chessmen bishop = new Bishop();
-			isNormalMove = bishop.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
+			isNormalMove = bishop.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
 			lastChessmen = bishop;
 			break;
 		case 5:
 			Chessmen queen = new Queen();
-			isNormalMove = queen.checkMove(rawStartPos, rawEndPos,curDesk, user.doesWhitesMove());
+			isNormalMove = queen.checkMove(rawStartPos, rawEndPos,curDesk, doesWhitesMove);
 			lastChessmen = queen;
 			break;
 
 		case 6:
 			Chessmen king = new King();
-			isNormalMove = king.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
+			isNormalMove = king.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
 			lastChessmen = king;
 			break;
 		}
@@ -51,8 +52,8 @@ public class GameHandler{
 			byte tmp = curDesk[rawStartPos] ;
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
-			if(check(curDesk,user.doesWhitesMove(), rawEndPos,lastChessmen)){
-				if(checkmate(curDesk, user.doesWhitesMove()))
+			if(check(curDesk,doesWhitesMove, rawEndPos,lastChessmen)){
+				if(checkmate(curDesk, doesWhitesMove))
 					return 3;
 				return 2;
 			}
