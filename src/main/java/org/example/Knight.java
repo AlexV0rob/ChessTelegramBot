@@ -1,30 +1,27 @@
 package org.example;
+
 /**
  * Класс для реализации логики перемещения коня
  */
-class Knight implements  Chessmen{
-	public boolean checkMove(int rawStartPos, int rawEndPos,byte[] chessDesk, boolean isWhite) {
-		
-		if((chessDesk[rawEndPos] == 0 ) || ((chessDesk[rawEndPos] % 2 != 0 ) != isWhite))
-		{
-			Position endPos= new Position(rawEndPos);
-			Position startPos= new Position(rawStartPos);
-			if (((startPos.line - 2 == endPos.line) && (startPos.column + 1 == endPos.column)))
+class Knight implements Chessmen {
+	/**
+	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
+	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
+	 * @param chessDesk - одномерный массив с позициями всех фигур на шахматной доске
+	 * @return можно ли сходить на предполагаемую конечную позицию 
+	 */
+	@Override
+	public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite) {
+
+		if ((chessDesk[rawEndPos] == 0) || ((chessDesk[rawEndPos] > 0) != isWhite)) {
+			// проверяем все сдвиги, соотвествующие возможным ходам коня
+			byte[] shifts = { 6, 7, 10, 15, 17 };
+			for (byte shift : shifts) {
+				if ((rawStartPos + shift < 64) && (rawStartPos + shift == rawEndPos))
 					return true;
-			else if(((startPos.line - 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
+				if ((rawStartPos + shift > 0) && (rawStartPos + shift == rawEndPos))
 					return true;
-			else if(((startPos.line + 1 == endPos.line) && (startPos.column + 2 == endPos.column)))
-				return true;
-			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
-			else if(((startPos.line + 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
-			else if(((startPos.line + 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
-				return true;
-			else if(((startPos.line - 1 == endPos.line) && (startPos.column - 2 == endPos.column)))
-				return true;
-			else if(((startPos.line - 2 == endPos.line) && (startPos.column - 1 == endPos.column)))
-				return true;
+			}
 		}
 		return false;
 	}

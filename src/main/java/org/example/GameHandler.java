@@ -1,129 +1,97 @@
 package org.example;
+
 /**
  * Класс для произведения хода у конкретного пользователя
  */
-public class GameHandler{
-	public byte ProgressHandler(int rawStartPos, int rawEndPos, byte figureCode){
+public class GameHandler {
+	Chessmen[] figureList;
+	/**
+	 * констанста, соотвествующая длинне массива доски
+	 */
+	final static int DESK_LENGTH = 64;
+	/**
+	 * констанста, соотвествующая длинне массива доски
+	 */
+	final static int LAST_INDEX_IN_DESK = 63;
+	/**
+	 * констанста, соотвествующая числовому представлению белого короля
+	 */
+	final static int WHITE_KING = 12;
+	/**
+	 * констанста, соотвествующая числовому представлению чёрного короля
+	 */
+	final static int BLACK_KING = -12;
+
+	public GameHandler() {
+		figureList = new Chessmen[6];
+		figureList[0] = new Pawn();
+		figureList[1] = new Rook();
+		figureList[2] = new Knight();
+		figureList[3] = new Bishop();
+		figureList[4] = new Queen();
+		figureList[5] = new King();
+	}
+
+	/**
+	 * метод, изменяющий состояние доски
+	 * @return возвращает состояние хода 0 - ход не сделан, 1 - ход сделан; 2 - ход
+	 * сделан и он ставит шах королю; 3 - король срублен, игра окончена
+	 */
+	public int progressHandler(byte[] curDesk, int rawStartPos, int rawEndPos, byte figureCode) {
 		Chessmen lastChessmen = null;
 		boolean isNormalMove = false;
-		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
+		if ((rawStartPos > LAST_INDEX_IN_DESK || rawStartPos < 0) || (rawEndPos > LAST_INDEX_IN_DESK || rawEndPos < 0))
 			return 0;
-		byte[] curDesk = new byte[64];
-		boolean doesWhitesMove = false;
-		switch((figureCode + 1) / 2)
-		{
-		case 1:
-			Chessmen pawn = new Pawn();
-			isNormalMove = pawn.checkMove(rawStartPos, rawEndPos,curDesk, doesWhitesMove);
-			lastChessmen = pawn;
-			break;
-		case 2:
-			Chessmen castle = new Castle();
-			isNormalMove = castle.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
-			lastChessmen = castle;
-			break;
 
-
-		case 3:
-			Chessmen knight = new Knight();
-			isNormalMove = knight.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
-			lastChessmen = knight;
-			break;
-
-		case 4:
-			Chessmen bishop = new Bishop();
-			isNormalMove = bishop.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
-			lastChessmen = bishop;
-			break;
-		case 5:
-			Chessmen queen = new Queen();
-			isNormalMove = queen.checkMove(rawStartPos, rawEndPos,curDesk, doesWhitesMove);
-			lastChessmen = queen;
-			break;
-
-		case 6:
-			Chessmen king = new King();
-			isNormalMove = king.checkMove(rawStartPos, rawEndPos, curDesk, doesWhitesMove);
-			lastChessmen = king;
-			break;
-		}
-		if(isNormalMove)
-		{
-			byte tmp = curDesk[rawStartPos] ;
+		isNormalMove = figureList[Math.abs(figureCode) - 1].checkMove(rawStartPos, rawEndPos, curDesk, rawStartPos < 0);
+		lastChessmen = figureList[Math.abs(figureCode) - 1];
+		if (isNormalMove) {
+			if (isThisMoveOnKing(curDesk, rawEndPos, rawStartPos < 0)) {
+				return 3;
+			}
+			byte tmp = curDesk[rawStartPos];
 			curDesk[rawStartPos] = 0;
 			curDesk[rawEndPos] = tmp;
-			if(check(curDesk,doesWhitesMove, rawEndPos,lastChessmen)){
-				if(checkmate(curDesk, doesWhitesMove))
-					return 3;
+			if (check(curDesk, rawStartPos < 0, rawEndPos, lastChessmen)) {
 				return 2;
 			}
+
 			return 1;
-		}
-		else
+		} else
 			return 0;
 	}
+
 	/**
 	 * Проверка на шах
-	 * @param curBoard
-	 * @param isWhiteMove
-	 * @param rawStartPos
-	 * @param chessman
-	 * @return есть ли шах, или нет
 	 */
-	public boolean check(byte[]curBoard, boolean isWhiteMove, int rawStartPos,Chessmen chessmen)
-	{
-		int i = 0 ;
-		if(isWhiteMove){
-			for(; i < 64;++i)
-				if(curBoard[i] == 11)
+	public boolean check(byte[] curBoard, boolean isWhiteMove, int rawStartPos, Chessmen chessmen) {
+		int i = 0;
+		if (isWhiteMove) {
+			while (i < DESK_LENGTH) {
+				if (curBoard[i] == BLACK_KING)
 					break;
-			if(chessmen.checkMove(rawStartPos, i, curBoard, true))
+				i++;
+			}
+			if (chessmen.checkMove(rawStartPos, i, curBoard, isWhiteMove))
 				return true;
-		}
-		else{
-			for(; i < 64;++i)
-				if(curBoard[i] == 12)
+		} else {
+			while (i < DESK_LENGTH) {
+				if (curBoard[i] == WHITE_KING)
 					break;
-			if(chessmen.checkMove(rawStartPos, i, curBoard, false))
-				return true;	
+				i++;
+			}
+			if (chessmen.checkMove(rawStartPos, i, curBoard, isWhiteMove))
+				return true;
 		}
 		return false;
 	}
-	/**
-	 * Проверка на мат
-	 * @param curBoard
-	 * @param isWhiteMove
-	 * @return есть ли мат или нет
-	 */
-	public boolean checkmate(byte[] curBoard, boolean isWhiteMove){
-		int countOfValidMove = 0;
-		int kingPos = 0 ;
-		Chessmen king = new King();
-		if(isWhiteMove) {
-			for(; kingPos < 64;++kingPos)
-				if(curBoard[kingPos] == 11)
-					break;
-		}
-		else{
-			for(; kingPos < 64;++kingPos)
-				if(curBoard[kingPos] == 12)
-					break;
-		}
-		//Перебираем все варианты ходов короля
-		int[] number = {1,7,8,9};
-		for(int i : number ) {
-			if((kingPos + i < 64)){
-				if(king.checkMove(kingPos, kingPos+i, curBoard, false))
-					countOfValidMove++;
-			}
-			if(kingPos - i >= 0) {
-				if(king.checkMove(kingPos, kingPos-i, curBoard, false))
-					countOfValidMove++; 
-			}
-				
-		}
-		return (countOfValidMove == 0);
-	}	
-	
-}
 
+	/**
+	 * Проверка на рубку короля
+	 */
+	public boolean isThisMoveOnKing(byte[] curBoard, int rawPosition, boolean isWhiteMove) {
+		if (isWhiteMove)
+			return curBoard[rawPosition] == -12;
+		return curBoard[rawPosition] == 12;
+	}
+}

@@ -134,7 +134,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             }
         }
     }
-    
     /**
      * Создать Inline клавиатуру
      */
