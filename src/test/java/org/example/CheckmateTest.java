@@ -12,21 +12,22 @@ public class CheckmateTest {
 	 * Проверка шаховой ситуации
 	 */
 	@Test
-	void CheckTest() { // 27
+	void CheckTest() { 
 		byte[] board = new byte[] { 
-				-12, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, -6, 0, 0, 0, 0,
+				0, 0, 5, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 8, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
-				4, 6, 8, 10, 12, 0, 6, 4 };
-		Chessmen Rook = new Rook();
-		Chessmen bishop = new Bishop();
+				2, 3, 4, 0, 6, 0, 3, 2 };
+		Chessmen rook = new Rook();
+		Chessmen queen = new Queen();
 		GameHandler game = new GameHandler();
-		Assertions.assertTrue(game.isCheck(board, true, 27, bishop));
-		Assertions.assertFalse(game.isCheck(board, true, 27, Rook));
+		Assertions.assertFalse(game.isCheck(56, board, true, rook));
+		Assertions.assertTrue(game.isCheck(10, board, true, queen));
+		
 	}
 
 	/**
@@ -35,15 +36,14 @@ public class CheckmateTest {
 	@Test
 	void CheckmateTest() {
 		byte[] board = new byte[] {
-				0, 0, 0, 0, 0, 0, 8, -12,
-				0, 0, 0, 0, 0, 0, -2, -2, 
+				0, 0, 0, 0, 0, 0, 5, -6,
+				0, 0, 0, 0, 0, 0, -1, -1, 
 				0, 0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 8, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 0, 
-				4, 6, 8, 10, 12,0, 6, 4 };
-		Chessmen knight = new Knight();
+				2, 3, 4, 0, 6,0, 3, 2 };
 		GameHandler game = new GameHandler();
 		Assertions.assertFalse(game.isThisMoveOnKing(board, 13, true));
 		Assertions.assertTrue(game.isThisMoveOnKing(board, 7, true));

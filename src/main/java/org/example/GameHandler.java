@@ -16,11 +16,11 @@ public class GameHandler {
 	/**
 	 * константа, соотвествующая числовому представлению белого короля
 	 */
-	private final static int WHITE_KING = -6;
+	private final static int WHITE_KING = 6;
 	/**
 	 * константа, соотвествующая числовому представлению чёрного короля
 	 */
-	private final static int BLACK_KING = 6;
+	private final static int BLACK_KING = -6;
 	/**
 	 * Число фигур
 	 */
@@ -59,11 +59,12 @@ public class GameHandler {
 				.checkMove(rawStartPos, rawEndPos, curDesk, rawStartPos < 0);
 		if (isNormalMove) {
 			if (isThisMoveOnKing(curDesk, rawEndPos, rawStartPos < 0)) {
+
 				return GameState.MOVE_PROPERTIES.CHECKMATE;
 			}
 			currentGameState.moveFigure(rawStartPos, rawEndPos);
 			currentGameState.changeMovingSide();
-			if (isCheck(curDesk, rawStartPos < 0, rawEndPos, lastChessmen)) {
+			if (isCheck(rawEndPos, curDesk, rawStartPos < 0, lastChessmen)) {
 				return GameState.MOVE_PROPERTIES.CHECK;
 			}
 
@@ -75,9 +76,9 @@ public class GameHandler {
 	/**
 	 * Проверка на шах
 	 */
-	public boolean isCheck(
-			byte[] curBoard, boolean isWhiteMove,
-			int rawStartPos, Chessmen chessmen) {
+	public boolean isCheck(int rawStartPos,
+			byte[] curBoard,
+			 boolean isWhiteMove,Chessmen chessmen) {
 		int i = 0;
 		if (isWhiteMove) {
 			while (i < DESK_LENGTH) {
@@ -106,5 +107,9 @@ public class GameHandler {
 		if (isWhiteMove)
 			return curBoard[rawPosition] == BLACK_KING;
 		return curBoard[rawPosition] == WHITE_KING;
+	}
+	public int[] everyPossibleRightMove(byte figure,int rawStartPos, byte[] chessDesk,boolean isWhiteMove)
+	{
+		return figureList[Math.abs(figure)-1].everyRightMove(rawStartPos, chessDesk, isWhiteMove);
 	}
 }
