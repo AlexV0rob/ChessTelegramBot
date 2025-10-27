@@ -7,11 +7,11 @@ class Rook implements Chessmen {
 	/**
 	 * Сдвиг по горизонтали
 	 */
-	final static int HORIZONTAL_SHIFT = 1;
+	private final static int HORIZONTAL_SHIFT = 1;
 	/**
 	 * Сдвиг по вертикали
 	 */
-	final static int VERTICAL_SHIFT = 8;
+	private final static int VERTICAL_SHIFT = 8;
 	/**
 	 * константа, соотвествующая длинне массива доски
 	 */
@@ -19,7 +19,7 @@ class Rook implements Chessmen {
 	/**
 	 * длина линии
 	 */
-	static int LINE_LENGTH = 8;	
+	private final static int LINE_LENGTH = 8;	
 	/**
 	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
 	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски

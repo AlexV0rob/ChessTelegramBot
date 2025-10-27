@@ -149,7 +149,7 @@ public class MoveConstructor {
 			return whereIsFigure(chessboard, whiteToMove, lettersNames,
 					digitsNames);
 		case MoveConstructor.STATUS.START:
-			return possibleMoves(startPosition, chessboard, whiteToMove,
+			return possibleMoves(chessboard, whiteToMove,
 					lettersNames, digitsNames);
 		default:
 			return new LinkedList<IdentificatedButton>();
@@ -201,12 +201,12 @@ public class MoveConstructor {
 	/**
 	 * Кнопки с возможными конечными позициями для текущей фигуры
 	 */
-	private List<IdentificatedButton> possibleMoves(int startPositionCode,
+	private List<IdentificatedButton> possibleMoves(
 			byte[] chessboard, boolean whiteToMove,
 			String[] lettersNames, String[] digitsNames) {
 		int squaresCount = chessboard.length;
 		int squaresInARow = (int) Math.sqrt(squaresCount);
-		//TODO возможные ходы для этой фигуры из этой позиции
+
 		return new LinkedList<IdentificatedButton>();
 	}
 }

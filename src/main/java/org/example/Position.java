@@ -12,7 +12,7 @@ public class Position {
 	/**
 	 * длина линии
 	 */
-	static int LINE_LENGTH = 8;
+	private final static int LINE_LENGTH = 8;
 
 	/**
 	 * @param rawPosition позиция фигуры в одномерном массиве

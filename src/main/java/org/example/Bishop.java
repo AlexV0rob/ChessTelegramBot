@@ -8,11 +8,11 @@ public class Bishop implements Chessmen {
 	/**
 	 * Сдвиг влево по горизонтали
 	 */
-	final static int LEFT_SHIFT = 7;
+	private final static int LEFT_SHIFT = 7;
 	/**
 	 * Сдвиг вправо по горизонтали
 	 */
-	final static int RIGHT_SHIFT = 9;
+	private final static int RIGHT_SHIFT = 9;
 	/**
 	 * константа, соотвествующая длинне массива доски
 	 */
