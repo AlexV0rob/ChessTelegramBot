@@ -4,26 +4,30 @@ package org.example;
  * Класс для произведения хода у конкретного пользователя
  */
 public class GameHandler {
-	Chessmen[] figureList;
+	private Chessmen[] figureList;
 	/**
-	 * констанста, соотвествующая длинне массива доски
+	 * константа, соотвествующая длинне массива доски
 	 */
-	final static int DESK_LENGTH = 64;
+	private final static int DESK_LENGTH = 64;
 	/**
-	 * констанста, соотвествующая длинне массива доски
+	 * константа, соотвествующая длинне массива доски
 	 */
-	final static int LAST_INDEX_IN_DESK = 63;
+	private final static int LAST_INDEX_IN_DESK = 63;
 	/**
-	 * констанста, соотвествующая числовому представлению белого короля
+	 * константа, соотвествующая числовому представлению белого короля
 	 */
-	final static int WHITE_KING = 12;
+	private final static int WHITE_KING = -6;
 	/**
-	 * констанста, соотвествующая числовому представлению чёрного короля
+	 * константа, соотвествующая числовому представлению чёрного короля
 	 */
-	final static int BLACK_KING = -12;
+	private final static int BLACK_KING = 6;
+	/**
+	 * Число фигур
+	 */
+	private final static int CHESSMEN_COUNT = 6;
 
 	public GameHandler() {
-		figureList = new Chessmen[6];
+		figureList = new Chessmen[CHESSMEN_COUNT];
 		figureList[0] = new Pawn();
 		figureList[1] = new Rook();
 		figureList[2] = new Knight();
@@ -34,37 +38,46 @@ public class GameHandler {
 
 	/**
 	 * метод, изменяющий состояние доски
-	 * @return возвращает состояние хода 0 - ход не сделан, 1 - ход сделан; 2 - ход
-	 * сделан и он ставит шах королю; 3 - король срублен, игра окончена
+	 * @return характеристика хода
 	 */
-	public int progressHandler(byte[] curDesk, int rawStartPos, int rawEndPos, byte figureCode) {
-		Chessmen lastChessmen = null;
+	public GameState.MOVE_PROPERTIES progressHandler(
+			GameState currentGameState, int rawStartPos,
+			int rawEndPos, byte figureCode) {
+		Chessmen lastChessmen;
 		boolean isNormalMove = false;
-		if ((rawStartPos > LAST_INDEX_IN_DESK || rawStartPos < 0) || (rawEndPos > LAST_INDEX_IN_DESK || rawEndPos < 0))
-			return 0;
+		if ((rawStartPos > LAST_INDEX_IN_DESK || rawStartPos < 0) ||
+				(rawEndPos > LAST_INDEX_IN_DESK || rawEndPos < 0) ||
+				(Math.abs(figureCode) > CHESSMEN_COUNT || figureCode == 0)) {
+			return GameState.MOVE_PROPERTIES.IMPOSSIBLE;
+		}
+		
+		byte[] curDesk = currentGameState.getBoard();
 
-		isNormalMove = figureList[Math.abs(figureCode) - 1].checkMove(rawStartPos, rawEndPos, curDesk, rawStartPos < 0);
 		lastChessmen = figureList[Math.abs(figureCode) - 1];
+		
+		isNormalMove = lastChessmen
+				.checkMove(rawStartPos, rawEndPos, curDesk, rawStartPos < 0);
 		if (isNormalMove) {
 			if (isThisMoveOnKing(curDesk, rawEndPos, rawStartPos < 0)) {
-				return 3;
+				return GameState.MOVE_PROPERTIES.CHECKMATE;
 			}
-			byte tmp = curDesk[rawStartPos];
-			curDesk[rawStartPos] = 0;
-			curDesk[rawEndPos] = tmp;
-			if (check(curDesk, rawStartPos < 0, rawEndPos, lastChessmen)) {
-				return 2;
+			currentGameState.moveFigure(rawStartPos, rawEndPos);
+			currentGameState.changeMovingSide();
+			if (isCheck(curDesk, rawStartPos < 0, rawEndPos, lastChessmen)) {
+				return GameState.MOVE_PROPERTIES.CHECK;
 			}
 
-			return 1;
+			return GameState.MOVE_PROPERTIES.REGULAR;
 		} else
-			return 0;
+			return GameState.MOVE_PROPERTIES.IMPOSSIBLE;
 	}
 
 	/**
 	 * Проверка на шах
 	 */
-	public boolean check(byte[] curBoard, boolean isWhiteMove, int rawStartPos, Chessmen chessmen) {
+	public boolean isCheck(
+			byte[] curBoard, boolean isWhiteMove,
+			int rawStartPos, Chessmen chessmen) {
 		int i = 0;
 		if (isWhiteMove) {
 			while (i < DESK_LENGTH) {
@@ -91,7 +104,7 @@ public class GameHandler {
 	 */
 	public boolean isThisMoveOnKing(byte[] curBoard, int rawPosition, boolean isWhiteMove) {
 		if (isWhiteMove)
-			return curBoard[rawPosition] == -12;
-		return curBoard[rawPosition] == 12;
+			return curBoard[rawPosition] == BLACK_KING;
+		return curBoard[rawPosition] == WHITE_KING;
 	}
 }

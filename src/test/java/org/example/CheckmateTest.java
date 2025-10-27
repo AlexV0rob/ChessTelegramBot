@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Проверка работы шаха и мата
  */
-public class CheckmateTest {
+public class CheckmateTest {	
 	/**
 	 * Проверка шаховой ситуации
 	 */
@@ -25,8 +25,8 @@ public class CheckmateTest {
 		Chessmen Rook = new Rook();
 		Chessmen bishop = new Bishop();
 		GameHandler game = new GameHandler();
-		Assertions.assertTrue(game.check(board, true, 27, bishop));
-		Assertions.assertFalse(game.check(board, true, 27, Rook));
+		Assertions.assertTrue(game.isCheck(board, true, 27, bishop));
+		Assertions.assertFalse(game.isCheck(board, true, 27, Rook));
 	}
 
 	/**

@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Обрабатывает команды
  */
@@ -34,28 +37,36 @@ public class CommandHandler {
 	 * Ответ на неизветную команду
 	 */
 	private final static String UNKNOWN_MESSAGE = "Неизвестная команда";
-	
+	/**
+	 * Сообщение в меню
+	 */
 	private final static String MENU_MESSAGE = "Чем займёмся?";
+	/**
+	 * Сообщение о начале игры
+	 */
+	private final static String GAME_STARTED = "Игра началась";
 	
 	/**
 	 * Определить тип команды, поменять при необходимости на соответсвующий режим
 	 * и отправить ответ
 	 */
-	public String processCommand(String command, GameState currentGameState) {
+	public List<String> processCommand(String command, GameState currentGameState) {
+		List<String> responseMessagesTexts = new LinkedList<String>();
 		switch (command) {
 		case "/start":
-			currentGameState.setState(GameState.STATES.NOGAME);
-			return START_MESSAGE;
-		case "/help":
-			return HELP_MESSAGE;
+			responseMessagesTexts.add(START_MESSAGE);
 		case "/quit":
 			currentGameState.setState(GameState.STATES.NOGAME);
-			return MENU_MESSAGE;
+			responseMessagesTexts.add(MENU_MESSAGE);
+			return responseMessagesTexts;
+		case "/help":
+			return List.of(HELP_MESSAGE);
 		case "/newsinglegame":
 			currentGameState.setState(GameState.STATES.INGAME);
-			return currentGameState.printBoard(GameState.MOVE_PROPERTIES.REGULAR);
+			return List.of(GAME_STARTED,
+					currentGameState.printBoard(GameState.MOVE_PROPERTIES.REGULAR));
 		default:
-			return UNKNOWN_MESSAGE;
+			return List.of(UNKNOWN_MESSAGE);
 		}
 	}
 }

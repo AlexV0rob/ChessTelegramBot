@@ -5,7 +5,6 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 /**
  * Основной класс, где происходит запуск бота
  */
-
 public class Main {
 	/**
 	 * Точка входа программы. 
