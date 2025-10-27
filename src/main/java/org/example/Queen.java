@@ -21,4 +21,25 @@ public class Queen implements Chessmen {
 		}
 		return false;
 	}
+	public int[] everyRightMove(int rawStartPos, byte[] chessDesk, boolean isWhite) {
+		int[] rightMoves = new int[28];
+		int curPos = 0;
+		for (int i = 0; i < 28; ++i)
+			rightMoves[i] = -1;
+		Chessmen rook = new Rook();
+		Chessmen bishop = new Bishop();
+		int[] rookMoves = rook.everyRightMove(rawStartPos, chessDesk, isWhite);
+		int[] bishopMoves = bishop.everyRightMove(rawStartPos, chessDesk, isWhite);
+		for(int i = 0; i < 28; ++i) {
+			if(rookMoves[i] == -1)
+				break;
+			rightMoves[curPos++] = rookMoves[i];
+		}
+		for(int i = 0; i < 28; ++i) {
+			if(bishopMoves[i] == -1)
+				break;
+			rightMoves[curPos++] = bishopMoves[i];
+		}
+		 return rightMoves;
+	}
 }

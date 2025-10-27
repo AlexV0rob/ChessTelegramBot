@@ -8,11 +8,19 @@ public class Bishop implements Chessmen {
 	/**
 	 * Сдвиг влево по горизонтали
 	 */
-	final static int leftShift = 7;
+	final static int LEFT_SHIFT = 7;
 	/**
 	 * Сдвиг вправо по горизонтали
 	 */
-	final static int rightShift = 9;
+	final static int RIGHT_SHIFT = 9;
+	/**
+	 * константа, соотвествующая длинне массива доски
+	 */
+	private final static int DESK_LENGTH = 64;
+	/**
+	 * константа, соотвествующая длинне массива доски
+	 */
+	private final static int LAST_INDEX_IN_DESK = 63;
 	/**
 	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
 	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
@@ -45,28 +53,59 @@ public class Bishop implements Chessmen {
 	 */
 	private boolean isThereObstacle(int rawStartPos, int rawEndPos, byte[] chessDesk) {
 		if (rawEndPos > rawStartPos) {
-			if ((rawEndPos - rawStartPos) % leftShift == 0) {
-				for (int i = rawStartPos + leftShift; i < rawEndPos; i += leftShift)
+			if ((rawEndPos - rawStartPos) % LEFT_SHIFT == 0) {
+				for (int i = rawStartPos + LEFT_SHIFT; i < rawEndPos; i += LEFT_SHIFT)
 					if (chessDesk[i] != 0)
 						return false;
 			} else {
-				for (int i = rawStartPos + rightShift; i < rawEndPos; i += rightShift)
+				for (int i = rawStartPos + RIGHT_SHIFT; i < rawEndPos; i += RIGHT_SHIFT)
 					if (chessDesk[i] != 0)
 						return false;
 			}
 		} 
 		else {
 			if ((rawStartPos - rawEndPos) % 7 == 0) {
-				for (int i = rawStartPos - leftShift; i > rawEndPos; i -= leftShift)
+				for (int i = rawStartPos - LEFT_SHIFT; i > rawEndPos; i -= LEFT_SHIFT)
 					if (chessDesk[i] != 0)
 						return false;
 			} 
 			else{
-				for (int i = rawEndPos - rightShift; i < rawStartPos; i -= rightShift)
+				for (int i = rawEndPos - RIGHT_SHIFT; i < rawStartPos; i -= RIGHT_SHIFT)
 					if (chessDesk[i] != 0)
 						return false;
 			}
 		}
 		return true;
+	}
+	public int[] everyRightMove(int rawStartPos, byte[] chessDesk, boolean isWhite)
+	{
+		int[] rightMoves = new int[28];
+		for(int i = 0; i < 28; ++i)
+			rightMoves[i] = -1;
+		//текущая позиция в массиве
+		int curPosInArr = 0;
+		for(int i = 7 ; i < LAST_INDEX_IN_DESK; i += LEFT_SHIFT)
+		{
+			if((chessDesk[rawStartPos + i] != 0) && ((chessDesk[rawStartPos + i] > 0) == isWhite))
+					break;
+			if (( rawStartPos - i > 0)&&(chessDesk[rawStartPos - i] != 0) && ((chessDesk[rawStartPos - i] > 0) == isWhite))
+				break;
+			if(rawStartPos + i < DESK_LENGTH)
+				rightMoves[curPosInArr++] = rawStartPos + i ;
+			if(rawStartPos - i < 0)
+				rightMoves[curPosInArr++] = rawStartPos - i ;	
+		}
+		for(int i = 9 ; i < LAST_INDEX_IN_DESK; i += RIGHT_SHIFT)
+		{
+			if((chessDesk[rawStartPos + i] != 0) && ((chessDesk[rawStartPos + i] > 0) == isWhite))
+					break;
+			if (( rawStartPos - i > 0)&&(chessDesk[rawStartPos - i] != 0) && ((chessDesk[rawStartPos - i] > 0) == isWhite))
+				break;
+			if(rawStartPos + i < DESK_LENGTH)
+				rightMoves[curPosInArr++] = rawStartPos + i ;
+			if(rawStartPos - i < 0)
+				rightMoves[curPosInArr++] = rawStartPos - i ;	
+		}
+		return rightMoves;
 	}
 }
