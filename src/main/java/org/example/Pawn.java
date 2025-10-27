@@ -7,15 +7,15 @@ public class Pawn implements Chessmen {
 	/**
 	 * линия, с которой стартуют белые пешки
 	 */
-	static int WHITE_PAWN_START_LINE = 1;
+	private final static int WHITE_PAWN_START_LINE = 1;
 	/**
 	 * линия, с которой стартуют чёрные пешки
 	 */
-	static int BLACK_PAWN_START_LINE = 6;
+	private final static int BLACK_PAWN_START_LINE = 6;
 	/**
 	 * длина линии
 	 */
-	static int LINE_LENGTH = 8;
+	private final static int LINE_LENGTH = 8;
 	/**
 	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
 	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
