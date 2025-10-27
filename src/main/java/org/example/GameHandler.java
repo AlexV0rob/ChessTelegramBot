@@ -49,9 +49,6 @@ public class GameHandler {
 			if (isThisMoveOnKing(curDesk, rawEndPos, rawStartPos < 0)) {
 				return 3;
 			}
-			byte tmp = curDesk[rawStartPos];
-			curDesk[rawStartPos] = 0;
-			curDesk[rawEndPos] = tmp;
 			if (check(curDesk, rawStartPos < 0, rawEndPos, lastChessmen)) {
 				return 2;
 			}
