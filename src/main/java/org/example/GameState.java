@@ -72,7 +72,7 @@ public class GameState {
 	/**
 	 * Массив цифр доски
 	 */
-	private final static String[] DIGITS = {"8", "7", "6", "5", "4", "3", "2", "1"};
+	private final static String[] DIGITS = {"1", "2", "3", "4", "5", "6", "7", "8"};
 	/**
 	 * Массив символов, обозначающих фигуры на доске
 	 */
@@ -260,11 +260,13 @@ public class GameState {
 			}
 			if (currentMove.getStartPosition() >= 0) {
 				startPosition = LETTERS[currentMove.getStartPosition() % SQUARES_IN_A_ROW] +
-					DIGITS[currentMove.getStartPosition() / SQUARES_IN_A_ROW];
+					DIGITS[(SQUARES_IN_A_ROW -
+							currentMove.getStartPosition() / SQUARES_IN_A_ROW) - 1];
 			}
 			if (currentMove.getFinishPosition() >= 0) {
 				finishPosition = LETTERS[currentMove.getFinishPosition() % SQUARES_IN_A_ROW] +
-					DIGITS[currentMove.getFinishPosition() / SQUARES_IN_A_ROW];
+					DIGITS[(SQUARES_IN_A_ROW - 
+					       currentMove.getFinishPosition() / SQUARES_IN_A_ROW) - 1];
 			}
 		}
 		chessboardString = """
@@ -286,8 +288,11 @@ public class GameState {
 	 * в startPosition ставится 0
 	 */
 	public void moveFigure(int startPosition, int finishPosition) {
-		chessboard[finishPosition] = chessboard[startPosition];
-		chessboard[startPosition] = 0;
+		if (startPosition >= 0 && startPosition < SQUARES_COUNT &&
+				finishPosition >= 0 && finishPosition < SQUARES_COUNT) {
+			chessboard[finishPosition] = chessboard[startPosition];
+			chessboard[startPosition] = 0;
+		}
 	}
 	/**
 	 * Установить состояние доски из внешнего массива кодов фигур 
