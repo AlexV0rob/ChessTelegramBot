@@ -59,6 +59,7 @@ public class GameHandler {
 				.checkMove(rawStartPos, rawEndPos, curDesk, rawStartPos < 0);
 		if (isNormalMove) {
 			if (isThisMoveOnKing(curDesk, rawEndPos, rawStartPos < 0)) {
+
 				return GameState.MOVE_PROPERTIES.CHECKMATE;
 			}
 			currentGameState.moveFigure(rawStartPos, rawEndPos);

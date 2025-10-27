@@ -15,17 +15,20 @@ public class ChessmenTest {
     @Test
     void PawnTest() {
     	byte[] board = new byte[] {
-    		  -4, -6, -8, -10, -12, -8, -6, -4,
-  			  -2, -2, -2, -2, -2, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 2, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
+  		       2,  3,  4,  5,  6,  4,  3,  2,
+  		       1,  1,  1,  1,  1,  1,  1,  1,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		      -1, -1, -1, -1, -1, -1, -1, -1,
+  		      -2, -3, -4, -5, -6, -4, -3, -2
+    		  };
     	Chessmen pawn = new Pawn();
-    	Assertions.assertFalse( pawn.checkMove(8,63,board,true));
+    	Assertions.assertFalse(pawn.checkMove(8,63,board, true));
+    	Assertions.assertFalse(pawn.checkMove(8,0,board, true));
     	Assertions.assertTrue(pawn.checkMove(8,16,board,true));
+    	Assertions.assertTrue(pawn.checkMove(8,24,board,true));
     }
 	/**
 	 * Проверка ходов Слона
@@ -33,17 +36,20 @@ public class ChessmenTest {
     @Test
     void RookTest() {
     	byte[] board = new byte[] {
-      		  -4, -6, -8, -10, -12, -8, -6, -4,
-      		  0, -2, -2, -2, -2, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 2, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
-    	Chessmen casltle = new Rook();
-    	Assertions.assertFalse( casltle.checkMove(0,1,board,false));
-        Assertions.assertTrue(casltle.checkMove(0,16,board,false));
+ 		       2,  3,  4,  5,  6,  4,  3,  0,
+ 		       0,  1,  1,  1,  1,  1,  1,  1,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  2,
+ 		       0,  0,  0,  0,  0,  0,  34,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		      -1, -1, -1, -1, -1, -1, -1, -1,
+ 		      -2, -3, -4, -5, -6, -4, -3, -2
+  			  };
+    	Chessmen rook = new Rook();
+    	Assertions.assertFalse(rook.checkMove(0,1,board,true));
+        Assertions.assertFalse(rook.checkMove(28,34,board,true));
+    	Assertions.assertTrue(rook.checkMove(0,16,board,true));
+        Assertions.assertTrue(rook.checkMove(28,27,board,true));
     }
 	/**
 	 * Проверка ходов Слона
@@ -51,17 +57,20 @@ public class ChessmenTest {
     @Test
     void BishopTest() {
     	byte[] board = new byte[] {
-      		  -4, -6, -8, -10, -12, -8, -6, -4,
-    		  -2, -2, -2, 0, -2, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 0, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
+ 		       2,  3,  4,  5,  6,  4,  3,  2,
+ 		       1,  0,  1,  0,  1,  1,  1,  1,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		      -1, -1, -1, -1, -1, -1, -1, -1,
+ 		      -2, -3, -4, -5, -6, -4, -3, -2
+  			  };
     	Chessmen bishop = new Bishop();
-    	Assertions.assertFalse(bishop.checkMove(2,9,board,false));
-    	Assertions.assertTrue(bishop.checkMove(2,11,board,false));
+    	Assertions.assertFalse(bishop.checkMove(2,10,board,true));
+    	Assertions.assertFalse(bishop.checkMove(2,1,board,true));
+    	Assertions.assertTrue(bishop.checkMove(2,9,board,true));
+    	Assertions.assertTrue(bishop.checkMove(2,11,board,true));
     }
 	/**
 	 * Проверка ходов Короля
@@ -69,17 +78,20 @@ public class ChessmenTest {
     @Test
     void KingTest() {
     	byte[] board = new byte[] {
-      		  -4, -6, -8, -10, -12, -8, -6, -4,
-      		  -2, -2, 0, -2, 0, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 0, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
+ 		       2,  3,  4,  5,  6,  4,  3,  2,
+ 		       1,  1,  1,  1,  0,  0,  1,  1,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		       0,  0,  0,  0,  0,  0,  0,  0,
+ 		      -1, -1, -1, -1, -1, -1, -1, -1,
+ 		      -2, -3, -4, -5, -6, -4, -3, -2
+  			  };
     	Chessmen king = new King();
-    	Assertions.assertFalse(king.checkMove(4,11,board,false));
-    	Assertions.assertTrue(king.checkMove(4,12,board,false));
+    	Assertions.assertFalse(king.checkMove(4,11,board,true));
+    	Assertions.assertFalse(king.checkMove(4,15,board,true));
+    	Assertions.assertTrue(king.checkMove(4,12,board,true));
+    	Assertions.assertTrue(king.checkMove(4,13,board,true));
     }
 	/**
 	 * Проверка ходов коня
@@ -87,17 +99,20 @@ public class ChessmenTest {
     @Test
     void KnightTest() {
     	byte[] board = new byte[] {
-      		  -4, -6, -8, -10, -12, -8, -6, -4,
-    		  -2, -2, 0, 0, 0, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 0, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
+  		       2,  3,  4,  5,  6,  4,  3,  2,
+  		       1,  1,  1,  0,  1,  1,  1,  1,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		      -1, -1, -1, -1, -1, -1, -1, -1,
+  		      -2, -3, -4, -5, -6, -4, -3, -2
+  		      };
     	Chessmen knight = new Knight();
-    	Assertions.assertFalse(knight.checkMove(1,17,board,false));
-    	Assertions.assertTrue(knight.checkMove(1,11,board,false));
+    	Assertions.assertFalse(knight.checkMove(1,0,board,true));
+    	Assertions.assertFalse(knight.checkMove(1,17,board,true));
+    	Assertions.assertTrue(knight.checkMove(1,11,board,true));
+    	Assertions.assertTrue(knight.checkMove(1,18,board,true));
     }
 	/**
 	 * Проверка ходов Королевы
@@ -105,16 +120,19 @@ public class ChessmenTest {
     @Test
     void QueenTest() {
     	byte[] board = new byte[] {
-      		  -4, -6, -8, -10, -12, -8, -6, -4,
-      		  -2, -2, 0, -2, 0, -2, -2, -2,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  0, 0, 0, 0, 0, 0, 0, 0,
-  			  2, 2, 0, 2, 2, 2, 2, 2,
-  			  4, 6, 8, 10, 12, 8, 6, 4};
+  		       2,  3,  4,  5,  6,  4,  3,  2,
+  		       1,  1,  1,  0,  0,  1,  1,  1,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		       0,  0,  0,  0,  0,  0,  0,  0,
+  		      -1, -1, -1, -1, -1, -1, -1, -1,
+  		      -2, -3, -4, -5, -6, -4, -3, -2
+  			  };
     	Chessmen queen = new Queen();
-    	Assertions.assertFalse(queen.checkMove(3,11,board,false));
-    	Assertions.assertTrue(queen.checkMove(3,12,board,false));
+    	Assertions.assertFalse(queen.checkMove(3,9,board,true));
+    	Assertions.assertFalse(queen.checkMove(3,2,board,true));
+    	Assertions.assertTrue(queen.checkMove(3,12,board,true));
+    	Assertions.assertTrue(queen.checkMove(3,11,board,true));
     }  
 }

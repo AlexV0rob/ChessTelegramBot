@@ -10,6 +10,14 @@ public class Pawn implements Chessmen {
 	 * @param chessDesk - одномерный массив с позициями всех фигур на шахматной доске
 	 * @return можно ли сходить на предполагаемую конечную позицию 
 	 */
+	/**
+	 * линия, с которой стартуют белые пешки
+	 */
+	static int WHITE_PAWN_START_LINE = 1;
+	/**
+	 * линия, с которой стартуют чёрные пешки
+	 */
+	static int BLACK_PAWN_START_LINE = 6;
 	@Override
 	public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite) {
 		Position pos = new Position();
@@ -19,8 +27,8 @@ public class Pawn implements Chessmen {
 
 			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (startPos[1] == endPos[1]))
 				return true;
-			else if ((startPos[0] == 1 || startPos[0] == 6)
-					&& ((Math.abs(endPos[0] - startPos[0]) == 2) && (startPos[0]== endPos[0])))
+			else if ((startPos[0] == WHITE_PAWN_START_LINE || startPos[0] == BLACK_PAWN_START_LINE)
+					&& ((Math.abs(endPos[0] - startPos[0]) == 2) && (startPos[1]== endPos[1])))
 				return true;
 		}else if (((chessDesk[rawEndPos] > 0) != isWhite)) {
 			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (Math.abs(startPos[1] - endPos[1]) == 1))
