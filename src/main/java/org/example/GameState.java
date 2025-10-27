@@ -1,16 +1,22 @@
 package org.example;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
+
+import org.example.buttons.*;
 
 /**
  * Текущее состояние игры
  */
 public class GameState {
+	/**
+	 * Накопитель и обработчик текущего хода
+	 */
+	private final MoveConstructor currentMove;
 	
-	private MoveConstructor currentMove;
-	
+	/**
+	 * Состояние доски в начале игры
+	 */
 	private final static byte[] NEW_GAME_BOARD = {
 			 2,  3,  4,  5,  6,  4,  3,  2,
 			 1,  1,  1,  1,  1,  1,  1,  1,
@@ -21,22 +27,43 @@ public class GameState {
 			-1, -1, -1, -1, -1, -1, -1, -1,
 			-2, -3, -4, -5, -6, -4, -3, -2,
 	};
+	/**
+	 * Пустая доска при отсутствии игры
+	 */
+	private final static byte[] EMPTY_BOARD = new byte[0];
 	
+	/**
+	 * Сообщения о ходе определённой стороны
+	 */
 	private final static String[] MOVING_SIDES = {"Ход белых", "Ход чёрных"};
-	
+	/**
+	 * Пригласительное сообщение к ходу
+	 */
 	private final static String YOUR_MOVE = "Ваш ход: ";
-	
+	/**
+	 * Сообщение о невозможном ходе
+	 */
 	private final static String IMPOSSIBLE_MOVE = "Невозможный ход! Попробуйте снова.";
-	
+	/**
+	 * Сообщение о неправильной записи хода
+	 */
 	private final static String INVALID_MOVE = "Неверная запись хода! Попробуйте снова.";
-
+	/**
+	 * Сообщение о шахе
+	 */
 	private final static String CHECK_MOVE = "Шах! Ваш король под угрозой!";
-	
+	/**
+	 * Сообщение о мате и конце партии
+	 */
 	private final static String CHECKMATE_MOVE = "Шах и мат! Партия окончена.";
-	
+	/**
+	 * сообщение о победе белых
+	 */
 	private final static String WHITE_WIN = "Победили белые.";
-	
-	private final static String BLACK_WIN = "Победили чёрный.";
+	/**
+	 * Сообщение о победе чёрных
+	 */
+	private final static String BLACK_WIN = "Победили чёрные.";
 	
 	/**
 	 * Массив букв доски
@@ -46,40 +73,27 @@ public class GameState {
 	 * Массив цифр доски
 	 */
 	private final static String[] DIGITS = {"8", "7", "6", "5", "4", "3", "2", "1"};
-	
 	/**
-	 * Значки, обозначающие фигуры на доске
+	 * Массив символов, обозначающих фигуры на доске
 	 */
 	private final static String[] FIGURES_SYMBOLS = {"      ", "P", "R", "N", "B", "Q", "K"};
 	/**
-	 * Массив игровых фигур
+	 * Смволы, обозначающие цвет фигуры
+	 */
+	private final static String[] FIGURE_COLOR = {"W", " B"};
+	/**
+	 * Массив названий игровых фигур
 	 */
 	private final static String[] FIGURES = {"НЕИЗВЕСТНО", "ПЕШКА", "ЛАДЬЯ",
 											"КОНЬ", "СЛОН", "ФЕРЗЬ", "КОРОЛЬ"};
-	
-	private final static int FIGURES_COUNT = FIGURES.length;
-	
-	/**
-	 * Состояния, в которых может находиться игра
-	 */
-	public static enum STATES {
-		NOGAME,
-		INGAME
-	}
-	
-	public static enum MOVE_PROPERTIES {
-		REGULAR,
-		IMPOSSIBLE,
-		INVALID,
-		CHECK,
-		CHECKMATE
-	}
 	/**
 	 * Число клеток на доске
 	 */
-	private final static int SQUARES_COUNT = 64;
-	
-	private final static int SQUARES_IN_A_ROW = 8;
+	private final static int SQUARES_COUNT = NEW_GAME_BOARD.length;
+	/**
+	 * Число клеток в одном ряду
+	 */
+	private final static int SQUARES_IN_A_ROW = (int) Math.sqrt(SQUARES_COUNT);
 	
 	/**
 	 * Текущее состояние доски
@@ -89,11 +103,53 @@ public class GameState {
 	 * Ходят ли сейчас белые
 	 */
 	private boolean whiteToMove;
-	
+	/**
+	 * Текущее состояние игры
+	 */
 	private STATES currentState;
 	
 	/**
-	 * Конструктор класса, ставит пустую доску и ход белых
+	 * Состояния, в которых может находиться игра
+	 */
+	public static enum STATES {
+		/**
+		 * Игра не идёт
+		 */
+		NOGAME,
+		/**
+		 * Игра идёт
+		 */
+		INGAME
+	}
+	/**
+	 * Варианты состояния хода
+	 */
+	public static enum MOVE_PROPERTIES {
+		/**
+		 * Обыкновенный ход
+		 */
+		REGULAR,
+		/**
+		 * Невозможный ход
+		 */
+		IMPOSSIBLE,
+		/**
+		 * Неверная запись хода
+		 */
+		INVALID,
+		/**
+		 * Ход содержит шах
+		 */
+		CHECK,
+		/**
+		 * Ход содержит мат
+		 */
+		CHECKMATE
+	}
+	
+	/**
+	 * Конструктор класса, ставит пустую доску, ход белых и состояние 
+	 * без игры
 	 */
 	public GameState() {
 		chessboard = new byte[SQUARES_COUNT];
@@ -104,55 +160,54 @@ public class GameState {
 	}
 	
 	/**
-	 * Поменять местами фигуры на доске в startPosition и finishPosition
-	 * и изменить ходящую сторону
+	 * Получить текущее состояние доски в виде массива кодов
 	 */
-	public void changeBoard(int startPosition, int finishPosition) {
-		byte tempCell = chessboard[startPosition];
-		chessboard[startPosition] = chessboard[finishPosition];
-		chessboard[finishPosition] = tempCell;
+	public byte[] getBoard() {
+		return chessboard;
+	}
+	/**
+	 * Сейчас в состоянии игры
+	 */
+	public boolean isInGame() {
+		return currentState.equals(STATES.INGAME);
+	}
+	/**
+	 * Сейчас не в состоянии игры
+	 */
+	public boolean isNoGame() {
+		return currentState.equals(STATES.NOGAME);
 	}
 	
-	public void changeMovingSide() {
-		whiteToMove = !whiteToMove;
-	}
-	
-	public void setState(STATES newState) {
-		currentState = newState;
-		switch (newState) {
-		case STATES.NOGAME:
-			Arrays.fill(chessboard, (byte) 0);
-			break;
-		case STATES.INGAME:
-			for (int i = 0; i < SQUARES_COUNT; ++i) {
-				chessboard[i] = NEW_GAME_BOARD[i];
-			}
-			break;
-		}
-		whiteToMove = true;
-	}
-	
-	public STATES currentState() {
-		return currentState;
-	}
-	
-	public boolean isWhiteMove() {
+	/**
+	 * Ходят ли сейчас белые
+	 */
+	public boolean isWhiteToMove() {
 		return whiteToMove;
 	}
-	
-	public void changeMoveState(int newMovePart) {
-		currentMove.nextStatus(newMovePart);
+	/**
+	 * Получить список кнопок для следующей части хода
+	 */
+	public List<IdentificatedButton> nextButtons() {
+		return currentMove.nextButtonsLine(
+				chessboard, whiteToMove, FIGURES, LETTERS, DIGITS);
 	}
-	
+	/**
+	 * Полностью ли собран ход 
+	 */
 	public boolean isMoveReady() {
 		return currentMove.getStatus().equals(MoveConstructor.STATUS.FINISH);
 	}
-	
-	public String getMove() {
-		return currentMove.flushMove();
+	/**
+	 * Собрать текущий ход
+	 * @return ход в текстовом представлении, которое поймёт MainLogic
+	 */
+	public String assembleMove() {
+		return currentMove.flushMove(FIGURES_SYMBOLS, LETTERS, DIGITS, SQUARES_IN_A_ROW);
 	}
-	
-	public String printBoard(MOVE_PROPERTIES property) {
+	/**
+	 * Получить текущее состояние доски в виде строки для печати
+	 */
+	public String printBoard(MOVE_PROPERTIES moveProperty) {
 		String chessboardString, side, board = "", additional, move, figure = "", 
 				startPosition = "", finishPosition = "";
 		if (whiteToMove) {
@@ -164,9 +219,9 @@ public class GameState {
 				}
 				board += "[";
 				if (chessboard[i] > 0) {
-					board += " B";
+					board += FIGURE_COLOR[1];
 				} else if (chessboard[i] < 0) {
-					board += "W";
+					board += FIGURE_COLOR[0];
 				}
 				board += FIGURES_SYMBOLS[Math.abs(chessboard[i])] + "]";
 			}
@@ -179,22 +234,22 @@ public class GameState {
 				}
 				board += "[";
 				if (chessboard[i] > 0) {
-					board += " B";
+					board += FIGURE_COLOR[1];
 				} else if (chessboard[i] < 0) {
-					board += "W";
+					board += FIGURE_COLOR[0];
 				}
 				board += FIGURES_SYMBOLS[Math.abs(chessboard[i])] + "]";
 			}
 		}
-		if (property.equals(MOVE_PROPERTIES.CHECKMATE)) {
+		if (moveProperty.equals(MOVE_PROPERTIES.CHECKMATE)) {
 			additional = CHECKMATE_MOVE + (whiteToMove ? WHITE_WIN : BLACK_WIN);
 			move = "";
 		} else {
-			if (property.equals(MOVE_PROPERTIES.IMPOSSIBLE)) {
+			if (moveProperty.equals(MOVE_PROPERTIES.IMPOSSIBLE)) {
 				additional = IMPOSSIBLE_MOVE;
-			} else if (property.equals(MOVE_PROPERTIES.INVALID)) {
+			} else if (moveProperty.equals(MOVE_PROPERTIES.INVALID)) {
 				additional = INVALID_MOVE;
-			} else if (property.equals(MOVE_PROPERTIES.CHECK)) {
+			} else if (moveProperty.equals(MOVE_PROPERTIES.CHECK)) {
 				additional = CHECK_MOVE;
 			} else {
 				additional = "";
@@ -219,60 +274,64 @@ public class GameState {
 				
 				%s
 				%s %s %s %s
-				""".formatted(side, board, additional, move, figure,
-						startPosition, finishPosition);
+				""".formatted(side,
+						board,
+						additional,
+						move, figure, startPosition, finishPosition);
 		return chessboardString;
 	}
-	
-	public List<ButtonWithID> nextButtonsLine() {
-		switch (currentMove.getStatus()) {
-		case MoveConstructor.STATUS.NOTHING:
-		case MoveConstructor.STATUS.FINISH:
-			return figuresLeft();
-		case MoveConstructor.STATUS.FIGURE:
-			return whereIsFigure(currentMove.getFigure());
-		case MoveConstructor.STATUS.START:
-			return possibleMoves(currentMove.getFigure(),
-					currentMove.getStartPosition());
-		default:
-			return new LinkedList<ButtonWithID>();
+
+	/**
+	 * Переставить фигуру на доски из startPosition в finishPosition, 
+	 * в startPosition ставится 0
+	 */
+	public void moveFigure(int startPosition, int finishPosition) {
+		chessboard[finishPosition] = chessboard[startPosition];
+		chessboard[startPosition] = 0;
+	}
+	/**
+	 * Установить состояние доски из внешнего массива кодов фигур 
+	 * (не рекомендуется для совершения ходов)
+	 */
+	public void setBoard(byte[] newBoard) {
+		int newBoardSquaresCount = newBoard.length;
+		int i = 0;
+		for (; i < SQUARES_COUNT && i < newBoardSquaresCount; ++i) {
+			chessboard[i] = newBoard[i];
+		}
+		for (; i < SQUARES_COUNT; ++i) {
+			chessboard[i] = 0;
 		}
 	}
-	
-	private List<ButtonWithID> figuresLeft() {
-		boolean[] figures = new boolean[FIGURES_COUNT];
-		Arrays.fill(figures, false);
-		for (int i = 0; i < SQUARES_COUNT; ++i) {
-			if (whiteToMove && chessboard[i] < 0 ||
-					!whiteToMove && chessboard[i] > 0) {
-				figures[Math.abs(chessboard[i])] = true;
-			}
+	/**
+	 * Установить новое состояние игры
+	 */
+	public void setState(STATES newState) {
+		currentState = newState;
+		switch (newState) {
+		case STATES.NOGAME:
+			setBoard(EMPTY_BOARD);
+			break;
+		case STATES.INGAME:
+			setBoard(NEW_GAME_BOARD);
+			break;
 		}
-		List<ButtonWithID> buttons = new LinkedList<ButtonWithID>();
-		for (int i = 1; i < FIGURES_COUNT; ++i) {
-			if (figures[i]) {
-				buttons.add(new ButtonWithID(FIGURES[i], String.valueOf((char) i)));
-			}
-		}
-		return buttons;
+		whiteToMove = true;
+		currentMove.clear();
 	}
-	
-	private List<ButtonWithID> whereIsFigure(byte figureCode) {
-		List<ButtonWithID> buttons = new LinkedList<ButtonWithID>();
-		int unit = (whiteToMove ? -1 : 1);
-		for (int i = 0; i < SQUARES_COUNT; ++i) {
-			if (chessboard[i] == unit * figureCode) {
-				buttons.add(new ButtonWithID(
-						LETTERS[i % SQUARES_IN_A_ROW] +
-							DIGITS[i / SQUARES_IN_A_ROW],
-						String.valueOf((char) i)));
-			}
-		}
-		return buttons;
-	}
-	
-	private List<ButtonWithID> possibleMoves(byte figureCode, int startPositionCode) {
-		//TODO возможные ходы для этой фигуры из этой позиции
-		return new LinkedList<ButtonWithID>();
+	/**
+	 * Изменить ходящую сторону
+	 */
+	public void changeMovingSide() {
+		whiteToMove = !whiteToMove;
+	}	
+	/**
+	 * Поменять состояние готовности хода
+	 * @param newMovePart новая часть хода, в зависимости от текущего 
+	 * сотояния готовности хода может быть фигурой, начальной или конечной 
+	 * позицией
+	 */
+	public void changeMoveState(int newMovePart) {
+		currentMove.nextStatus(newMovePart);
 	}
 }
