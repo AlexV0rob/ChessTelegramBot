@@ -101,9 +101,9 @@ public class MoveConstructor {
 			String[] digitsNames, int squaresInARow) {
 		String move = figuresSymbols[figure] +
 				lettersNames[startPosition % squaresInARow] +
-				digitsNames[startPosition / squaresInARow] +
+				digitsNames[(squaresInARow - startPosition / squaresInARow) - 1] +
 				lettersNames[finishPosition % squaresInARow] +
-				digitsNames[finishPosition / squaresInARow];
+				digitsNames[(squaresInARow - finishPosition / squaresInARow) - 1];
 		nextStatus(-1);
 		return move;
 	}
@@ -192,7 +192,7 @@ public class MoveConstructor {
 			if (chessboard[i] == unit * figure) {
 				buttons.add(new IdentificatedButton(
 						lettersNames[i % squaresInARow] +
-						digitsNames[i / squaresInARow],
+						digitsNames[(squaresInARow - i / squaresInARow) - 1],
 						String.valueOf((char) i)));
 			}
 		}
