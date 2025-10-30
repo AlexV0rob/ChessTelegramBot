@@ -35,11 +35,8 @@ public class Bishop implements Chessmen {
         }
         return false;
     }
-
     /**
-     * Проверяем что на пути у нашего слона нету преград делением с остатком на 7
-     * проверяется приадлежность хода к левой диагонали а делением с остатком на 9
-     * проверяется приадлежность хода к правой диагонали
+     * Вспомогательный метод для проверки отсутствия препятствий на пути у Слона
      */
     private boolean isWayFree(int rawStartPos, int rawEndPos,
                               byte[] chessDesk, PositionConverter positionConverter) {
@@ -68,7 +65,6 @@ public class Bishop implements Chessmen {
         this.isWhite = isWhite;
         this.positionConverter = positionConverter;
         List<Integer> possibleMoves = new ArrayList<Integer>();
-
         //Позиция, движущаяся по доске вверх и влево
         int currentPositionUpAndLeft = rawStartPos;
         //Позиция, движущаяся по доске вверх и вправо

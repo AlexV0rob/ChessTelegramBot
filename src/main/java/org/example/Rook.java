@@ -7,29 +7,6 @@ import java.util.List;
  * Класс для реализации логики перемещения Ладьи
  */
 class Rook implements Chessmen {
-    /**
-     * Сдвиг по горизонтали
-     */
-    final static int HORIZONTAL_SHIFT = 1;
-    /**
-     * Сдвиг по вертикали
-     */
-    final static int VERTICAL_SHIFT = 8;
-    /**
-     * константа, соотвествующая длинне массива доски
-     */
-    private final static int LAST_INDEX_IN_DESK = 63;
-    /**
-     * длина линии
-     */
-    static int LINE_LENGTH = 8;
-
-    /**
-     * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
-     * @param rawEndPos   - предполагаемая конечная позиция фигуры в одномерном массиве доски
-     * @param chessDesk   - одномерный массив с позициями всех фигур на шахматной доске
-     * @return можно ли сходить на предполагаемую конечную позицию
-     */
     @Override
     public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite,
                              PositionConverter positionConverter) {
@@ -46,7 +23,9 @@ class Rook implements Chessmen {
         }
         return false;
     }
-
+    /**
+     * Вспомогательный метод для проверки отсутствия препятствий на пути у Слона
+     */
     private boolean isWayFree(int rawStartPos, int rawEndPos, byte[] chessDesk,
                               PositionConverter positionConverter) {
         boolean isEndUpperThanStart =
@@ -68,7 +47,53 @@ class Rook implements Chessmen {
     @Override
     public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
                                            boolean isWhite, PositionConverter positionConverter) {
-        List<Integer> somelist = new ArrayList<>();
-        return somelist;
+        List<Integer> possibleMoves = new ArrayList<>();
+        int RowStarPosition = positionConverter.positionRow(rawStartPos);
+        //Позиция, движущаяся по доске вертикально вверх
+        int VerticalUpPosition = rawStartPos;
+        //Позиция, движущаяся по доске вертикально вниз
+        int VericalDownPosition = rawStartPos;
+        //Позиция, движущаяся по доске горизонтально влево
+        int HorizontalLeftPosition = rawStartPos;
+        //Позиция, движущаяся по доске горизонтально вправо
+        int HorizontalRightPosition= rawStartPos;
+        //Смещения до цикла, чтобы не задеть саму фигуру
+        VerticalUpPosition = positionConverter.
+                nSquaresUpFromPositionX(1, VerticalUpPosition);
+        VericalDownPosition = positionConverter.
+                nSquaresDownFromPositionX(1, VericalDownPosition);
+        HorizontalLeftPosition = positionConverter.
+        		nSquaresLeftFromPositionX(1, HorizontalLeftPosition);
+        HorizontalRightPosition = positionConverter.
+        		nSquaresRightFromPositionX(1, HorizontalRightPosition);
+        while(VerticalUpPosition >= 0 || VericalDownPosition >= 0 ||
+        		HorizontalLeftPosition >= 0 || HorizontalRightPosition >= 0)
+        {
+        	if(VerticalUpPosition >= 0 && chessDesk[VerticalUpPosition] == 0) {
+                possibleMoves.add(VerticalUpPosition);
+                VerticalUpPosition = positionConverter.
+                        nSquaresUpFromPositionX(1, VerticalUpPosition);
+        	}
+        	if(VericalDownPosition >= 0 && chessDesk[VericalDownPosition] == 0) {
+                possibleMoves.add(VericalDownPosition);
+                VericalDownPosition = positionConverter.
+                        nSquaresDownFromPositionX(1, VericalDownPosition);
+        	}
+        	if(HorizontalLeftPosition >= 0 
+        			&& RowStarPosition == positionConverter.positionRow(HorizontalLeftPosition) 
+        			&& chessDesk[HorizontalLeftPosition] == 0) {
+                possibleMoves.add(HorizontalLeftPosition);
+                HorizontalLeftPosition = positionConverter.
+                        nSquaresUpFromPositionX(1, HorizontalLeftPosition);
+        	}
+        	if(HorizontalRightPosition >= 0 && 
+        			RowStarPosition == positionConverter.positionRow(HorizontalRightPosition) 
+        			&& chessDesk[HorizontalRightPosition] == 0) {
+                possibleMoves.add(VerticalUpPosition);
+                HorizontalRightPosition = positionConverter.
+                        nSquaresUpFromPositionX(1, HorizontalRightPosition);
+        	}       	
+        }
+        return possibleMoves;
     }
 }
