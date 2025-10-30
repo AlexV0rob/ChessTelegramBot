@@ -35,26 +35,33 @@ public class Bishop implements Chessmen {
         }
         return false;
     }
+
     /**
-     * Вспомогательный метод для проверки отсутствия препятствий на пути у Слона
+     * Проверка отсутствия препядствий дляна пути из начала пути в конец
      */
-    private boolean isWayFree(int rawStartPos, int rawEndPos,
-                              byte[] chessDesk, PositionConverter positionConverter) {
-        boolean isEndUpperThanStart =
-                positionConverter.positionRow(rawEndPos) <
-                        positionConverter.positionRow(rawStartPos);
-        boolean isEndLefterThanStart =
-                positionConverter.positionColumn(rawEndPos) <
-                        positionConverter.positionColumn(rawStartPos);
-        int currentPosition = positionConverter.refreshCurrendPosition(isEndUpperThanStart,
-                isEndLefterThanStart, rawStartPos);
+    private boolean isWayFree(int rawStartPos, int rawEndPos, byte[] chessDesk,
+                              PositionConverter positionConverter) {
+        PositionConverter.SHIFT_PROPERTY verticalProperty = PositionConverter.SHIFT_PROPERTY.EQUAL;
+        if (positionConverter.positionRow(rawStartPos) < positionConverter.positionRow((rawEndPos))) {
+            verticalProperty = PositionConverter.SHIFT_PROPERTY.GREATER;
+        } else if (positionConverter.positionRow(rawStartPos) > positionConverter.positionRow((rawEndPos))) {
+            verticalProperty = PositionConverter.SHIFT_PROPERTY.LESS;
+        }
+        PositionConverter.SHIFT_PROPERTY horizontalProperty = PositionConverter.SHIFT_PROPERTY.EQUAL;
+        if (positionConverter.positionColumn(rawStartPos) < positionConverter.positionColumn((rawEndPos))) {
+            horizontalProperty = PositionConverter.SHIFT_PROPERTY.GREATER;
+        } else if (positionConverter.positionColumn(rawStartPos) > positionConverter.positionColumn((rawEndPos))) {
+            horizontalProperty = PositionConverter.SHIFT_PROPERTY.LESS;
+        }
+        int currentPosition = positionConverter.refreshCurrentPosition
+                (verticalProperty,
+                        horizontalProperty, rawStartPos);
         while (currentPosition >= 0 && chessDesk[currentPosition] == 0 &&
                 currentPosition != rawEndPos) {
-            currentPosition = positionConverter.refreshCurrendPosition(isEndUpperThanStart,
-                    isEndLefterThanStart, currentPosition);
+            currentPosition = positionConverter.refreshCurrentPosition(verticalProperty,
+                    horizontalProperty, currentPosition);
         }
         return currentPosition == rawEndPos;
-
     }
 
     @Override

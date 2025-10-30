@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface Chessmen {
     /**
-     * Проверить ход на правльность
+     * Проверить ход на правильность
      */
     public boolean checkMove(int rawStartPos, int rawEndPos,
                              byte[] chessDesk, boolean isWhite, PositionConverter positionConverter);

@@ -1,6 +1,16 @@
 package org.example;
 
 public class PositionConverter {
+    public static enum SHIFT_PROPERTY {
+
+        GREATER,
+
+        LESS,
+
+        EQUAL
+
+    }
+
     /**
      * Длина линии
      */
@@ -111,17 +121,18 @@ public class PositionConverter {
     /**
      *
      */
-    public int refreshCurrendPosition(boolean isEndUpperThanStart,
-                                      boolean isEndLefterThanStart, int currentPosition) {
-        if (isEndUpperThanStart) {
-            currentPosition = nSquaresUpFromPositionX(1, currentPosition);
-        } else {
+    public int refreshCurrentPosition(SHIFT_PROPERTY verticalProperty,
+                                      SHIFT_PROPERTY horizontalProperty, int currentPosition) {
+        if (verticalProperty.equals(SHIFT_PROPERTY.GREATER)) {
             currentPosition = nSquaresDownFromPositionX(1, currentPosition);
+        } else if (verticalProperty.equals(SHIFT_PROPERTY.LESS)) {
+            currentPosition = nSquaresUpFromPositionX(1, currentPosition);
         }
-        if (isEndLefterThanStart) {
-            currentPosition = nSquaresLeftFromPositionX(1, currentPosition);
-        } else {
+
+        if (horizontalProperty.equals(SHIFT_PROPERTY.GREATER)) {
             currentPosition = nSquaresRightFromPositionX(1, currentPosition);
+        } else if (horizontalProperty.equals(SHIFT_PROPERTY.LESS)) {
+            currentPosition = nSquaresLeftFromPositionX(1, currentPosition);
         }
         return currentPosition;
     }
