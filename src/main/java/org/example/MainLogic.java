@@ -83,8 +83,11 @@ public class MainLogic {
                     currentGameState.moveFigure(startPositionCode, finishPositionCode);
                     if (!moveProperty.equals(GameState.MOVE_PROPERTIES.CHECKMATE)) {
                         currentGameState.changeMovingSide();
+                    } else {
+                        currentGameState.setState(GameState.STATES.NOGAME);
                     }
                 }
+
                 return List.of(currentGameState.printBoard(moveProperty));
             } else {
                 return List.of(currentGameState

@@ -59,7 +59,7 @@ public class GameState {
     /**
      * Сообщение о мате и конце партии
      */
-    private final static String CHECKMATE_MOVE = "Шах и мат! Партия окончена.";
+    private final static String CHECKMATE_MOVE = "Шах и мат! Партия окончена. ";
     /**
      * сообщение о победе белых
      */

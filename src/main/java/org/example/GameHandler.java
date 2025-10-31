@@ -30,11 +30,11 @@ public class GameHandler {
     /**
      * Код белого короля
      */
-    private final static int WHITE_KING = 6;
+    private final static int WHITE_KING = -6;
     /**
      * Код чёрного короля
      */
-    private final static int BLACK_KING = -6;
+    private final static int BLACK_KING = 6;
     /**
      * Число фигур
      */

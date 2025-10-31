@@ -10,7 +10,7 @@ class Rook implements Chessmen {
     @Override
     public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite,
                              PositionConverter positionConverter) {
-        if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] > 0) != isWhite) {
+        if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] < 0) != isWhite) {
             int startPosRow = positionConverter.positionRow(rawStartPos);
             int startPosColumn = positionConverter.positionColumn(rawStartPos);
             int endPosRow = positionConverter.positionRow(rawEndPos);

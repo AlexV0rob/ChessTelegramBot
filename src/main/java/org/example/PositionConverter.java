@@ -124,9 +124,9 @@ public class PositionConverter {
     public int refreshCurrentPosition(SHIFT_PROPERTY verticalProperty,
                                       SHIFT_PROPERTY horizontalProperty, int currentPosition) {
         if (verticalProperty.equals(SHIFT_PROPERTY.GREATER)) {
-            currentPosition = verticalMoving(1, currentPosition, DIRECTION_OF_SHIFT.DOWN);
-        } else if (verticalProperty.equals(SHIFT_PROPERTY.LESS)) {
             currentPosition = verticalMoving(1, currentPosition, DIRECTION_OF_SHIFT.UP);
+        } else if (verticalProperty.equals(SHIFT_PROPERTY.LESS)) {
+            currentPosition = verticalMoving(1, currentPosition, DIRECTION_OF_SHIFT.DOWN);
         }
 
         if (horizontalProperty.equals(SHIFT_PROPERTY.GREATER)) {
