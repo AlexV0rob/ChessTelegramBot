@@ -57,46 +57,65 @@ class Rook implements Chessmen {
         List<Integer> possibleMoves = new ArrayList<>();
         int RowStarPosition = positionConverter.positionRow(rawStartPos);
         //Позиция, движущаяся по доске вертикально вверх
-        int VerticalUpPosition = rawStartPos;
+        int verticalUpPosition = rawStartPos;
         //Позиция, движущаяся по доске вертикально вниз
-        int VericalDownPosition = rawStartPos;
+        int verticalDownPosition = rawStartPos;
         //Позиция, движущаяся по доске горизонтально влево
-        int HorizontalLeftPosition = rawStartPos;
+        int horizontalLeftPosition = rawStartPos;
         //Позиция, движущаяся по доске горизонтально вправо
-        int HorizontalRightPosition = rawStartPos;
-        //Смещения до цикла, чтобы не задеть саму фигуру
-        VerticalUpPosition = positionConverter.
-                nSquaresUpFromPositionX(1, VerticalUpPosition);
-        VericalDownPosition = positionConverter.
-                nSquaresDownFromPositionX(1, VericalDownPosition);
-        HorizontalLeftPosition = positionConverter.
-                nSquaresLeftFromPositionX(1, HorizontalLeftPosition);
-        HorizontalRightPosition = positionConverter.
-                nSquaresRightFromPositionX(1, HorizontalRightPosition);
-        while (VerticalUpPosition >= 0 || VericalDownPosition >= 0 ||
-                HorizontalLeftPosition >= 0 || HorizontalRightPosition >= 0) {
-            if (VerticalUpPosition >= 0 && chessDesk[VerticalUpPosition] == 0) {
-                possibleMoves.add(VerticalUpPosition);
-                VerticalUpPosition = positionConverter.
-                        nSquaresUpFromPositionX(1, VerticalUpPosition);
+        int horizontalRightPosition = rawStartPos;
+        verticalUpPosition = positionConverter.verticalMoving(1, verticalUpPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        verticalDownPosition = positionConverter.verticalMoving(1, verticalDownPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        horizontalLeftPosition = positionConverter.horizontalMoving(1, horizontalLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+        horizontalRightPosition = positionConverter.horizontalMoving(1, horizontalRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        while (verticalUpPosition >= 0 || verticalDownPosition >= 0 ||
+                horizontalRightPosition >= 0 || horizontalLeftPosition >= 0) {
+            if (verticalUpPosition >= 0) {
+                if (chessDesk[verticalUpPosition] == 0) {
+                    possibleMoves.add(verticalUpPosition);
+                    verticalUpPosition = positionConverter.verticalMoving(1, verticalUpPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+                } else {
+                    if ((chessDesk[verticalUpPosition] < 0) != isWhite) {
+                        possibleMoves.add(verticalUpPosition);
+                    }
+                    verticalUpPosition = -1;
+
+                }
             }
-            if (VericalDownPosition >= 0 && chessDesk[VericalDownPosition] == 0) {
-                possibleMoves.add(VericalDownPosition);
-                VericalDownPosition = positionConverter.
-                        nSquaresDownFromPositionX(1, VericalDownPosition);
+            if (verticalDownPosition >= 0) {
+                if (chessDesk[verticalDownPosition] == 0) {
+                    possibleMoves.add(verticalDownPosition);
+                    verticalDownPosition = positionConverter.verticalMoving(1, verticalDownPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+                } else {
+                    if ((chessDesk[verticalDownPosition] < 0) != isWhite) {
+                        possibleMoves.add(verticalDownPosition);
+                    }
+                    verticalDownPosition = -1;
+
+                }
             }
-            if (HorizontalLeftPosition >= 0
-                    && RowStarPosition == positionConverter.positionRow(HorizontalLeftPosition)
-                    && chessDesk[HorizontalLeftPosition] == 0) {
-                possibleMoves.add(HorizontalLeftPosition);
-                HorizontalLeftPosition = positionConverter.
-                        nSquaresUpFromPositionX(1, HorizontalLeftPosition);
+            if (horizontalLeftPosition >= 0) {
+                if (chessDesk[horizontalLeftPosition] == 0) {
+                    possibleMoves.add(horizontalLeftPosition);
+                    horizontalLeftPosition = positionConverter.horizontalMoving(1, horizontalLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+                } else {
+                    if ((chessDesk[horizontalLeftPosition] < 0) != isWhite) {
+                        possibleMoves.add(horizontalLeftPosition);
+                    }
+                    horizontalLeftPosition = -1;
+
+                }
             }
-            if (HorizontalRightPosition >= 0 && RowStarPosition == positionConverter.positionRow(HorizontalRightPosition)
-                    && chessDesk[HorizontalRightPosition] == 0) {
-                possibleMoves.add(VerticalUpPosition);
-                HorizontalRightPosition = positionConverter.
-                        nSquaresUpFromPositionX(1, HorizontalRightPosition);
+            if (horizontalRightPosition >= 0) {
+                if (chessDesk[horizontalRightPosition] == 0) {
+                    possibleMoves.add(horizontalRightPosition);
+                    horizontalRightPosition = positionConverter.horizontalMoving(1, horizontalRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+                } else {
+                    if ((chessDesk[horizontalRightPosition] < 0) != isWhite) {
+                        possibleMoves.add(horizontalRightPosition);
+                    }
+                    horizontalRightPosition = -1;
+                }
             }
         }
         return possibleMoves;

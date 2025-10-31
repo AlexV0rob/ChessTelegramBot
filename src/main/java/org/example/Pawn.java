@@ -41,61 +41,53 @@ public class Pawn implements Chessmen {
                                            PositionConverter positionConverter) {
         List<Integer> possibleMoves = new ArrayList<>();
         int startPosRow = positionConverter.positionRow(rawStartPos);
+        //единичный ход пешки
+        int oneTimeMovePos = rawStartPos;
+        //двойной ход со стартовой позиции
+        int twoTimesMovePos = rawStartPos;
+        //ход, рубящий по диагонали вправо
+        int rightDiagonalPos = rawStartPos;
+        //ход, рубящий по диагонали влево
+        int leftDiagonalPos = rawStartPos;
+        // сдвигаем на позиции наши ходы
         if (chessDesk[rawStartPos] > 0) {
-            //единичный ход пешки
-            int OneTimeUpPos = rawStartPos;
-            //двойной ход со стартовой позиции
-            int TwoTimesUpPos = rawStartPos;
-            //ход, рубящий по диагонали вправо
-            int RightAndUpPos = rawStartPos;
-            //ход, рубящий по диагонали влево
-            int LeftAndUpPos = rawStartPos;
-            // сдвигаем на позиции наши ходы
-            OneTimeUpPos = positionConverter.nSquaresDownFromPositionX(1, OneTimeUpPos);
 
-            TwoTimesUpPos = positionConverter.nSquaresDownFromPositionX(2, TwoTimesUpPos);
+            oneTimeMovePos = positionConverter.verticalMoving(1, oneTimeMovePos, PositionConverter.DIRECTION_OF_SHIFT.UP);
 
-            RightAndUpPos = positionConverter.nSquaresDownFromPositionX(1, RightAndUpPos);
-            RightAndUpPos = positionConverter.nSquaresRightFromPositionX(1, RightAndUpPos);
+            twoTimesMovePos = positionConverter.verticalMoving(2, twoTimesMovePos, PositionConverter.DIRECTION_OF_SHIFT.UP);
 
-            LeftAndUpPos = positionConverter.nSquaresDownFromPositionX(1, LeftAndUpPos);
-            LeftAndUpPos = positionConverter.nSquaresLeftFromPositionX(1, LeftAndUpPos);
-            if (OneTimeUpPos >= 0 && chessDesk[OneTimeUpPos] == 0)
-                possibleMoves.add(OneTimeUpPos);
-            if (TwoTimesUpPos >= 0 && chessDesk[TwoTimesUpPos] == 0 && (startPosRow == BLACK_PAWN_START_ROW))
-                possibleMoves.add(TwoTimesUpPos);
-            if (RightAndUpPos >= 0 && chessDesk[RightAndUpPos] != 0 && (chessDesk[RightAndUpPos] < 0 != isWhite))
-                possibleMoves.add(RightAndUpPos);
-            if (LeftAndUpPos >= 0 && chessDesk[LeftAndUpPos] != 0 && (chessDesk[LeftAndUpPos] < 0 != isWhite))
-                possibleMoves.add(LeftAndUpPos);
+            rightDiagonalPos = positionConverter.verticalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+            rightDiagonalPos = positionConverter.horizontalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+
+            leftDiagonalPos = positionConverter.verticalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+            leftDiagonalPos = positionConverter.horizontalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+            if (oneTimeMovePos >= 0 && chessDesk[oneTimeMovePos] == 0)
+                possibleMoves.add(oneTimeMovePos);
+            if (twoTimesMovePos >= 0 && chessDesk[twoTimesMovePos] == 0 && (startPosRow == BLACK_PAWN_START_ROW))
+                possibleMoves.add(twoTimesMovePos);
+            if (rightDiagonalPos >= 0 && chessDesk[rightDiagonalPos] != 0 && (chessDesk[rightDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(rightDiagonalPos);
+            if (leftDiagonalPos >= 0 && chessDesk[leftDiagonalPos] != 0 && (chessDesk[leftDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(leftDiagonalPos);
         } else {
-            //единичный ход пешки
-            int OneTimeDownPos = rawStartPos;
-            //двойной ход со стартовой позиции
-            int TwoTimesDownPos = rawStartPos;
-            //ход, рубящий по диагонали вправо
-            int RightAndDownPos = rawStartPos;
-            //ход, рубящий по диагонали влево
-            int LeftAndDownPos = rawStartPos;
-            // сдвигаем на позиции наши ходы
-            OneTimeDownPos = positionConverter.nSquaresUpFromPositionX(1, OneTimeDownPos);
+            oneTimeMovePos = positionConverter.verticalMoving(1, oneTimeMovePos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
 
-            TwoTimesDownPos = positionConverter.nSquaresUpFromPositionX(2, TwoTimesDownPos);
+            twoTimesMovePos = positionConverter.verticalMoving(2, twoTimesMovePos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
 
-            RightAndDownPos = positionConverter.nSquaresUpFromPositionX(1, RightAndDownPos);
-            RightAndDownPos = positionConverter.nSquaresRightFromPositionX(1, RightAndDownPos);
+            rightDiagonalPos = positionConverter.verticalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+            rightDiagonalPos = positionConverter.horizontalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
 
-            LeftAndDownPos = positionConverter.nSquaresUpFromPositionX(1, LeftAndDownPos);
-            LeftAndDownPos = positionConverter.nSquaresLeftFromPositionX(1, LeftAndDownPos);
-            if (OneTimeDownPos >= 0 && chessDesk[OneTimeDownPos] == 0)
-                possibleMoves.add(OneTimeDownPos);
-            if (TwoTimesDownPos >= 0 && chessDesk[TwoTimesDownPos] == 0 &&
+            leftDiagonalPos = positionConverter.verticalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+            leftDiagonalPos = positionConverter.horizontalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+            if (oneTimeMovePos >= 0 && chessDesk[oneTimeMovePos] == 0)
+                possibleMoves.add(oneTimeMovePos);
+            if (twoTimesMovePos >= 0 && chessDesk[twoTimesMovePos] == 0 &&
                     (startPosRow == WHITE_PAWN_START_ROW))
-                possibleMoves.add(TwoTimesDownPos);
-            if (RightAndDownPos >= 0 && chessDesk[RightAndDownPos] != 0 && (chessDesk[RightAndDownPos] < 0 != isWhite))
-                possibleMoves.add(RightAndDownPos);
-            if (LeftAndDownPos >= 0 && (chessDesk[LeftAndDownPos] != 0) && (chessDesk[LeftAndDownPos] < 0 != isWhite))
-                possibleMoves.add(LeftAndDownPos);
+                possibleMoves.add(twoTimesMovePos);
+            if (rightDiagonalPos >= 0 && chessDesk[rightDiagonalPos] != 0 && (chessDesk[rightDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(rightDiagonalPos);
+            if (leftDiagonalPos >= 0 && (chessDesk[leftDiagonalPos] != 0) && (chessDesk[leftDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(leftDiagonalPos);
         }
         return possibleMoves;
     }

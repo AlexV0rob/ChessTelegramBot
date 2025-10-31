@@ -7,23 +7,24 @@ import java.util.List;
  * Класс для реализации логики перемещения коня
  */
 class Knight implements Chessmen {
-	@Override
+    @Override
     public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite,
-                    PositionConverter positionConverter){
+                             PositionConverter positionConverter) {
         if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] > 0) != isWhite) {
             int startPosRow = positionConverter.positionRow(rawStartPos);
             int startPosColumn = positionConverter.positionColumn(rawStartPos);
             int endPosRow = positionConverter.positionRow(rawEndPos);
             int endPosColumn = positionConverter.positionColumn(rawEndPos);
-            if((Math.abs(startPosRow - endPosRow) == 2 && Math.abs(endPosColumn - startPosColumn) == 1) 
-            		||(Math.abs(startPosRow - endPosRow) == 1 && Math.abs(endPosColumn - startPosColumn) == 2))
-            	return true;
+            if ((Math.abs(startPosRow - endPosRow) == 2 && Math.abs(endPosColumn - startPosColumn) == 1)
+                    || (Math.abs(startPosRow - endPosRow) == 1 && Math.abs(endPosColumn - startPosColumn) == 2))
+                return true;
         }
-		return false;
-	}
-	@Override
+        return false;
+    }
+
+    @Override
     public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
-            boolean isWhite, PositionConverter positionConverter) {
+                                           boolean isWhite, PositionConverter positionConverter) {
         List<Integer> possibleMoves = new ArrayList<>();
         int RowStarPosition = positionConverter.positionRow(rawStartPos);
         //Позиция, движущаяся по доске вертикально вверх
@@ -33,54 +34,54 @@ class Knight implements Chessmen {
         //Позиция, движущаяся по доске горизонтально влево
         int DownAndLeftPosition = rawStartPos;
         //Позиция, движущаяся по доске горизонтально вправо
-        int DownAndRightPosition= rawStartPos;
+        int DownAndRightPosition = rawStartPos;
         //Смещения позиций
-        UpAndLeftPosition = positionConverter.nSquaresUpFromPositionX(2, UpAndLeftPosition);
-        UpAndLeftPosition = positionConverter.nSquaresLeftFromPositionX(1, UpAndLeftPosition); 
-        
-        UpAndRightPosition = positionConverter.nSquaresUpFromPositionX(2, UpAndRightPosition);
-        UpAndRightPosition = positionConverter.nSquaresRightFromPositionX(1, UpAndLeftPosition);
-        
-        DownAndLeftPosition = positionConverter.nSquaresDownFromPositionX(2, DownAndLeftPosition);
-        DownAndLeftPosition = positionConverter.nSquaresLeftFromPositionX(1, DownAndLeftPosition); 
-        
-        DownAndRightPosition = positionConverter.nSquaresDownFromPositionX(2, DownAndRightPosition);
-        DownAndRightPosition = positionConverter.nSquaresRightFromPositionX(1, DownAndRightPosition); 
-        if(UpAndLeftPosition >= 0 && chessDesk[UpAndLeftPosition] == 0){
-        	possibleMoves.add(UpAndLeftPosition);
+        UpAndLeftPosition = positionConverter.verticalMoving(2, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        UpAndLeftPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+
+        UpAndRightPosition = positionConverter.verticalMoving(2, UpAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        UpAndRightPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+
+        DownAndLeftPosition = positionConverter.verticalMoving(2, DownAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        DownAndLeftPosition = positionConverter.horizontalMoving(1, DownAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+
+        DownAndRightPosition = positionConverter.verticalMoving(2, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        DownAndRightPosition = positionConverter.horizontalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        if (UpAndLeftPosition >= 0 && (chessDesk[UpAndLeftPosition] == 0 || chessDesk[UpAndLeftPosition] < 0 != isWhite)) {
+            possibleMoves.add(UpAndLeftPosition);
         }
-        if(UpAndRightPosition >= 0 && chessDesk[UpAndRightPosition] == 0){
-        	possibleMoves.add(UpAndRightPosition);
+        if (UpAndRightPosition >= 0 && (chessDesk[UpAndRightPosition] == 0 || chessDesk[UpAndRightPosition] < 0 != isWhite)) {
+            possibleMoves.add(UpAndRightPosition);
         }
-        if(DownAndLeftPosition >= 0 && chessDesk[DownAndLeftPosition] == 0){
-        	possibleMoves.add(DownAndLeftPosition);
+        if (DownAndLeftPosition >= 0 && (chessDesk[DownAndLeftPosition] == 0 || chessDesk[DownAndLeftPosition] < 0 != isWhite)) {
+            possibleMoves.add(DownAndLeftPosition);
         }
-        if(DownAndRightPosition >= 0 && chessDesk[DownAndRightPosition] == 0){
-        	possibleMoves.add(DownAndRightPosition);
+        if (DownAndRightPosition >= 0 && (chessDesk[DownAndRightPosition] == 0 || chessDesk[DownAndRightPosition] < 0 != isWhite)) {
+            possibleMoves.add(DownAndRightPosition);
         }
-        UpAndLeftPosition = positionConverter.nSquaresDownFromPositionX(1, UpAndLeftPosition);
-        UpAndLeftPosition = positionConverter.nSquaresLeftFromPositionX(1, UpAndLeftPosition); 
-        
-        UpAndRightPosition = positionConverter.nSquaresDownFromPositionX(1, UpAndRightPosition);
-        UpAndRightPosition = positionConverter.nSquaresRightFromPositionX(1, UpAndLeftPosition);
-        
-        DownAndLeftPosition = positionConverter.nSquaresUpFromPositionX(1, DownAndLeftPosition);
-        DownAndLeftPosition = positionConverter.nSquaresLeftFromPositionX(1, DownAndLeftPosition); 
-        
-        DownAndRightPosition = positionConverter.nSquaresUpFromPositionX(1, DownAndRightPosition);
-        DownAndRightPosition = positionConverter.nSquaresRightFromPositionX(1, DownAndRightPosition);
-        if(UpAndLeftPosition >= 0 && chessDesk[UpAndLeftPosition] == 0){
-        	possibleMoves.add(UpAndLeftPosition);
+        UpAndLeftPosition = positionConverter.verticalMoving(1, rawStartPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        UpAndLeftPosition = positionConverter.horizontalMoving(2, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+
+        UpAndRightPosition = positionConverter.verticalMoving(1, rawStartPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        UpAndRightPosition = positionConverter.horizontalMoving(2, UpAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+
+        DownAndLeftPosition = positionConverter.verticalMoving(1, rawStartPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        DownAndLeftPosition = positionConverter.horizontalMoving(2, DownAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+
+        DownAndRightPosition = positionConverter.verticalMoving(1, rawStartPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        DownAndRightPosition = positionConverter.horizontalMoving(2, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        if (UpAndLeftPosition >= 0 && (chessDesk[UpAndLeftPosition] == 0 || chessDesk[UpAndLeftPosition] < 0 != isWhite)) {
+            possibleMoves.add(UpAndLeftPosition);
         }
-        if(UpAndRightPosition >= 0 && chessDesk[UpAndRightPosition] == 0){
-        	possibleMoves.add(UpAndRightPosition);
+        if (UpAndRightPosition >= 0 && (chessDesk[UpAndRightPosition] == 0 || chessDesk[UpAndRightPosition] < 0 != isWhite)) {
+            possibleMoves.add(UpAndRightPosition);
         }
-        if(DownAndLeftPosition >= 0 && chessDesk[DownAndLeftPosition] == 0){
-        	possibleMoves.add(DownAndLeftPosition);
+        if (DownAndLeftPosition >= 0 && (chessDesk[DownAndLeftPosition] == 0 || chessDesk[DownAndLeftPosition] < 0 != isWhite)) {
+            possibleMoves.add(DownAndLeftPosition);
         }
-        if(DownAndRightPosition >= 0 && chessDesk[DownAndRightPosition] == 0){
-        	possibleMoves.add(DownAndRightPosition);
-        }        
+        if (DownAndRightPosition >= 0 && (chessDesk[DownAndRightPosition] == 0 || chessDesk[DownAndRightPosition] < 0 != isWhite)) {
+            possibleMoves.add(DownAndRightPosition);
+        }
         return possibleMoves;
-	}
+    }
 }

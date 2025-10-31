@@ -83,22 +83,22 @@ public class Bishop implements Chessmen {
 
         //Смещения до цикла, чтобы не задеть саму фигуру
         currentPositionUpAndLeft = positionConverter.
-                nSquaresUpFromPositionX(1, currentPositionUpAndLeft);
+                verticalMoving(1, currentPositionUpAndLeft, PositionConverter.DIRECTION_OF_SHIFT.UP);
         currentPositionUpAndLeft = positionConverter.
-                nSquaresLeftFromPositionX(1, currentPositionUpAndLeft);
+                horizontalMoving(1, currentPositionUpAndLeft, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
         currentPositionUpAndRight = positionConverter.
-                nSquaresUpFromPositionX(1, currentPositionUpAndRight);
+                verticalMoving(1, currentPositionUpAndRight, PositionConverter.DIRECTION_OF_SHIFT.UP);
         currentPositionUpAndRight = positionConverter.
-                nSquaresRightFromPositionX(1, currentPositionUpAndRight);
-        currentPositionDownAndLeft = positionConverter.
-                nSquaresDownFromPositionX(1, currentPositionDownAndLeft);
+                horizontalMoving(1, currentPositionUpAndRight, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
 
         currentPositionDownAndLeft = positionConverter.
-                nSquaresLeftFromPositionX(1, currentPositionDownAndLeft);
+                verticalMoving(1, currentPositionDownAndLeft, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        currentPositionDownAndLeft = positionConverter.
+                horizontalMoving(1, currentPositionDownAndLeft, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
         currentPositionDownAndRight = positionConverter.
-                nSquaresDownFromPositionX(1, currentPositionDownAndRight);
+                verticalMoving(1, currentPositionDownAndRight, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
         currentPositionDownAndRight = positionConverter.
-                nSquaresRightFromPositionX(1, currentPositionDownAndRight);
+                horizontalMoving(1, currentPositionDownAndRight, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
         /*
          * Для каждой позиции идёт следующая проверка:
          * Если мы ещё не вышли за пределы доски ->
@@ -115,9 +115,9 @@ public class Bishop implements Chessmen {
                 if (chessDesk[currentPositionUpAndLeft] == 0) {
                     possibleMoves.add(currentPositionUpAndLeft);
                     currentPositionUpAndLeft = positionConverter.
-                            nSquaresUpFromPositionX(1, currentPositionUpAndLeft);
+                            verticalMoving(1, currentPositionUpAndLeft, PositionConverter.DIRECTION_OF_SHIFT.UP);
                     currentPositionUpAndLeft = positionConverter.
-                            nSquaresLeftFromPositionX(1, currentPositionUpAndLeft);
+                            horizontalMoving(1, currentPositionUpAndLeft, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
                 } else {
                     if ((chessDesk[currentPositionUpAndLeft] > 0) != isWhite) {
                         possibleMoves.add(currentPositionUpAndLeft);
@@ -129,11 +129,11 @@ public class Bishop implements Chessmen {
                 if (chessDesk[currentPositionUpAndRight] == 0) {
                     possibleMoves.add(currentPositionUpAndRight);
                     currentPositionUpAndRight = positionConverter.
-                            nSquaresUpFromPositionX(1, currentPositionUpAndRight);
+                            verticalMoving(1, currentPositionUpAndRight, PositionConverter.DIRECTION_OF_SHIFT.UP);
                     currentPositionUpAndRight = positionConverter.
-                            nSquaresRightFromPositionX(1, currentPositionUpAndRight);
+                            horizontalMoving(1, currentPositionUpAndRight, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
                 } else {
-                    if ((chessDesk[currentPositionUpAndRight] > 0) != isWhite) {
+                    if ((chessDesk[currentPositionUpAndRight] < 0) != isWhite) {
                         possibleMoves.add(currentPositionUpAndRight);
                     }
                     currentPositionUpAndRight = -1;
@@ -143,11 +143,11 @@ public class Bishop implements Chessmen {
                 if (chessDesk[currentPositionDownAndLeft] == 0) {
                     possibleMoves.add(currentPositionDownAndLeft);
                     currentPositionDownAndLeft = positionConverter.
-                            nSquaresDownFromPositionX(1, currentPositionDownAndLeft);
+                            verticalMoving(1, currentPositionDownAndLeft, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
                     currentPositionDownAndLeft = positionConverter.
-                            nSquaresLeftFromPositionX(1, currentPositionDownAndLeft);
+                            horizontalMoving(1, currentPositionDownAndLeft, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
                 } else {
-                    if ((chessDesk[currentPositionDownAndLeft] > 0) != isWhite) {
+                    if ((chessDesk[currentPositionDownAndLeft] < 0) != isWhite) {
                         possibleMoves.add(currentPositionDownAndLeft);
                     }
                     currentPositionDownAndLeft = -1;
@@ -157,11 +157,11 @@ public class Bishop implements Chessmen {
                 if (chessDesk[currentPositionDownAndRight] == 0) {
                     possibleMoves.add(currentPositionDownAndRight);
                     currentPositionDownAndRight = positionConverter.
-                            nSquaresDownFromPositionX(1, currentPositionDownAndRight);
+                            verticalMoving(1, currentPositionDownAndRight, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
                     currentPositionDownAndRight = positionConverter.
-                            nSquaresRightFromPositionX(1, currentPositionDownAndRight);
+                            horizontalMoving(1, currentPositionDownAndRight, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
                 } else {
-                    if ((chessDesk[currentPositionDownAndRight] > 0) != isWhite) {
+                    if ((chessDesk[currentPositionDownAndRight] < 0) != isWhite) {
                         possibleMoves.add(currentPositionDownAndRight);
                     }
                     currentPositionDownAndRight = -1;

@@ -1,6 +1,9 @@
 package org.example;
 
 public class PositionConverter {
+    /**
+     * варианты расположеиния позиций между друг другом
+     */
     public static enum SHIFT_PROPERTY {
 
         GREATER,
@@ -8,6 +11,21 @@ public class PositionConverter {
         LESS,
 
         EQUAL
+
+    }
+
+    /**
+     * направление движения фигуры
+     */
+    public static enum DIRECTION_OF_SHIFT {
+
+        UP,
+
+        DOWN,
+
+        LEFT,
+
+        RIGHT
 
     }
 
@@ -25,21 +43,13 @@ public class PositionConverter {
     private int maxPosition;
 
     /**
-     * Смещение на одну клетку вверх
+     * Смещение на одну клетку по вертикали
      */
-    private final static int SQUARE_UP = -8;
+    private final static int VERTICAL_SQUARE = 8;
     /**
-     * Смещение на одну клетку вниз
+     * Смещение на одну клетку по горизонтали
      */
-    private final static int SQUARE_DOWN = 8;
-    /**
-     * Смещение на одну клетку влево
-     */
-    private final static int SQUARE_LEFT = -1;
-    /**
-     * Смещение на одну клетку вправо
-     */
-    private final static int SQUARE_RIGHT = 1;
+    private final static int HORIZONTAL_SQUARE = 1;
 
     /**
      * Конструктор
@@ -51,56 +61,47 @@ public class PositionConverter {
     }
 
     /**
-     * Позиция на n квадратов выше позиции x
+     * смещение на n квадратов по вертикали
      *
      * @return код позиции или -1, если выход за границу доски
      */
-    public int nSquaresUpFromPositionX(int n, int x) {
-        if (x < minPosition || x > maxPosition) {
+    public int verticalMoving(int n, int currentPosition, DIRECTION_OF_SHIFT direction) {
+        if (currentPosition < minPosition || currentPosition > maxPosition) {
             return -1;
         }
-        int newPosition = x + SQUARE_UP * n;
-        return (newPosition < minPosition ? -1 : newPosition);
+        int newPosition = currentPosition;
+        if (direction.equals(DIRECTION_OF_SHIFT.UP)) {
+            newPosition += n * VERTICAL_SQUARE;
+        } else if (direction.equals(DIRECTION_OF_SHIFT.DOWN)) {
+            newPosition -= n * VERTICAL_SQUARE;
+        } else {
+            newPosition = -1;
+        }
+        if (newPosition < minPosition || newPosition > maxPosition)
+            return -1;
+        else
+            return
+                    newPosition;
     }
 
     /**
-     * Позиция на n квадратов ниже позиции x
+     * с
      *
      * @return код позиции или -1, если выход за границу доски
      */
-    public int nSquaresDownFromPositionX(int n, int x) {
-        if (x < minPosition || x > maxPosition) {
+    public int horizontalMoving(int n, int currentPosition, DIRECTION_OF_SHIFT direction) {
+        if (currentPosition < minPosition || currentPosition > maxPosition) {
             return -1;
         }
-        int newPosition = x + SQUARE_DOWN * n;
-        return (newPosition > maxPosition ? -1 : newPosition);
-    }
-
-    /**
-     * Позиция на n квадратов левее позиции x
-     *
-     * @return код позиции или -1, если выход за границу доски
-     */
-    public int nSquaresLeftFromPositionX(int n, int x) {
-        if (x < minPosition || x > maxPosition) {
-            return -1;
+        int newPosition = currentPosition;
+        int oldLine = currentPosition / lineLength;
+        if (direction.equals(DIRECTION_OF_SHIFT.RIGHT)) {
+            newPosition += n * HORIZONTAL_SQUARE;
+        } else if (direction.equals(DIRECTION_OF_SHIFT.LEFT)) {
+            newPosition -= n * HORIZONTAL_SQUARE;
+        } else {
+            newPosition = -1;
         }
-        int oldLine = x / lineLength;
-        int newPosition = x + SQUARE_LEFT * n;
-        return (newPosition / lineLength != oldLine ? -1 : newPosition);
-    }
-
-    /**
-     * Позиция на n квадратов правее позиции x
-     *
-     * @return код позиции или -1, если выход за границу доски
-     */
-    public int nSquaresRightFromPositionX(int n, int x) {
-        if (x < minPosition || x > maxPosition) {
-            return -1;
-        }
-        int oldLine = x / lineLength;
-        int newPosition = x + SQUARE_RIGHT * n;
         return (newPosition / lineLength != oldLine ? -1 : newPosition);
     }
 
@@ -124,15 +125,15 @@ public class PositionConverter {
     public int refreshCurrentPosition(SHIFT_PROPERTY verticalProperty,
                                       SHIFT_PROPERTY horizontalProperty, int currentPosition) {
         if (verticalProperty.equals(SHIFT_PROPERTY.GREATER)) {
-            currentPosition = nSquaresDownFromPositionX(1, currentPosition);
+            currentPosition = verticalMoving(1, currentPosition, DIRECTION_OF_SHIFT.DOWN);
         } else if (verticalProperty.equals(SHIFT_PROPERTY.LESS)) {
-            currentPosition = nSquaresUpFromPositionX(1, currentPosition);
+            currentPosition = verticalMoving(1, currentPosition, DIRECTION_OF_SHIFT.UP);
         }
 
         if (horizontalProperty.equals(SHIFT_PROPERTY.GREATER)) {
-            currentPosition = nSquaresRightFromPositionX(1, currentPosition);
+            currentPosition = horizontalMoving(1, currentPosition, DIRECTION_OF_SHIFT.RIGHT);
         } else if (horizontalProperty.equals(SHIFT_PROPERTY.LESS)) {
-            currentPosition = nSquaresLeftFromPositionX(1, currentPosition);
+            currentPosition = horizontalMoving(1, currentPosition, DIRECTION_OF_SHIFT.LEFT);
         }
         return currentPosition;
     }
