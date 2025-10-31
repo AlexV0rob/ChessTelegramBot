@@ -49,10 +49,10 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen pawn = new Pawn();
-        Assertions.assertFalse(pawn.checkMove(8, 63, board, true, positionConverter));
-        Assertions.assertFalse(pawn.checkMove(8, 0, board, true, positionConverter));
-        Assertions.assertTrue(pawn.checkMove(8, 16, board, true, positionConverter));
-        Assertions.assertTrue(pawn.checkMove(8, 24, board, true, positionConverter));
+        Assertions.assertFalse(pawn.checkMove(8, 63, board, false, positionConverter));
+        Assertions.assertFalse(pawn.checkMove(8, 0, board, false, positionConverter));
+        Assertions.assertTrue(pawn.checkMove(8, 16, board, false, positionConverter));
+        Assertions.assertTrue(pawn.checkMove(8, 24, board, false, positionConverter));
     }
 
     /**
@@ -71,10 +71,10 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen rook = new Rook();
-        Assertions.assertFalse(rook.checkMove(0, 1, board, true, positionConverter));
-        Assertions.assertFalse(rook.checkMove(28, 34, board, true, positionConverter));
+        Assertions.assertFalse(rook.checkMove(0, 1, board, false, positionConverter));
+        Assertions.assertFalse(rook.checkMove(28, 34, board, false, positionConverter));
         Assertions.assertTrue(rook.checkMove(0, 16, board, false, positionConverter));
-        Assertions.assertTrue(rook.checkMove(28, 27, board, true, positionConverter));
+        Assertions.assertTrue(rook.checkMove(28, 27, board, false, positionConverter));
     }
 
     /**
@@ -93,8 +93,8 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen bishop = new Bishop();
-        Assertions.assertFalse(bishop.checkMove(2, 10, board, true, positionConverter));
-        Assertions.assertFalse(bishop.checkMove(2, 1, board, true, positionConverter));
+        Assertions.assertFalse(bishop.checkMove(2, 10, board, false, positionConverter));
+        Assertions.assertFalse(bishop.checkMove(2, 1, board, false, positionConverter));
         Assertions.assertTrue(bishop.checkMove(2, 9, board, false, positionConverter));
         Assertions.assertTrue(bishop.checkMove(2, 11, board, false, positionConverter));
     }
@@ -115,10 +115,10 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen king = new King();
-        Assertions.assertFalse(king.checkMove(4, 11, board, true, positionConverter));
-        Assertions.assertFalse(king.checkMove(4, 15, board, true, positionConverter));
-        Assertions.assertTrue(king.checkMove(4, 12, board, true, positionConverter));
-        Assertions.assertTrue(king.checkMove(4, 13, board, true, positionConverter));
+        Assertions.assertFalse(king.checkMove(4, 11, board, false, positionConverter));
+        Assertions.assertFalse(king.checkMove(4, 15, board, false, positionConverter));
+        Assertions.assertTrue(king.checkMove(4, 12, board, false, positionConverter));
+        Assertions.assertTrue(king.checkMove(4, 13, board, false, positionConverter));
     }
 
     /**
@@ -137,10 +137,10 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen knight = new Knight();
-        Assertions.assertFalse(knight.checkMove(1, 0, board, true, positionConverter));
-        Assertions.assertFalse(knight.checkMove(1, 17, board, true, positionConverter));
-        Assertions.assertTrue(knight.checkMove(1, 11, board, true, positionConverter));
-        Assertions.assertTrue(knight.checkMove(1, 18, board, true, positionConverter));
+        Assertions.assertFalse(knight.checkMove(1, 0, board, false, positionConverter));
+        Assertions.assertFalse(knight.checkMove(1, 17, board, false, positionConverter));
+        Assertions.assertTrue(knight.checkMove(1, 11, board, false, positionConverter));
+        Assertions.assertTrue(knight.checkMove(1, 18, board, false, positionConverter));
     }
 
     /**
@@ -159,9 +159,9 @@ public class ChessmenTest {
                 -2, -3, -4, -5, -6, -4, -3, -2
         };
         Chessmen queen = new Queen();
-        Assertions.assertFalse(queen.checkMove(3, 9, board, true, positionConverter));
-        Assertions.assertFalse(queen.checkMove(3, 2, board, true, positionConverter));
-        Assertions.assertTrue(queen.checkMove(3, 12, board, true, positionConverter));
-        Assertions.assertTrue(queen.checkMove(3, 11, board, true, positionConverter));
+        Assertions.assertFalse(queen.checkMove(3, 9, board, false, positionConverter));
+        Assertions.assertFalse(queen.checkMove(3, 2, board, false, positionConverter));
+        Assertions.assertTrue(queen.checkMove(3, 12, board, false, positionConverter));
+        Assertions.assertTrue(queen.checkMove(3, 11, board, false, positionConverter));
     }
 }
