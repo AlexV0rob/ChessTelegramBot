@@ -80,8 +80,7 @@ public class PositionConverter {
         if (newPosition < minPosition || newPosition > maxPosition)
             return -1;
         else
-            return
-                    newPosition;
+            return newPosition;
     }
 
     /**

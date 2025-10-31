@@ -86,7 +86,7 @@ public class Pawn implements Chessmen {
                 possibleMoves.add(twoTimesMovePos);
             if (rightDiagonalPos >= 0 && chessDesk[rightDiagonalPos] != 0 && (chessDesk[rightDiagonalPos] < 0 != isWhite))
                 possibleMoves.add(rightDiagonalPos);
-            if (leftDiagonalPos >= 0 && (chessDesk[leftDiagonalPos] != 0) && (chessDesk[leftDiagonalPos] < 0 != isWhite))
+            if (leftDiagonalPos >= 0 && chessDesk[leftDiagonalPos] != 0 && (chessDesk[leftDiagonalPos] < 0 != isWhite))
                 possibleMoves.add(leftDiagonalPos);
         }
         return possibleMoves;

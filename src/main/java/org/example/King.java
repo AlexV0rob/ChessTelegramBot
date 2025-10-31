@@ -25,43 +25,80 @@ class King implements Chessmen {
     public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
                                            PositionConverter positionConverter) {
         List<Integer> possibleMoves = new ArrayList<>();
-        // позиция, передвигаемая против часовой снизу вверх по потенциальным ходам Короля
-        int UpAndLeftPosition = rawStartPos;
-        // позиция, передвигаемая по часовой свурху вниз потенциальным ходам Короля
-        int DownAndRightPosition = rawStartPos;
-        //сдвинем позиции на стартовые позиции
-        UpAndLeftPosition = positionConverter.verticalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
-        UpAndLeftPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
-
-        DownAndRightPosition = positionConverter.verticalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
-        DownAndRightPosition = positionConverter.horizontalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
-        for (int i = 0; i < 2; ++i) {
-            if (UpAndLeftPosition >= 0 &&
-                    (chessDesk[UpAndLeftPosition] == 0 || (chessDesk[UpAndLeftPosition] < 0) != isWhite)) {
-                possibleMoves.add(UpAndLeftPosition);
-                UpAndLeftPosition = positionConverter.verticalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
-
-            }
-            if (DownAndRightPosition >= 0 &&
-                    (chessDesk[DownAndRightPosition] == 0 || (chessDesk[DownAndRightPosition] < 0) != isWhite)) {
-                possibleMoves.add(DownAndRightPosition);
-                DownAndRightPosition = positionConverter.verticalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
-            }
+        // Создаём 4 позиции, которые образую своеобразный крест вокруг клетки короля
+        int downPos = positionConverter.verticalMoving(1, rawStartPos,
+                PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        int upPos = positionConverter.verticalMoving(1, rawStartPos,
+                PositionConverter.DIRECTION_OF_SHIFT.UP);
+        int leftPos = positionConverter.horizontalMoving(1, rawStartPos,
+                PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+        int rightPos = positionConverter.horizontalMoving(1, rawStartPos,
+                PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        /*Проверяем верхнюю и нижнюю клетки на валидность. Если ход в клетку  не валиден по причине нахождения
+         союзной фигуры, то есть смысл сдвинутся по против часовой стрелки и проверить валидность хода в новой клетке
+         */
+        if (downPos >= 0 && (chessDesk[downPos] == 0 || chessDesk[downPos] < 0 != isWhite)) {
+            possibleMoves.add(downPos);
         }
-        UpAndLeftPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
-        DownAndRightPosition = positionConverter.horizontalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        if (downPos >= 0) {
+            downPos = positionConverter.horizontalMoving(1, downPos,
+                    PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+            if (downPos >= 0 && (chessDesk[downPos] == 0 || chessDesk[downPos] < 0 != isWhite))
+                possibleMoves.add(downPos);
+        }
 
-        for (int i = 0; i < 2; ++i) {
-            if (UpAndLeftPosition >= 0 &&
-                    (chessDesk[UpAndLeftPosition] == 0 || (chessDesk[UpAndLeftPosition] < 0) != isWhite)) {
-                possibleMoves.add(UpAndLeftPosition);
-                UpAndLeftPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
-
+        if (upPos >= 0 && (chessDesk[upPos] == 0 || chessDesk[upPos] < 0 != isWhite)) {
+            possibleMoves.add(upPos);
+        }
+        if (upPos >= 0) {
+            upPos = positionConverter.horizontalMoving(1, upPos,
+                    PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+            if (upPos >= 0 && (chessDesk[upPos] == 0 || chessDesk[upPos] < 0 != isWhite))
+                possibleMoves.add(upPos);
+        }
+        /*
+         Для полного прохода по всем возможных ходам короля, проверка левой и правой клетки были разделены на два
+         случая: Для белого и для черного королей.
+         Для белого короля левая клетка смещается вверх по массиву, а правая - вверх.
+         Для Чёрного короля всё наоборот: левая вниз, а правая вверх
+         */
+        if (chessDesk[rawStartPos] < 0) {
+            if (leftPos >= 0 && (chessDesk[leftPos] == 0 || chessDesk[leftPos] < 0 != isWhite)) {
+                possibleMoves.add(leftPos);
             }
-            if (DownAndRightPosition >= 0 &&
-                    (chessDesk[DownAndRightPosition] == 0 || (chessDesk[DownAndRightPosition] < 0) != isWhite)) {
-                possibleMoves.add(DownAndRightPosition);
-                DownAndRightPosition = positionConverter.horizontalMoving(1, DownAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+            if (leftPos >= 0) {
+                leftPos = positionConverter.verticalMoving(1, leftPos,
+                        PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+                if (leftPos >= 0 && (chessDesk[leftPos] == 0 || chessDesk[leftPos] < 0 != isWhite))
+                    possibleMoves.add(leftPos);
+            }
+            if (rightPos >= 0 && (chessDesk[rightPos] == 0 || chessDesk[rightPos] < 0 != isWhite)) {
+                possibleMoves.add(rightPos);
+            }
+            if (rightPos >= 0) {
+                rightPos = positionConverter.verticalMoving(1, rightPos,
+                        PositionConverter.DIRECTION_OF_SHIFT.UP);
+                if (rightPos >= 0 && (chessDesk[rightPos] == 0 || chessDesk[rightPos] < 0 != isWhite))
+                    possibleMoves.add(rightPos);
+            }
+        } else {
+            if (leftPos >= 0 && (chessDesk[leftPos] == 0 || chessDesk[leftPos] < 0 != isWhite)) {
+                possibleMoves.add(leftPos);
+            }
+            if (leftPos >= 0) {
+                leftPos = positionConverter.verticalMoving(1, leftPos,
+                        PositionConverter.DIRECTION_OF_SHIFT.UP);
+                if (leftPos >= 0 && (chessDesk[leftPos] == 0 || chessDesk[leftPos] < 0 != isWhite))
+                    possibleMoves.add(leftPos);
+            }
+            if (rightPos >= 0 && (chessDesk[rightPos] == 0 || chessDesk[rightPos] < 0 != isWhite)) {
+                possibleMoves.add(rightPos);
+            }
+            if (rightPos >= 0) {
+                rightPos = positionConverter.verticalMoving(1, rightPos,
+                        PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+                if (rightPos >= 0 && (chessDesk[rightPos] == 0 || chessDesk[rightPos] < 0 != isWhite))
+                    possibleMoves.add(rightPos);
             }
         }
         return possibleMoves;

@@ -27,8 +27,6 @@ public class Queen implements Chessmen {
     @Override
     public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
                                            boolean isWhite, PositionConverter positionConverter) {
-        Chessmen rook = new Rook();
-        Chessmen bishop = new Bishop();
         List<Integer> possibleMoves = rook.everyPossibleMove(rawStartPos, chessDesk,
                 isWhite, positionConverter);
         possibleMoves.addAll(bishop.everyPossibleMove(rawStartPos, chessDesk,

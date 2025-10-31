@@ -22,7 +22,7 @@ public class Bishop implements Chessmen {
          * шахматная фигура оппонента
          * 2) Проверяем что слон может так сходить
          */
-        if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] > 0) != isWhite) {
+        if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] < 0) != isWhite) {
             int startPosRow = positionConverter.positionRow(rawStartPos);
             int startPosColumn = positionConverter.positionColumn(rawStartPos);
             int endPosRow = positionConverter.positionRow(rawEndPos);
@@ -119,7 +119,7 @@ public class Bishop implements Chessmen {
                     currentPositionUpAndLeft = positionConverter.
                             horizontalMoving(1, currentPositionUpAndLeft, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
                 } else {
-                    if ((chessDesk[currentPositionUpAndLeft] > 0) != isWhite) {
+                    if ((chessDesk[currentPositionUpAndLeft] < 0) != isWhite) {
                         possibleMoves.add(currentPositionUpAndLeft);
                     }
                     currentPositionUpAndLeft = -1;
