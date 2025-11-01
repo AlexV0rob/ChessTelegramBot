@@ -1,6 +1,6 @@
 package org.example;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +51,7 @@ public class CommandHandler {
 	 * и отправить ответ
 	 */
 	public List<String> processCommand(String command, GameState currentGameState) {
-		List<String> responseMessagesTexts = new LinkedList<String>();
+		List<String> responseMessagesTexts = new ArrayList<String>();
 		switch (command) {
 		case "/start":
 			responseMessagesTexts.add(START_MESSAGE);
