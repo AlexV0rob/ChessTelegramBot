@@ -7,11 +7,6 @@ import java.util.List;
  * Класс для реализации логики перемещения слона
  */
 public class Bishop implements Chessmen {
-    private int rawStartPos;
-    private byte[] chessDesk;
-    private boolean isWhite;
-    private PositionConverter positionConverter;
-
     @Override
     public boolean checkMove(
             int rawStartPos, int rawEndPos, byte[] chessDesk,
@@ -67,10 +62,6 @@ public class Bishop implements Chessmen {
     @Override
     public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
                                            boolean isWhite, PositionConverter positionConverter) {
-        this.rawStartPos = rawStartPos;
-        this.chessDesk = chessDesk;
-        this.isWhite = isWhite;
-        this.positionConverter = positionConverter;
         List<Integer> possibleMoves = new ArrayList<Integer>();
         //Позиция, движущаяся по доске вверх и влево
         int currentPositionUpAndLeft = rawStartPos;
