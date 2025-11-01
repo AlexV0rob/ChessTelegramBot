@@ -1,8 +1,8 @@
 package org.example;
 
 import java.util.regex.Pattern;
-import java.util.List;
 import java.util.regex.Matcher;
+import java.util.List;
 
 /**
  * Выполняет обработку пользовательского ввода
