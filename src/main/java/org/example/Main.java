@@ -5,7 +5,6 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 /**
  * Основной класс, где происходит запуск бота
  */
-
 public class Main {
 	/**
 	 * Точка входа программы. 
@@ -19,6 +18,7 @@ public class Main {
         	TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
             botsApplication.registerBot(botToken, new TelegramBot(botToken));
             System.out.println("Бот запущен");
+            Thread.currentThread().join();
         } catch (Exception e) {
             e.printStackTrace();
         }

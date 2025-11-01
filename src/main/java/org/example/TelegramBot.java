@@ -5,9 +5,12 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -15,24 +18,38 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.lang.Math;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.example.buttons.*;
 
 /**
- * Класс, который подключается к телеграму 
+ * Класс, который работает с Телеграмом 
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	/**
-	 * Экземпляр класса TelegramClient
+	 * Выполняет коммуникацию с Телеграмом
 	 */
-	private final TelegramClient telegramClient;
+	private final TelegramClient telegramClient;	
+	/**
+	 * Отвечающего за обработку ввода
+	 */
+	private final MainLogic mainLogic = new MainLogic();	
+	/**
+	 * Преобразует пользовательский ввод в единый вид для дальнейшей обработки
+	 */
+	private final UserInputConverter userInputConverter = new UserInputConverter();	
+	/**
+	 * Создаёт клавиатуры для различных состояний бота
+	 */
+	private final KeyboardCreator keyboardCreator = new KeyboardCreator();
 	
 	/**
-	 * Ассоциативный массив с парами (ID чата телеграм, карточка пользователя)
+	 * Ассоциативный массив с парами (ID чата телеграм, состояние игры)
 	 */
-	private HashMap<Long, User> users = new HashMap<>();
+	private HashMap<Long, GameState> games = new HashMap<Long, GameState>();
 	
 	/**
 	 * Конструктор класса
@@ -46,270 +63,184 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     public void consume(Update update) {
     	//Смотрим, получили ли сообщение и есть ли в нём текст
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String incomingMessage = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
-            
-            //Получаем "карточку" пользователя, а если её нет, то создаём
-            if (!users.containsKey(chatId)) {
-            	users.put(chatId, new User());
-            }
-            User curUser = users.get(chatId);
-            
-            //Получем тексты ответов и создаём из них ответные сообщения
-            ArrayList<String> responses = new MainLogic().processInput(incomingMessage, curUser);
-            ArrayList<SendMessage> messages = createMessages(chatId, responses, curUser);
-            
-            //Отправление каждого по отдельности
-            for (SendMessage message : messages) {
-            	try {
-                	telegramClient.execute(message);
-            	} catch (TelegramApiException e) {
-                	e.printStackTrace();
-            	}
-            }
-        //Проверяем, есть ли callback запрос
+            processTextMessage(
+            		update.getMessage().getText(),
+            		update.getMessage().getChatId());
+        //Проверка на callback запрос
         } else if (update.hasCallbackQuery()) {
-            String callbackText = update.getCallbackQuery().getData();
-            long messageId = update.getCallbackQuery().getMessage().getMessageId();
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            
-            //Обработка текста callback запроса
-            User curUser = users.get(chatId);
-            boolean oldSide = curUser.doesWhitesMove();
-            ArrayList<MoveButton> newButtons = new MoveMaker()
-            		.assembleMove(callbackText, curUser);
-            
-            String[] texts = new String[3];
-            int buttonsCount = newButtons.size();
-            boolean hasError = false;
-            boolean isWin = false;
-            
-            //Извлечение служебных данных, не имеющих отношения к кнопкам
-            for (int i = buttonsCount - 1; i >= 0; --i) {
-            	if (newButtons.get(i).getCallbackQuery().equals("side")) {
-            		texts[0] = newButtons.get(i).getButtonMessage();
-            		newButtons.remove(i);
-            	} else if (newButtons.get(i).getCallbackQuery().equals("board")) {
-            		texts[1] = newButtons.get(i).getButtonMessage();
-            		newButtons.remove(i);
-            	} else if (newButtons.get(i).getCallbackQuery().equals("message")) {
-            		texts[2] = newButtons.get(i).getButtonMessage();
-            		newButtons.remove(i);
-            	} else if (newButtons.get(i).getCallbackQuery().equals("error")) {
-            		texts[2] = newButtons.get(i).getButtonMessage();
-            		newButtons.remove(i);
-            		hasError = true;
-            	} else if (newButtons.get(i).getCallbackQuery().equals("win")) {
-            		texts[2] = newButtons.get(i).getButtonMessage();
-            		newButtons.remove(i);
-            		isWin = true;
-            	}
-            }
-            
-            //Изменяем сообщение с текстом хода
-            EditMessageText newMessage = EditMessageText.builder()
-            	.chatId(chatId)
-               	.messageId(Math.toIntExact(messageId))
-               	.text(texts[2])
-               	.replyMarkup(InlineKeyboardMarkup
-                       	.builder()
-                       	.keyboard(createInlineKeyboard(newButtons))
-                       	.build())
-               	.build();
-            
-            try {
-            	telegramClient.execute(newMessage);
-            } catch (TelegramApiException e) {
-               	e.printStackTrace();
-            }
-            if (isWin) {
-            	curUser.changeMode((byte) 0);
-            	ArrayList<String> messages = new ArrayList<String>();
-            	messages.add(texts[2]);
-            	messages.addAll(new CommandHandler().processCommand("/menu", curUser));
-            	
-            	ArrayList<SendMessage> newMoveMessages = createMessages(
-            			chatId, messages, curUser);
-            	for (SendMessage message : newMoveMessages) {
-                	try {
-                    	telegramClient.execute(message);
-                	} catch (TelegramApiException e) {
-                    	e.printStackTrace();
-                	}
-                }
-            }
-            //Сторона поменялась, необходимо перерисовать доску
-            if (curUser.doesWhitesMove() != oldSide || hasError) {
-            	if (!hasError) {
-            		texts[2] = "Ваш ход: ";
-            	}
-            	ArrayList<String> messagesTexts = new ArrayList<String>(
-            			Arrays.asList(texts));
-            	ArrayList<SendMessage> newMoveMessages = createMessages(
-            			chatId, messagesTexts, curUser);
-            	for (SendMessage message : newMoveMessages) {
-                	try {
-                    	telegramClient.execute(message);
-                	} catch (TelegramApiException e) {
-                    	e.printStackTrace();
-                	}
-                }
-            }
+            processCallbackQuery(
+            		update.getCallbackQuery().getData(),
+            		Math.toIntExact(
+            				update.getCallbackQuery().getMessage().getMessageId()),
+            		update.getCallbackQuery().getMessage().getChatId());
         }
     }
     
     /**
-     * Создать сообщения из текстов ответов
+     * Создать Reply клавиатуру
      */
-    private ArrayList<SendMessage> createMessages(long chatId,
-    		ArrayList<String> texts, User curUser) {
-    	switch (curUser.getMode()) {
-    	/*
-    	 * Коды режимов:
-    	 * 0 - главное меню
-    	 * 1 - режим эхо
-    	 * 2 - одиночная игра (игра на одном устройстве)
-    	 */
-    	case 0:
-    		return buildMenuMessages(chatId, texts);
-    	case 1:
-    		return buildEchoMessages(chatId, texts);
-    	case 2:
-    		return buildGameMessages(chatId, texts, curUser);
-    	default:
-    		return buildRegularMessages(chatId, texts);
-    	}
-    }
-    
-    /**
-     * Построить сообщения в меню (Reply клавиатура)
-     */
-    private ArrayList<SendMessage> buildMenuMessages(long chatId, ArrayList<String> texts) {
-    	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
-    	for (String message : texts) {
-    		messages.add(SendMessage
-        		.builder()
-               	.chatId(chatId)
-               	.text(message)
-               	.replyMarkup(ReplyKeyboardMarkup
-                           .builder()
-                           .keyboardRow(new KeyboardRow(
-                          		 "Включить эхо-мод",
-                          		 "Начать новую игру"))
-                           .keyboardRow(new KeyboardRow("Открыть окно помощи"))
-                           .resizeKeyboard(true)
-                           .selective(true)
-                           .build())
-               	.build());
-    	}
-    	return messages;
-    }
-    
-    /**
-     * Построить сообщения в режиме эхо (Reply клавиатура)
-     */
-    private ArrayList<SendMessage> buildEchoMessages(long chatId, ArrayList<String> texts) {
-    	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
-    	for (String message : texts) {
-    		messages.add(SendMessage
-        		.builder()
-                .chatId(chatId)
-                .text(message)
-                .replyMarkup(ReplyKeyboardMarkup
-                           .builder()
-                           .keyboardRow(new KeyboardRow(
-                          		 "/menu"))
-                           .resizeKeyboard(true)
-                           .selective(true)
-                           .isPersistent(true)
-                           .build())
-                .build());
-    	}
-    	return messages;
-    }
-    
-    /**
-     * Построить сообщения в режиме игры (Inline клавиатура)
-     */
-    private ArrayList<SendMessage> buildGameMessages(long chatId,
-    		ArrayList<String> texts, User curUser) {
-    	String lastButtonText = texts.removeLast();
-    	//Все сообщения, кроме последнего должны быть обычными
-    	ArrayList<SendMessage> messages = buildRegularMessages(chatId, texts);
-    	
-    	ArrayList<MoveButton> figures = new MoveMaker().whichFiguresLeft(curUser);
-    	messages.add(SendMessage
-    			.builder()
-    			.chatId(chatId)
-    			.text(lastButtonText)
-    			.replyMarkup(new ReplyKeyboardRemove(true))
-    			.replyMarkup(InlineKeyboardMarkup
-                        .builder()
-                        .keyboard(createInlineKeyboard(figures))
-                        .build())
-    			.build());
-    	return messages;
-    }
-    
-    /**
-     * Построить обычные сообщения (без клавиатур)
-     */
-    private ArrayList<SendMessage> buildRegularMessages(long chatId, ArrayList<String> texts) {
-    	ArrayList<SendMessage> messages = new ArrayList<SendMessage>();
-    	for (String message : texts) {
-    		messages.add(SendMessage
-       			.builder()
-                .chatId(chatId)
-                .text(message)
-                .replyMarkup(new ReplyKeyboardRemove(true))
-                .build());
-    	}
-    	return messages;
-    }
-    
+    private List<KeyboardRow> createReplyKeyboard(List<SimpleButton> buttons) {
+        List<KeyboardRow> buttonsRows = new ArrayList<KeyboardRow>();
+        KeyboardRow currentRow = new KeyboardRow();
+        int rowCounter = 0, buttonsInRow = 4;
+        for (SimpleButton currentButton : buttons) {
+        	if (rowCounter == buttonsInRow) {
+        		buttonsRows.add(currentRow);
+        		currentRow = new KeyboardRow();
+        		rowCounter = 0;
+        	}
+        	currentRow.add(KeyboardButton
+    				.builder()
+    				.text(currentButton.text())
+    				.build());
+        	++rowCounter;
+        }
+        buttonsRows.add(currentRow);
+        return buttonsRows;
+    }    
     /**
      * Создать Inline клавиатуру
      */
-    private ArrayList<InlineKeyboardRow> createInlineKeyboard(ArrayList<MoveButton> buttons) {
-    	/*
-    	 * В зависимости от числа кнопок выбирается наилучшее число (2, 3, 4 или 5)
-    	 * кнопок в одном ряду по наименьшему остатку от деления на это число. Если
-    	 * остатки совпадают, приоритет количества кнопок 2 -> 3 -> 5 -> 4.
-    	 */
-    	int buttonsCount = buttons.size();
-    	int remOf2 = buttonsCount % 2;
-    	int remOf3 = buttonsCount % 3;
-    	int remOf4 = buttonsCount % 4;
-    	int remOf5 = buttonsCount % 5;
-    	int divisor = 1;
-
-    	if (remOf2 <= remOf3 && remOf2 <= remOf5 && remOf2 <= remOf4) {
-    		divisor = 2;
-    	}
-    	if (remOf3 <= remOf4 && remOf3 <= remOf5 && remOf3 <= remOf2) {
-    		divisor = 3;
-    	}
-    	if (remOf5 <= remOf3 && remOf5 <= remOf4 && remOf5 <= remOf2) {
-    		divisor = 5;
-    	}
-    	if (remOf4 <= remOf3 && remOf4 <= remOf5 && remOf4 <= remOf2) {
-    		divisor = 4;
-    	}
-    	
-    	//Создание самих кнопок
-    	int rowsCount = buttons.size() / divisor;
-        ArrayList<InlineKeyboardRow> buttonsRows = new ArrayList<InlineKeyboardRow>();
-        for (int i = 0, j = 0, jBias = 0; i < rowsCount + 1; ++i) {
-        	InlineKeyboardRow newRow = new InlineKeyboardRow();
-        	for (jBias = 0; jBias < divisor && j < buttonsCount; ++jBias, ++j) {
-        		newRow.add(InlineKeyboardButton
-        				.builder()
-        				.text(buttons.get(j).getButtonMessage())
-        				.callbackData(buttons.get(j).getCallbackQuery())
-        				.build());
+    private List<InlineKeyboardRow> createInlineKeyboard(List<IdentificatedButton> buttons) {
+        List<InlineKeyboardRow> buttonsRows = new ArrayList<InlineKeyboardRow>();
+        InlineKeyboardRow currentRow = new InlineKeyboardRow();
+        int rowCounter = 0, buttonsInRow = 4;
+        for (IdentificatedButton currentButton : buttons) {
+        	if (rowCounter == buttonsInRow) {
+        		buttonsRows.add(currentRow);
+        		currentRow = new InlineKeyboardRow();
+        		rowCounter = 0;
         	}
-        	buttonsRows.add(newRow);
+        	currentRow.add(InlineKeyboardButton
+    				.builder()
+    				.text(currentButton.text())
+    				.callbackData(currentButton.id())
+    				.build());
+        	++rowCounter;
         }
+        buttonsRows.add(currentRow);
         return buttonsRows;
+    }
+    
+    /**
+     * Послать сообщение
+     * @return ID только что отправленного сообщения, -1 в случае ошибки
+     */
+    private int sendMessage(long chatId, String messageText,
+    		ReplyKeyboard keyboardMarkup) {
+    	SendMessage outgoingMessage = SendMessage
+        		.builder()
+               	.chatId(chatId)
+               	.text(messageText)
+               	.replyMarkup(keyboardMarkup)
+               	.build();
+        try {
+           	Message sentMessage = telegramClient.execute(outgoingMessage);
+           	return sentMessage.getMessageId();
+        } catch (TelegramApiException e) {
+        	System.out.println("Couldn't send message to Telegram: " + e);
+           	e.printStackTrace();
+           	return -1;
+        }
+    }
+    /**
+     * Изменить сообщение
+     */
+    private void editMessage(long chatId, int messageId, String messageText,
+    		InlineKeyboardMarkup keyboardMarkup) {
+    	EditMessageText updatedMessage = EditMessageText.builder()
+        		.chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .replyMarkup(keyboardMarkup)
+                .build();
+        try {
+        	telegramClient.execute(updatedMessage);
+        } catch (TelegramApiException e) {
+        	System.out.println("Couldn't edit message in Telegram: " + e);
+        	e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Обработать текстовое сообщение, полученное от пользователя
+     */
+    private void processTextMessage(String incomingMessage, long chatId) {
+    	if (!games.containsKey(chatId)) {
+        	games.put(chatId, new GameState());
+        }
+        GameState currentGameState = games.get(chatId);
+        
+        List<String> responseMessagesTexts = mainLogic.processUserInput(
+        		userInputConverter.convertFromTelegramMessage(
+        				incomingMessage,
+        				currentGameState.isInGame()),
+        		currentGameState);
+        //Для каждого сообщения нужно выставить параметр клавиатуры
+        List<ReplyKeyboard> keyboardsForMessages = new ArrayList<ReplyKeyboard>();
+        /*
+         * Все сообщения, кроме последнего, должны быть без клавиатуры, 
+         * а клавиатура последнего зависит от текущего режима
+         */
+        for (int i = 0; i < responseMessagesTexts.size() - 1; ++i) {
+        	keyboardsForMessages.add(new ReplyKeyboardRemove(true));
+        }
+        if (currentGameState.isNoGame()) {
+        	keyboardsForMessages.add(ReplyKeyboardMarkup
+        		.builder()
+                .keyboard(createReplyKeyboard(keyboardCreator.menuButtons()))
+                .resizeKeyboard(true)
+                .selective(true)
+                .build());
+        } else if (currentGameState.isInGame()) {
+        	keyboardsForMessages.add(InlineKeyboardMarkup
+            	.builder()
+                .keyboard(createInlineKeyboard(
+                		keyboardCreator.gameButtons(currentGameState)))
+                .build());
+        } else {
+        	keyboardsForMessages.add(new ReplyKeyboardRemove(true));
+        }
+        
+        Iterator<String> responseMessages = responseMessagesTexts.iterator();
+        Iterator<ReplyKeyboard> messagesKeyboards = keyboardsForMessages.iterator();
+        
+        while (responseMessages.hasNext() && messagesKeyboards.hasNext()) {
+        	sendMessage(chatId, responseMessages.next(), messagesKeyboards.next());
+        }
+    }
+    /**
+     * Обработать callback запрос, полученный от пользователя
+     */
+    private void processCallbackQuery(String callbackData, int messageId, long chatId) {
+    	if (!games.containsKey(chatId)) {
+        	games.put(chatId, new GameState());
+        }
+        GameState currentGameState = games.get(chatId);
+        
+        String editedMessageText = mainLogic.processUserInput(
+        		userInputConverter.convertFromTelegramCallback(
+        				callbackData,
+        				currentGameState.isInGame()),
+        		currentGameState).getFirst();
+        
+        //Если не в игре, Inline клавиатура не нужна
+        InlineKeyboardMarkup keyboard;
+        if (currentGameState.isInGame()) {
+        	keyboard = InlineKeyboardMarkup
+    				.builder()
+    				.keyboard(createInlineKeyboard(
+    						keyboardCreator.gameButtons(currentGameState)))
+    				.build();
+        } else {
+        	keyboard = InlineKeyboardMarkup.builder().build();
+        }
+        
+        editMessage(chatId, messageId, editedMessageText, keyboard);
+        
+        //Если ход полностью собран, его нужно реализовать
+        if (currentGameState.isMoveReady()) {
+        	processTextMessage(currentGameState.assembleMove(), chatId);
+		}
     }
 }

@@ -1,91 +1,67 @@
 package org.example;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * Тестирование работы команд
+ * Проверка работы команд
  */
-public class CommandHandlerTest {	
+public class CommandHandlerTest {
 	/**
-	 * Тест неизвестной команды
+	 * Болванка с игровым состоянием
+	 */
+	private final GameState gameState = new GameState();
+	/**
+	 * Экземпляр обработчика команд
+	 */
+	private final CommandHandler commandHandler = new CommandHandler();
+	
+	/**
+	 * Проверка команды /start
 	 */
 	@Test
-    void unknownCommandTest() {
-		User user = new User();
-		
-    	//Режим не должен поменяться
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/lorem", user);
-    	Assertions.assertEquals(oldMode, user.getMode());
-    }
+	void startCommandTest() {
+		gameState.setState(GameState.STATES.INGAME);
+		commandHandler.processCommand("/start", gameState);
+		Assertions.assertTrue(gameState.isNoGame());
+	}
 	
-    /**
-	 * Тест команды /start (перезапуск бота)
+	/**
+	 * Проверка команды /help
 	 */
-    @Test
-    void startCommandTest() {
-    	User user = new User();
-		user.changeMode((byte) 1);
-		
-    	//Режим должен стать 0
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/start", user);
-    	Assertions.assertEquals((byte) 0, user.getMode());
-    }
-    
-    /**
-	 * Тест команды /help (показать окно помощи)
+	@Test
+	void helpCommandTest() {
+		gameState.setState(GameState.STATES.INGAME);;
+		commandHandler.processCommand("/help", gameState);
+		Assertions.assertTrue(gameState.isInGame());
+	}
+	
+	/**
+	 * Проверка команды /quit
 	 */
-    @Test
-    void helpCommandTest() {
-    	User user = new User();
-    	
-    	//Режим не должен поменяться
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/help", user);
-    	Assertions.assertEquals(oldMode, user.getMode());
-    }
-    
-    /**
-     * Тест команды /menu (выход в меню)
-     */
-    @Test
-    void menuCommandTest() {
-    	User user = new User();
-		user.changeMode((byte) 1);
-		
-    	//Режим должен стать 0
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/menu", user);
-    	Assertions.assertEquals((byte) 0, user.getMode());
-    }
-    
-    /**
-     * Тест команды /echo (включение режима эхо)
-     */
-    @Test
-    void echoCommandTest() {
-    	User user = new User();
-		user.changeMode((byte) 0);
-    	//Режим должен стать 1
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/echo", user);
-    	Assertions.assertEquals((byte) 1, user.getMode());
-    }
-    
-    /**
-     * Тест команды /newsinglegame (новая одиночная игра)
-     * (игра на одном устройстве)
-     */
-    @Test
-    void newsinglegameCommandTest() {
-    	User user = new User();
-		user.changeMode((byte) 0);
-		
-    	//Режим должен стать 2
-    	byte oldMode = user.getMode();
-    	new CommandHandler().processCommand("/newsinglegame", user);
-    	Assertions.assertEquals((byte) 2, user.getMode());
-    }
+	@Test
+	void quitCommandTest() {
+		gameState.setState(GameState.STATES.INGAME);
+		commandHandler.processCommand("/quit", gameState);
+		Assertions.assertTrue(gameState.isNoGame());
+	}
+	
+	/**
+	 * Проверка команды /newsinglegame
+	 */
+	@Test
+	void newsinglegameCommandTest() {
+		gameState.setState(GameState.STATES.NOGAME);
+		commandHandler.processCommand("/newsinglegame", gameState);
+		Assertions.assertTrue(gameState.isInGame());
+	}
+	/**
+	 * Проверка неизвестной команды
+	 */
+	@Test
+	void unknownCommandTest() {
+		gameState.setState(GameState.STATES.INGAME);
+		commandHandler.processCommand("/unknown", gameState);
+		Assertions.assertTrue(gameState.isInGame());
+	}
 }

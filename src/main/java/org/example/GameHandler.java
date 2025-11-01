@@ -1,98 +1,142 @@
 package org.example;
+
+import java.util.List;
+
 /**
  * Класс для произведения хода у конкретного пользователя
  */
-public class GameHandler{
-	public byte ProgressHandler(User user, int rawStartPos, int rawEndPos, byte figureCode){
-		Chessmen lastChessmen = null;
-		boolean isNormalMove = false;
-		if((rawStartPos > 63 || rawStartPos < 0 ) || (rawEndPos > 63 || rawEndPos < 0))
-			return 0;
-		byte[] curDesk = user.getBoard();
-		switch((figureCode + 1) / 2)
-		{
-		case 1:
-			Chessmen pawn = new Pawn();
-			isNormalMove = pawn.checkMove(rawStartPos, rawEndPos,curDesk, user.doesWhitesMove());
-			lastChessmen = pawn;
-			break;
-		case 2:
-			Chessmen castle = new Castle();
-			isNormalMove = castle.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
-			lastChessmen = castle;
-			break;
+public class GameHandler {
+    /**
+     * Массив всех фигур
+     */
+    private final Chessmen[] figureList;
+    /**
+     * Число клеток на доске
+     */
+    private final static int DESK_LENGTH = 64;
+    /**
+     * Максимальная позиция на доске
+     */
+    private final static int LAST_INDEX_IN_DESK = DESK_LENGTH - 1;
+    /**
+     * Минимальная позиция на доске
+     */
+    private final static int FIRST_INDEX_IN_DESK = 0;
+    /**
+     * Длина одной линии клеток
+     */
+    private final static int LINE_LENGTH = (int) Math.sqrt(DESK_LENGTH);
 
+    /**
+     * Код белого короля
+     */
+    private final static int WHITE_KING = -6;
+    /**
+     * Код чёрного короля
+     */
+    private final static int BLACK_KING = 6;
+    /**
+     * Число фигур
+     */
+    private final static int CHESSMEN_COUNT = 6;
 
-		case 3:
-			Chessmen knight = new Knight();
-			isNormalMove = knight.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
-			lastChessmen = knight;
-			break;
+    /**
+     * Преобразователь и обработчик позиций одномерного массива
+     */
+    private final PositionConverter positionConverter =
+            new PositionConverter(LINE_LENGTH,
+                    FIRST_INDEX_IN_DESK,
+                    LAST_INDEX_IN_DESK);
 
-		case 4:
-			Chessmen bishop = new Bishop();
-			isNormalMove = bishop.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
-			lastChessmen = bishop;
-			break;
-		case 5:
-			Chessmen queen = new Queen();
-			isNormalMove = queen.checkMove(rawStartPos, rawEndPos,curDesk, user.doesWhitesMove());
-			lastChessmen = queen;
-			break;
+    public GameHandler() {
+        figureList = new Chessmen[CHESSMEN_COUNT];
+        figureList[0] = new Pawn();
+        figureList[1] = new Rook();
+        figureList[2] = new Knight();
+        figureList[3] = new Bishop();
+        figureList[4] = new Queen();
+        figureList[5] = new King();
+    }
 
-		case 6:
-			Chessmen king = new King();
-			isNormalMove = king.checkMove(rawStartPos, rawEndPos, curDesk, user.doesWhitesMove());
-			lastChessmen = king;
-			break;
-		}
-		if(isNormalMove)
-		{
-			if(IsThisMoveOnKing(curDesk, rawEndPos,user.doesWhitesMove())){
-				return 3;
-			}
-			byte tmp = curDesk[rawStartPos] ;
-			curDesk[rawStartPos] = 0;
-			curDesk[rawEndPos] = tmp;
-			if(check(curDesk, user.doesWhitesMove(), rawEndPos,lastChessmen)) {
-				return 2;
-			}
+    /**
+     * Проверить ход на правильность
+     *
+     * @return характеристика хода
+     */
+    public GameState.MOVE_PROPERTIES handleMove(byte[] curDesk,
+                                                int rawStartPos, int rawEndPos, byte figureCode) {
+        Chessmen lastChessmen;
+        boolean isNormalMove = false;
+        if ((rawStartPos > LAST_INDEX_IN_DESK || rawStartPos < 0) ||
+                (rawEndPos > LAST_INDEX_IN_DESK || rawEndPos < 0) ||
+                (Math.abs(figureCode) > CHESSMEN_COUNT || figureCode == 0) ||
+                (curDesk[rawStartPos] != figureCode)
+        ) {
+            return GameState.MOVE_PROPERTIES.IMPOSSIBLE;
+        }
+        lastChessmen = figureList[Math.abs(figureCode) - 1];
 
-			return 1;
-		}
-		else
-			return 0;
-	}
-	/**
-	 * Проверка на шах
-	 */
-	public boolean check(byte[]curBoard, boolean isWhiteMove, int rawStartPos,Chessmen chessmen)
-	{
-		int i = 0 ;
-		if(isWhiteMove){
-			for(; i < 64; ++i)
-				if(curBoard[i] == 11)
-					break;
-			if(chessmen.checkMove(rawStartPos, i, curBoard, true))
-				return true;
-		}
-		else{
-			for(; i < 64; ++i)
-				if(curBoard[i] == 12)
-					break;
-			if(chessmen.checkMove(rawStartPos, i, curBoard, false))
-				return true;	
-		}
-		return false;
-	}
-	/**
-	 * Проверка на рубку короля
-	 */
-	public boolean 	IsThisMoveOnKing(byte[]curBoard,int rawPosition, boolean isWhiteMove){
-		if(isWhiteMove)
-			return curBoard[rawPosition] == 11;
-		return curBoard[rawPosition] == 12;
-	}	
-	
+        isNormalMove = lastChessmen
+                .checkMove(rawStartPos, rawEndPos, curDesk,
+                        curDesk[rawStartPos] < 0, positionConverter);
+        if (isNormalMove) {
+            if (isThisMoveOnKing(curDesk, rawEndPos, curDesk[rawStartPos] < 0)) {
+                return GameState.MOVE_PROPERTIES.CHECKMATE;
+            }
+            if (isCheck(rawEndPos, curDesk, curDesk[rawStartPos] < 0, lastChessmen)) {
+                return GameState.MOVE_PROPERTIES.CHECK;
+            }
+            return GameState.MOVE_PROPERTIES.REGULAR;
+        } else
+            return GameState.MOVE_PROPERTIES.IMPOSSIBLE;
+    }
+
+    /**
+     * Является ли ход шахом
+     */
+    private boolean isCheck(int rawStartPos,
+                            byte[] curBoard,
+                            boolean isWhiteMove, Chessmen chessmen) {
+        int i = 0;
+        if (isWhiteMove) {
+            while (i < DESK_LENGTH) {
+                if (curBoard[i] == BLACK_KING)
+                    break;
+                i++;
+            }
+            if (chessmen.checkMove(
+                    rawStartPos, i, curBoard, isWhiteMove, positionConverter))
+                return true;
+        } else {
+            while (i < DESK_LENGTH) {
+                if (curBoard[i] == WHITE_KING)
+                    break;
+                i++;
+            }
+            if (chessmen.checkMove(
+                    rawStartPos, i, curBoard, isWhiteMove, positionConverter))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Рубят ли короля
+     */
+    private boolean isThisMoveOnKing(
+            byte[] curBoard, int rawPosition, boolean isWhiteMove) {
+        if (isWhiteMove)
+            return curBoard[rawPosition] == BLACK_KING;
+        return curBoard[rawPosition] == WHITE_KING;
+    }
+
+    /**
+     * Получить список всех возможных ходов для данной фигуры из данной позиции
+     */
+    public List<Integer> everyPossibleRightMove(
+            byte figure, int rawStartPos, byte[] chessDesk, boolean isWhiteMove) {
+        return figureList[Math.abs(figure) - 1]
+                .everyPossibleMove(rawStartPos, chessDesk,
+                        isWhiteMove, positionConverter);
+    }
 }
-
