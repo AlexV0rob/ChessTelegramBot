@@ -92,10 +92,10 @@ public class MoveConstructorTest {
                 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 1, 1, 0, 0, 0,
-                0, 0, 0, 0, 6, 0, 0, 0
+                0, 0, 0, -1, -1, 0, 0, 0,
+                0, 0, 0, 0, -6, 0, 0, 0
         };
-        boolean whiteToMove = false;
+        boolean whiteToMove = true;
         //Пешка
         int figure = 1;
         //e2
