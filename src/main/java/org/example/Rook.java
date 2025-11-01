@@ -52,9 +52,9 @@ class Rook implements Chessmen {
     }
 
     @Override
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
-                                           boolean isWhite, PositionConverter positionConverter) {
-        List<Integer> possibleMoves = new ArrayList<>();
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
+                                                boolean isWhite, PositionConverter positionConverter) {
+        ArrayList<Integer> possibleMoves = new ArrayList<Integer>();
         int RowStarPosition = positionConverter.positionRow(rawStartPos);
         //Позиция, движущаяся по доске вертикально вверх
         int verticalUpPosition = rawStartPos;

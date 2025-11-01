@@ -37,9 +37,9 @@ public class Pawn implements Chessmen {
     }
 
     @Override
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
-                                           PositionConverter positionConverter) {
-        List<Integer> possibleMoves = new ArrayList<>();
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
+                                                PositionConverter positionConverter) {
+        ArrayList<Integer> possibleMoves = new ArrayList<Integer>();
         int startPosRow = positionConverter.positionRow(rawStartPos);
         //единичный ход пешки
         int oneTimeMovePos = rawStartPos;

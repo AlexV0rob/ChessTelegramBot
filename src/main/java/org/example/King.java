@@ -22,9 +22,9 @@ class King implements Chessmen {
     }
 
     @Override
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
-                                           PositionConverter positionConverter) {
-        List<Integer> possibleMoves = new ArrayList<>();
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
+                                                PositionConverter positionConverter) {
+        ArrayList<Integer> possibleMoves = new ArrayList<Integer>();
         // Создаём 4 позиции, которые образую своеобразный крест вокруг клетки короля
         int downPos = positionConverter.verticalMoving(1, rawStartPos,
                 PositionConverter.DIRECTION_OF_SHIFT.DOWN);

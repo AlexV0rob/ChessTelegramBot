@@ -60,9 +60,9 @@ public class Bishop implements Chessmen {
     }
 
     @Override
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
-                                           boolean isWhite, PositionConverter positionConverter) {
-        List<Integer> possibleMoves = new ArrayList<Integer>();
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
+                                                boolean isWhite, PositionConverter positionConverter) {
+        ArrayList<Integer> possibleMoves = new ArrayList<Integer>();
         //Позиция, движущаяся по доске вверх и влево
         int currentPositionUpAndLeft = rawStartPos;
         //Позиция, движущаяся по доске вверх и вправо

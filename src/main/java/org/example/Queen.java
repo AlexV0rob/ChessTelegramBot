@@ -25,9 +25,9 @@ public class Queen implements Chessmen {
     }
 
     @Override
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
-                                           boolean isWhite, PositionConverter positionConverter) {
-        List<Integer> possibleMoves = rook.everyPossibleMove(rawStartPos, chessDesk,
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
+                                                boolean isWhite, PositionConverter positionConverter) {
+        ArrayList<Integer> possibleMoves = rook.everyPossibleMove(rawStartPos, chessDesk,
                 isWhite, positionConverter);
         possibleMoves.addAll(bishop.everyPossibleMove(rawStartPos, chessDesk,
                 isWhite, positionConverter));

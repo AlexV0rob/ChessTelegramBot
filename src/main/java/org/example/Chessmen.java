@@ -1,6 +1,6 @@
 package org.example;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Интерфейс определяющий шахматные фигуры
@@ -15,6 +15,6 @@ public interface Chessmen {
     /**
      * Все возможные ходы данной фигуры с данной позиции
      */
-    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
-                                           boolean isWhite, PositionConverter positionConverter);
+    public ArrayList<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
+                                                boolean isWhite, PositionConverter positionConverter);
 }
