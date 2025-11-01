@@ -86,7 +86,7 @@ public class GameHandlerTest {
                 -1, -1, -1, -1, -1, -1, -1, 0,
                 -2, -3, -4, -5, -6, -4, -3, -2};
         List<Integer> pawnList = List.of(16, 24);
-        List<Integer> knightList = List.of(11, 17, 16);
+        List<Integer> knightList = List.of(11, 16, 18);
         Assertions.assertTrue(pawnList.containsAll(gameHandler.everyPossibleRightMove((byte) 1,
                 8, board, false)));
         Assertions.assertTrue(knightList.containsAll(gameHandler.everyPossibleRightMove((byte) 3,

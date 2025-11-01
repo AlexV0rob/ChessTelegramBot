@@ -40,7 +40,7 @@ class Knight implements Chessmen {
         UpAndLeftPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
 
         UpAndRightPosition = positionConverter.verticalMoving(2, UpAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
-        UpAndRightPosition = positionConverter.horizontalMoving(1, UpAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        UpAndRightPosition = positionConverter.horizontalMoving(1, UpAndRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
 
         DownAndLeftPosition = positionConverter.verticalMoving(2, DownAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
         DownAndLeftPosition = positionConverter.horizontalMoving(1, DownAndLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
