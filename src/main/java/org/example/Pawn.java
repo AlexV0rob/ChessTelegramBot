@@ -1,63 +1,94 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Класс для реализации логики перемещения пешки
  */
 public class Pawn implements Chessmen {
-	/**
-	 * линия, с которой стартуют белые пешки
-	 */
-	private final static int WHITE_PAWN_START_LINE = 1;
-	/**
-	 * линия, с которой стартуют чёрные пешки
-	 */
-	private final static int BLACK_PAWN_START_LINE = 6;
-	/**
-	 * длина линии
-	 */
-	private final static int LINE_LENGTH = 8;
-	/**
-	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
-	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
-	 * @param chessDesk - одномерный массив с позициями всех фигур на шахматной доске
-	 * @return можно ли сходить на предполагаемую конечную позицию 
-	 */
-	@Override
-	public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite) {
-		Position pos = new Position();
-		int[] startPos = pos.convertPosition(rawStartPos);
-		int[] endPos = pos.convertPosition(rawEndPos);
-		if (chessDesk[rawEndPos] == 0) {
+    /**
+     * линия, с которой стартуют белые пешки
+     */
+    static int WHITE_PAWN_START_ROW = 6;
+    /**
+     * линия, с которой стартуют чёрные пешки
+     */
+    static int BLACK_PAWN_START_ROW = 1;
 
-			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (startPos[1] == endPos[1]))
-				return true;
-			else if ((startPos[0] == WHITE_PAWN_START_LINE || startPos[0] == BLACK_PAWN_START_LINE)
-					&& ((Math.abs(endPos[0] - startPos[0]) == 2) && (startPos[1]== endPos[1])))
-				return true;
-		}else if (((chessDesk[rawEndPos] > 0) != isWhite)) {
-			if ((Math.abs(endPos[0] - startPos[0]) == 1) && (Math.abs(startPos[1] - endPos[1]) == 1))
-				return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite,
+                             PositionConverter positionConverter) {
+        int startPosRow = positionConverter.positionRow(rawStartPos);
+        int startPosColumn = positionConverter.positionColumn(rawStartPos);
+        int endPosRow = positionConverter.positionRow(rawEndPos);
+        int endPosColumn = positionConverter.positionColumn(rawEndPos);
+        if (chessDesk[rawEndPos] == 0 && endPosRow - startPosRow == 1 * (isWhite ? -1 : 1))
+            return true;
+        else if (chessDesk[rawEndPos] == 0
+                && (WHITE_PAWN_START_ROW == startPosRow || BLACK_PAWN_START_ROW == startPosRow)
+                && endPosRow - startPosRow == 1 * (isWhite ? -2 : 2))
+            return true;
+        else if ((chessDesk[rawEndPos] < 0) != isWhite &&
+                endPosRow - startPosRow == 1 * (isWhite ? -1 : 1)
+                && Math.abs(startPosColumn - endPosColumn) == 1)
+            return true;
+        return false;
+    }
 
-	public int[] everyRightMove(int rawStartPos, byte[] chessDesk, boolean isWhite) {
-		Position pos = new Position();
-		int[] rightMoves = new int[28];
-		for(int i = 0; i < 28; ++i)
-			rightMoves[i] = -1;
-		int[] startPos = pos.convertPosition(rawStartPos);
-		int curPosition = 0;
-		if ((chessDesk[rawStartPos + LINE_LENGTH] == 0) || ((chessDesk[rawStartPos + LINE_LENGTH] > 0) != isWhite))
-			rightMoves[curPosition++] = rawStartPos + LINE_LENGTH;
-		if ((startPos[0] == WHITE_PAWN_START_LINE || startPos[0] == BLACK_PAWN_START_LINE)
-				&& ((chessDesk[rawStartPos + LINE_LENGTH * 2] == 0)
-						|| ((chessDesk[rawStartPos + LINE_LENGTH * 2] > 0) != isWhite)))
-			rightMoves[curPosition++] = rawStartPos + LINE_LENGTH;
-		if (((chessDesk[rawStartPos + LINE_LENGTH - 1] > 0) != isWhite) && startPos[1] != 0)
-			rightMoves[curPosition++] = rawStartPos + LINE_LENGTH - 1;
-		if (((chessDesk[rawStartPos + LINE_LENGTH + 1] > 0) != isWhite) && startPos[1] != 7)
-			rightMoves[curPosition++] = rawStartPos + LINE_LENGTH + 1;
-		return rightMoves;
-	}
+    @Override
+    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk, boolean isWhite,
+                                           PositionConverter positionConverter) {
+        List<Integer> possibleMoves = new ArrayList<>();
+        int startPosRow = positionConverter.positionRow(rawStartPos);
+        //единичный ход пешки
+        int oneTimeMovePos = rawStartPos;
+        //двойной ход со стартовой позиции
+        int twoTimesMovePos = rawStartPos;
+        //ход, рубящий по диагонали вправо
+        int rightDiagonalPos = rawStartPos;
+        //ход, рубящий по диагонали влево
+        int leftDiagonalPos = rawStartPos;
+        // сдвигаем на позиции наши ходы
+        if (chessDesk[rawStartPos] > 0) {
+
+            oneTimeMovePos = positionConverter.verticalMoving(1, oneTimeMovePos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+
+            twoTimesMovePos = positionConverter.verticalMoving(2, twoTimesMovePos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+
+            rightDiagonalPos = positionConverter.verticalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+            rightDiagonalPos = positionConverter.horizontalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+
+            leftDiagonalPos = positionConverter.verticalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.UP);
+            leftDiagonalPos = positionConverter.horizontalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+            if (oneTimeMovePos >= 0 && chessDesk[oneTimeMovePos] == 0)
+                possibleMoves.add(oneTimeMovePos);
+            if (twoTimesMovePos >= 0 && chessDesk[twoTimesMovePos] == 0 && (startPosRow == BLACK_PAWN_START_ROW))
+                possibleMoves.add(twoTimesMovePos);
+            if (rightDiagonalPos >= 0 && chessDesk[rightDiagonalPos] != 0 && (chessDesk[rightDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(rightDiagonalPos);
+            if (leftDiagonalPos >= 0 && chessDesk[leftDiagonalPos] != 0 && (chessDesk[leftDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(leftDiagonalPos);
+        } else {
+            oneTimeMovePos = positionConverter.verticalMoving(1, oneTimeMovePos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+
+            twoTimesMovePos = positionConverter.verticalMoving(2, twoTimesMovePos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+
+            rightDiagonalPos = positionConverter.verticalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+            rightDiagonalPos = positionConverter.horizontalMoving(1, rightDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+
+            leftDiagonalPos = positionConverter.verticalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+            leftDiagonalPos = positionConverter.horizontalMoving(1, leftDiagonalPos, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+            if (oneTimeMovePos >= 0 && chessDesk[oneTimeMovePos] == 0)
+                possibleMoves.add(oneTimeMovePos);
+            if (twoTimesMovePos >= 0 && chessDesk[twoTimesMovePos] == 0 &&
+                    (startPosRow == WHITE_PAWN_START_ROW))
+                possibleMoves.add(twoTimesMovePos);
+            if (rightDiagonalPos >= 0 && chessDesk[rightDiagonalPos] != 0 && (chessDesk[rightDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(rightDiagonalPos);
+            if (leftDiagonalPos >= 0 && chessDesk[leftDiagonalPos] != 0 && (chessDesk[leftDiagonalPos] < 0 != isWhite))
+                possibleMoves.add(leftDiagonalPos);
+        }
+        return possibleMoves;
+    }
 }

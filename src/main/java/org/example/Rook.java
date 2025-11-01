@@ -1,99 +1,124 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Класс для реализации логики перемещения Ладьи
  */
 class Rook implements Chessmen {
-	/**
-	 * Сдвиг по горизонтали
-	 */
-	private final static int HORIZONTAL_SHIFT = 1;
-	/**
-	 * Сдвиг по вертикали
-	 */
-	private final static int VERTICAL_SHIFT = 8;
-	/**
-	 * константа, соотвествующая длинне массива доски
-	 */
-	private final static int LAST_INDEX_IN_DESK = 63;
-	/**
-	 * длина линии
-	 */
-	private final static int LINE_LENGTH = 8;	
-	/**
-	 * @param rawStartPos - стартовая позиция фигуры в одномерном массиве доски
-	 * @param rawEndPos - предполагаемая конечная позиция фигуры в одномерном массиве доски
-	 * @param chessDesk - одномерный массив с позициями всех фигур на шахматной доске
-	 * @return можно ли сходить на предполагаемую конечную позицию 
-	 */
-	@Override
-	public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite) {
-		if ((rawStartPos > 63 || rawStartPos < 0) || (rawEndPos > 63 || rawEndPos < 0))
-			return false;
-		if ((chessDesk[rawEndPos] == 0) || ((chessDesk[rawEndPos] > 0) != isWhite)) {
-			Position pos = new Position();
-			int[] startPos = pos.convertPosition(rawStartPos);
-			int[] endPos = pos.convertPosition(rawEndPos);
-			if (((startPos[0] == endPos[0]) ^ (startPos[1]== endPos[1]))
-					&& isThereObstacle(rawStartPos, rawEndPos, chessDesk))
-				return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean checkMove(int rawStartPos, int rawEndPos, byte[] chessDesk, boolean isWhite,
+                             PositionConverter positionConverter) {
+        if (chessDesk[rawEndPos] == 0 || (chessDesk[rawEndPos] < 0) != isWhite) {
+            int startPosRow = positionConverter.positionRow(rawStartPos);
+            int startPosColumn = positionConverter.positionColumn(rawStartPos);
+            int endPosRow = positionConverter.positionRow(rawEndPos);
+            int endPosColumn = positionConverter.positionColumn(rawEndPos);
+            if ((Math.abs(endPosRow - startPosRow) == 0
+                    ^ Math.abs(endPosColumn - startPosColumn) == 0) &&
+                    isWayFree(rawStartPos, rawEndPos, chessDesk, positionConverter))
+                return true;
+        }
+        return false;
+    }
 
-	private boolean isThereObstacle(int rawStartPos, int rawEndPos, byte[] chessDesk) {
-		// если разница меньше 7, то они на одной линии
-		if (Math.abs(rawEndPos - rawStartPos) <= 7) {
+    /**
+     * Проверка отсутствия препядствий дляна пути из начала пути в конец
+     */
+    private boolean isWayFree(int rawStartPos, int rawEndPos, byte[] chessDesk,
+                              PositionConverter positionConverter) {
+        PositionConverter.SHIFT_PROPERTY verticalProperty = PositionConverter.SHIFT_PROPERTY.EQUAL;
+        if (positionConverter.positionRow(rawStartPos) < positionConverter.positionRow((rawEndPos))) {
+            verticalProperty = PositionConverter.SHIFT_PROPERTY.GREATER;
+        } else if (positionConverter.positionRow(rawStartPos) > positionConverter.positionRow((rawEndPos))) {
+            verticalProperty = PositionConverter.SHIFT_PROPERTY.LESS;
+        }
+        PositionConverter.SHIFT_PROPERTY horizontalProperty = PositionConverter.SHIFT_PROPERTY.EQUAL;
+        if (positionConverter.positionColumn(rawStartPos) < positionConverter.positionColumn((rawEndPos))) {
+            horizontalProperty = PositionConverter.SHIFT_PROPERTY.GREATER;
+        } else if (positionConverter.positionColumn(rawStartPos) > positionConverter.positionColumn((rawEndPos))) {
+            horizontalProperty = PositionConverter.SHIFT_PROPERTY.LESS;
+        }
+        int currentPosition = positionConverter.refreshCurrentPosition
+                (verticalProperty,
+                        horizontalProperty, rawStartPos);
+        while (currentPosition >= 0 && chessDesk[currentPosition] == 0 &&
+                currentPosition != rawEndPos) {
+            currentPosition = positionConverter.refreshCurrentPosition(verticalProperty,
+                    horizontalProperty, currentPosition);
+        }
+        return currentPosition == rawEndPos;
+    }
 
-			if (rawEndPos > rawStartPos) {
-				for (int i = rawStartPos + HORIZONTAL_SHIFT; i < rawEndPos; i += HORIZONTAL_SHIFT)
-					if (chessDesk[i] != 0)
-						return false;
-			} else {
-				for (int i = rawStartPos - HORIZONTAL_SHIFT; i > rawEndPos; i -= HORIZONTAL_SHIFT)
-					if (chessDesk[i] != 0)
-						return false; 
-			}
-		} else {
-			if (rawEndPos > rawStartPos) {
-				for (int i = rawStartPos + VERTICAL_SHIFT; i < rawEndPos; i += VERTICAL_SHIFT)
-					if (chessDesk[i] != 0)
-						return false;
-			} else {
-				for (int i = rawStartPos - VERTICAL_SHIFT; i > rawEndPos; i -= VERTICAL_SHIFT)
-					if (chessDesk[i] != 0)
-						return false;
-			}
-		}
+    @Override
+    public List<Integer> everyPossibleMove(int rawStartPos, byte[] chessDesk,
+                                           boolean isWhite, PositionConverter positionConverter) {
+        List<Integer> possibleMoves = new ArrayList<>();
+        int RowStarPosition = positionConverter.positionRow(rawStartPos);
+        //Позиция, движущаяся по доске вертикально вверх
+        int verticalUpPosition = rawStartPos;
+        //Позиция, движущаяся по доске вертикально вниз
+        int verticalDownPosition = rawStartPos;
+        //Позиция, движущаяся по доске горизонтально влево
+        int horizontalLeftPosition = rawStartPos;
+        //Позиция, движущаяся по доске горизонтально вправо
+        int horizontalRightPosition = rawStartPos;
+        verticalUpPosition = positionConverter.verticalMoving(1, verticalUpPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+        verticalDownPosition = positionConverter.verticalMoving(1, verticalDownPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+        horizontalLeftPosition = positionConverter.horizontalMoving(1, horizontalLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+        horizontalRightPosition = positionConverter.horizontalMoving(1, horizontalRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+        while (verticalUpPosition >= 0 || verticalDownPosition >= 0 ||
+                horizontalRightPosition >= 0 || horizontalLeftPosition >= 0) {
+            if (verticalUpPosition >= 0) {
+                if (chessDesk[verticalUpPosition] == 0) {
+                    possibleMoves.add(verticalUpPosition);
+                    verticalUpPosition = positionConverter.verticalMoving(1, verticalUpPosition, PositionConverter.DIRECTION_OF_SHIFT.UP);
+                } else {
+                    if ((chessDesk[verticalUpPosition] < 0) != isWhite) {
+                        possibleMoves.add(verticalUpPosition);
+                    }
+                    verticalUpPosition = -1;
 
-		return true;
-	}
-	public int[] everyRightMove(int rawStartPos, byte[] chessDesk, boolean isWhite) {
-		int[] rightMoves = new int[28];
-		int curPos = 0;
-		for (int i = 0; i < 28; ++i)
-			rightMoves[i] = -1;
-		for (int i = 1; i < LINE_LENGTH; i += HORIZONTAL_SHIFT) {
-			if ((chessDesk[rawStartPos + i] != 0) && ((chessDesk[rawStartPos + i] > 0) == isWhite))
-				break;
-			if (( rawStartPos - i > 0)&&(chessDesk[rawStartPos - i] != 0) && ((chessDesk[rawStartPos - i] > 0) == isWhite))
-				break;
-			if ((rawStartPos + i < LAST_INDEX_IN_DESK)
-					&& ((rawStartPos + i) / LINE_LENGTH == rawStartPos / LINE_LENGTH))
-				rightMoves[curPos++] = rawStartPos + i;
-			if ((rawStartPos - i > 0) && ((rawStartPos - i) / LINE_LENGTH == rawStartPos / LINE_LENGTH))
-				rightMoves[curPos++] = rawStartPos - i;
-		}
-		for (int i = 1; i < LAST_INDEX_IN_DESK; i += VERTICAL_SHIFT) {
-			if ((chessDesk[rawStartPos + i] != 0) && ((chessDesk[rawStartPos + i] > 0) == isWhite))
-				break;
-			if (( rawStartPos - i > 0)&&(chessDesk[rawStartPos - i] != 0) && ((chessDesk[rawStartPos - i] > 0) == isWhite))
-				break;
-			if ((rawStartPos + i < LAST_INDEX_IN_DESK))
-				rightMoves[curPos++] = rawStartPos + i;
-			if ((rawStartPos - i > 0))
-				rightMoves[curPos++] = rawStartPos - i;
-		}
-		return rightMoves;
-	}
+                }
+            }
+            if (verticalDownPosition >= 0) {
+                if (chessDesk[verticalDownPosition] == 0) {
+                    possibleMoves.add(verticalDownPosition);
+                    verticalDownPosition = positionConverter.verticalMoving(1, verticalDownPosition, PositionConverter.DIRECTION_OF_SHIFT.DOWN);
+                } else {
+                    if ((chessDesk[verticalDownPosition] < 0) != isWhite) {
+                        possibleMoves.add(verticalDownPosition);
+                    }
+                    verticalDownPosition = -1;
+
+                }
+            }
+            if (horizontalLeftPosition >= 0) {
+                if (chessDesk[horizontalLeftPosition] == 0) {
+                    possibleMoves.add(horizontalLeftPosition);
+                    horizontalLeftPosition = positionConverter.horizontalMoving(1, horizontalLeftPosition, PositionConverter.DIRECTION_OF_SHIFT.LEFT);
+                } else {
+                    if ((chessDesk[horizontalLeftPosition] < 0) != isWhite) {
+                        possibleMoves.add(horizontalLeftPosition);
+                    }
+                    horizontalLeftPosition = -1;
+
+                }
+            }
+            if (horizontalRightPosition >= 0) {
+                if (chessDesk[horizontalRightPosition] == 0) {
+                    possibleMoves.add(horizontalRightPosition);
+                    horizontalRightPosition = positionConverter.horizontalMoving(1, horizontalRightPosition, PositionConverter.DIRECTION_OF_SHIFT.RIGHT);
+                } else {
+                    if ((chessDesk[horizontalRightPosition] < 0) != isWhite) {
+                        possibleMoves.add(horizontalRightPosition);
+                    }
+                    horizontalRightPosition = -1;
+                }
+            }
+        }
+        return possibleMoves;
+    }
+
 }
