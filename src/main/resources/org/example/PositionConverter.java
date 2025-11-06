@@ -1,5 +1,8 @@
 package org.example;
 
+/**
+ * Класс для работы с одномерными позициями, как с двумерными
+ */
 public class PositionConverter {
     /**
      * варианты расположеиния позиций между друг другом
@@ -84,7 +87,7 @@ public class PositionConverter {
     }
 
     /**
-     * с
+     * смещение на n квадратов по горизонтали
      *
      * @return код позиции или -1, если выход за границу доски
      */
@@ -119,7 +122,7 @@ public class PositionConverter {
     }
 
     /**
-     *
+     * Обновление позиции по выбранному направлению
      */
     public int refreshCurrentPosition(SHIFT_PROPERTY verticalProperty,
                                       SHIFT_PROPERTY horizontalProperty, int currentPosition) {

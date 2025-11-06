@@ -1,11 +1,5 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Обрабатывает команды
- */
 public class CommandHandler {
 	/**
 	 * Сообщение команды /start
@@ -50,23 +44,22 @@ public class CommandHandler {
 	 * Определить тип команды, поменять при необходимости на соответсвующий режим
 	 * и отправить ответ
 	 */
-	public List<String> processCommand(String command, GameState currentGameState) {
-		List<String> responseMessagesTexts = new ArrayList<String>();
+	public String processCommand(String command, String argument, UserState currentUserState) {
 		switch (command) {
-		case "/start":
-			responseMessagesTexts.add(START_MESSAGE);
-		case "/quit":
-			currentGameState.setState(GameState.STATES.NOGAME);
-			responseMessagesTexts.add(MENU_MESSAGE);
-			return responseMessagesTexts;
-		case "/help":
-			return List.of(HELP_MESSAGE);
-		case "/newsinglegame":
-			currentGameState.setState(GameState.STATES.INGAME);
-			return List.of(GAME_STARTED,
-					currentGameState.printBoard(GameState.MOVE_PROPERTIES.REGULAR));
+		case "start":
+			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+			return START_MESSAGE;
+		case "quit":
+			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+			return MENU_MESSAGE;
+		case "help":
+			return HELP_MESSAGE;
+		case "newsinglegame":
+			currentUserState.setUserState(UserState.USER_STATE.INGAME);
+			currentUserState.resetGameState();
+			return new GameTranslator().currentBoardState(currentUserState.getGameState());
 		default:
-			return List.of(UNKNOWN_MESSAGE);
+			return UNKNOWN_MESSAGE;
 		}
 	}
 }
