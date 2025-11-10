@@ -13,9 +13,19 @@ public class Bishop implements Chessmen {
         EQUAL
     }
 
+    /**
+     * Максимальная размерность игрового поля
+     */
     private static int MIN_SIDE_VALUE;
+    /**
+     * Минимальная размерность игрового поля
+     */
     private static int MAX_SIDE_VALUE;
 
+
+    /**
+     * Конструктор класса
+     */
     public Bishop(int minSideValue, int maxSideValue) {
         MIN_SIDE_VALUE = minSideValue;
         MAX_SIDE_VALUE = maxSideValue;

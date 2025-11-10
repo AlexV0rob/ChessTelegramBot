@@ -15,9 +15,18 @@ public class King implements Chessmen {
      * Сдвиг по горизонтали
      */
     private static final int HORIZONTAL_SHIFT = 1;
+    /**
+     * Максимальная размерность игрового поля
+     */
     private static int MIN_SIDE_VALUE;
+    /**
+     * Минимальная размерность игрового поля
+     */
     private static int MAX_SIDE_VALUE;
 
+    /**
+     * Конструктор
+     */
     public King(int minSideValue, int maxSideValue) {
         MIN_SIDE_VALUE = minSideValue;
         MAX_SIDE_VALUE = maxSideValue;

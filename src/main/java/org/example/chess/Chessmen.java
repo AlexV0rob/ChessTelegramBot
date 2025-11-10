@@ -13,7 +13,7 @@ public interface Chessmen {
                              byte[][] board);
 
     /**
-     * Создание списка всех доступных ходов для данной функции
+     * Создание списка всех доступных ходов для данной фигуры
      */
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board);
 }

@@ -1,6 +1,5 @@
 package org.example.chess;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,15 +10,23 @@ public class Knight implements Chessmen {
     /**
      * Первая компонента Г-образного сдвига коня
      */
-    private static final int firstPartOfShift = 1;
+    private static final int FIRST_PART_OF_SHIFT = 1;
     /**
      * Вторая компонента Г-образного сдвига коня
      */
-    private static final int secondPartOfShift = 2;
-
+    private static final int SECOND_PART_OF_SHIFT = 2;
+    /**
+     * Максимальная размерность игрового поля
+     */
     private static int MIN_SIDE_VALUE;
+    /**
+     * Минимальная размерность игрового поля
+     */
     private static int MAX_SIDE_VALUE;
 
+    /**
+     * Конструктор
+     */
     public Knight(int minSideValue, int maxSideValue) {
         MIN_SIDE_VALUE = minSideValue;
         MAX_SIDE_VALUE = maxSideValue;
@@ -44,68 +51,68 @@ public class Knight implements Chessmen {
         List<PositionOnBoard> possibleMoves = new ArrayList<>();
         int startRow = start.row();
         int startColumn = start.column();
-        if (startRow + firstPartOfShift <= MAX_SIDE_VALUE && startColumn + secondPartOfShift <= MAX_SIDE_VALUE &&
-                (board[startRow + firstPartOfShift][startColumn + secondPartOfShift] == 0 ||
-                        board[startRow + firstPartOfShift][startColumn + secondPartOfShift]
+        if (startRow + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+                (board[startRow + FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT] == 0 ||
+                        board[startRow + FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow + firstPartOfShift,
-                    startColumn + secondPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow + FIRST_PART_OF_SHIFT,
+                    startColumn + SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow + secondPartOfShift <= MAX_SIDE_VALUE && startColumn + firstPartOfShift <= MAX_SIDE_VALUE &&
-                (board[startRow + secondPartOfShift][startColumn + firstPartOfShift] == 0 ||
-                        board[startRow + secondPartOfShift][startColumn + firstPartOfShift]
+        if (startRow + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+                (board[startRow + SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT] == 0 ||
+                        board[startRow + SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow + secondPartOfShift,
-                    startColumn + firstPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow + SECOND_PART_OF_SHIFT,
+                    startColumn + FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow - firstPartOfShift >= MIN_SIDE_VALUE && startColumn - secondPartOfShift >= MIN_SIDE_VALUE &&
-                (board[startRow - firstPartOfShift][startColumn - secondPartOfShift] == 0 ||
-                        board[startRow - firstPartOfShift][startColumn - secondPartOfShift]
+        if (startRow - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+                (board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
+                        board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow - firstPartOfShift,
-                    startColumn - secondPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow - FIRST_PART_OF_SHIFT,
+                    startColumn - SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow - secondPartOfShift >= MIN_SIDE_VALUE && startColumn - firstPartOfShift >= MIN_SIDE_VALUE &&
-                (board[startRow - secondPartOfShift][startColumn - firstPartOfShift] == 0 ||
-                        board[startRow - secondPartOfShift][startColumn - firstPartOfShift]
+        if (startRow - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+                (board[startRow - SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT] == 0 ||
+                        board[startRow - SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow - secondPartOfShift,
-                    startColumn - firstPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow - SECOND_PART_OF_SHIFT,
+                    startColumn - FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow - firstPartOfShift >= MIN_SIDE_VALUE && startColumn + secondPartOfShift <= MAX_SIDE_VALUE &&
-                (board[startRow - firstPartOfShift][startColumn - secondPartOfShift] == 0 ||
-                        board[startRow - firstPartOfShift][startColumn + secondPartOfShift]
+        if (startRow - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+                (board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
+                        board[startRow - FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow - firstPartOfShift,
-                    startColumn + secondPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow - FIRST_PART_OF_SHIFT,
+                    startColumn + SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow - secondPartOfShift >= MIN_SIDE_VALUE && startColumn + firstPartOfShift <= MAX_SIDE_VALUE &&
-                (board[startRow - secondPartOfShift][startColumn + firstPartOfShift] == 0 ||
-                        board[startRow - secondPartOfShift][startColumn + firstPartOfShift]
+        if (startRow - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+                (board[startRow - SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT] == 0 ||
+                        board[startRow - SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow - secondPartOfShift,
-                    startColumn + firstPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow - SECOND_PART_OF_SHIFT,
+                    startColumn + FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow + firstPartOfShift <= MAX_SIDE_VALUE && startColumn - secondPartOfShift >= MIN_SIDE_VALUE &&
-                (board[startRow + firstPartOfShift][startColumn - secondPartOfShift] == 0 ||
-                        board[startRow + firstPartOfShift][startColumn - secondPartOfShift]
+        if (startRow + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+                (board[startRow + FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
+                        board[startRow + FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow + firstPartOfShift,
-                    startColumn - secondPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow + FIRST_PART_OF_SHIFT,
+                    startColumn - SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow + secondPartOfShift <= MAX_SIDE_VALUE && startColumn - firstPartOfShift >= MIN_SIDE_VALUE &&
-                (board[startRow + secondPartOfShift][startColumn - firstPartOfShift] == 0 ||
-                        board[startRow + secondPartOfShift][startColumn - firstPartOfShift]
+        if (startRow + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+                (board[startRow + SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT] == 0 ||
+                        board[startRow + SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow + secondPartOfShift,
-                    startColumn - firstPartOfShift));
+            possibleMoves.add(new PositionOnBoard(startRow + SECOND_PART_OF_SHIFT,
+                    startColumn - FIRST_PART_OF_SHIFT));
         }
         return possibleMoves;
     }

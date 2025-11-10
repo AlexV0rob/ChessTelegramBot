@@ -27,10 +27,18 @@ public class Pawn implements Chessmen {
      * сдвиг для рубки пешкой
      */
     private final static int HORIZONTAL_MOVE_SHIFT = 1;
-
+    /**
+     * Максимальная размерность игрового поля
+     */
     private static int MIN_SIDE_VALUE;
+    /**
+     * Минимальная размерность игрового поля
+     */
     private static int MAX_SIDE_VALUE;
 
+    /**
+     * Конструктор класса
+     */
     public Pawn(int minSideValue, int maxSideValue) {
         MIN_SIDE_VALUE = minSideValue;
         MAX_SIDE_VALUE = maxSideValue;

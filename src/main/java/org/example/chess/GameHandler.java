@@ -13,10 +13,21 @@ public class GameHandler {
         MATE
     }
 
-    private final static int MIN_SIDE_VALUE = 0;
-    private final static int MAX_SIDE_VALUE = 7;
+    /**
+     * Максимальная размерность игрового поля
+     */
+    private static int MIN_SIDE_VALUE;
+    /**
+     * Минимальная размерность игрового поля
+     */
+    private static int MAX_SIDE_VALUE;
+    /**
+     * Количество классов фигур
+     */
     private final static int FIGURES_COUNT = 6;
-
+    /**
+     * Список классов фигур
+     */
     private final Chessmen[] FIGURES = {
             new Pawn(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new Rook(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
@@ -26,6 +37,9 @@ public class GameHandler {
             new King(MIN_SIDE_VALUE, MAX_SIDE_VALUE)
     };
 
+    /**
+     * Возвращает статус хода
+     */
     public moveProperty processMove(int figureCode, PositionOnBoard start,
                                     PositionOnBoard finish, GameState currentGameState) {
         if ((start.row() < MIN_SIDE_VALUE || start.row() > MAX_SIDE_VALUE) ||

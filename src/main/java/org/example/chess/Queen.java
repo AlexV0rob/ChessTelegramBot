@@ -16,6 +16,9 @@ public class Queen implements Chessmen {
      */
     private static Chessmen BISHOP;
 
+    /**
+     * Конструктор класса
+     */
     public Queen(int minSideValue, int maxSideValue) {
         ROOK = new Rook(minSideValue, maxSideValue);
         BISHOP = new Bishop(minSideValue, maxSideValue);
