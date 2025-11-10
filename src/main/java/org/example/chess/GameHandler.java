@@ -4,6 +4,9 @@ import org.example.states.GameState;
 
 import java.util.List;
 
+/**
+ * Класс
+ */
 public class GameHandler {
     public enum moveProperty {
         INVALID,
@@ -36,6 +39,14 @@ public class GameHandler {
             new Queen(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new King(MIN_SIDE_VALUE, MAX_SIDE_VALUE)
     };
+    /**
+     * Обозначение чёрного короля в массиве доски
+     */
+    private final static int BLACK_KING = 6;
+    /**
+     * Обозначение белого короля в массиве доски
+     */
+    private final static int WHITE_KING = -6;
 
     /**
      * Возвращает статус хода
@@ -73,25 +84,25 @@ public class GameHandler {
      * проверка на шах
      */
     private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
-        //координаты короля
-
         int i = 0, j = 0;
         if (board[curentPosition.row()][curentPosition.column()] < 0) {
-            for (; i < 8; ++i) {
-                for (; j < 8; ++j) {
-                    if (board[i][j] == 6)
-                        break;
+            while (i < 8 && board[i][j] != BLACK_KING) {
+                while (j < 8 && board[i][j] != BLACK_KING) {
+                    j++;
                 }
+                i++;
             }
         } else {
-            for (; i < 8; ++i) {
-                for (; j < 8; ++j) {
-                    if (board[i][j] == -6)
-                        break;
+            while (i < 8 && board[i][j] == WHITE_KING) {
+                while (j < 8 && board[i][j] == WHITE_KING) {
+                    j++;
                 }
+                i++;
             }
         }
-
+        if (i == 8 || j == 8) {
+            return false;
+        }
         return FIGURES[figureCode].checkMove(curentPosition, new PositionOnBoard(i, j), board);
     }
 
