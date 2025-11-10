@@ -1,4 +1,4 @@
-package org.example.chess;
+package org.example;
 
 import java.util.List;
 
@@ -12,5 +12,8 @@ public interface Chessmen {
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish,
                              byte[][] board);
 
-	public List<PositionOnBoard> allPossibleMoves(PositionOnBoard positionOnBoard, byte[][] chessboard);
+    /**
+     * Создание списка всех доступных ходов для данной функции
+     */
+    public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board);
 }

@@ -1,4 +1,4 @@
-package org.example.chess;
+package org.example;
 
 import java.util.List;
 
@@ -14,11 +14,11 @@ public class Queen implements Chessmen {
      * слон для проверки диагональных ходов
      */
     private static Chessmen BISHOP;
-    
+
     public Queen(int minSideValue, int maxSideValue) {
-    	ROOK = new Rook(minSideValue, maxSideValue);
-    	BISHOP = new Bishop(minSideValue, maxSideValue);
-	}
+        ROOK = new Rook(minSideValue, maxSideValue);
+        BISHOP = new Bishop(minSideValue, maxSideValue);
+    }
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
@@ -27,9 +27,10 @@ public class Queen implements Chessmen {
         return result;
     }
 
-	@Override
-	public List<PositionOnBoard> allPossibleMoves(PositionOnBoard positionOnBoard, byte[][] chessboard) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
+        List<PositionOnBoard> possibleMoves = ROOK.allPossibleMoves(start, board);
+        possibleMoves.addAll(BISHOP.allPossibleMoves(start, board));
+        return possibleMoves;
+    }
 }
