@@ -1,4 +1,4 @@
-package org.example;
+package org.example.chess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +47,9 @@ public class Pawn implements Chessmen {
                 board[finish.row()][finish.column()] == 0) {
             return true;
         }
-        if (finish.row() - start.row() == TWIN_MOVE_SHIFT &&
+        if (Math.abs(finish.row() - start.row()) == TWIN_MOVE_SHIFT &&
                 finish.row() <= MAX_SIDE_VALUE &&
+                board[(finish.row() + start.row()) / 2][finish.column()] == 0 &&
                 board[finish.row()][finish.column()] == 0) {
             return true;
         }
@@ -86,28 +87,35 @@ public class Pawn implements Chessmen {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
         int startRow = start.row();
         int startColumn = start.column();
-        if (startRow + SINGLE_MOVE_SHIFT <= MAX_SIDE_VALUE && board[startRow + 1][startColumn] == 0) {
-            possibleMoves.add(new PositionOnBoard(startRow + 1, startColumn));
+        int isWhite = board[startRow][startColumn] < 0 ? 1 : -1;
+        if (startRow + SINGLE_MOVE_SHIFT * isWhite <= MAX_SIDE_VALUE &&
+                startRow + SINGLE_MOVE_SHIFT * isWhite >= MIN_SIDE_VALUE &&
+                board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn] == 0) {
+            possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite, startColumn));
         }
-        if (startRow + TWIN_MOVE_SHIFT <= MAX_SIDE_VALUE &&
-                isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT, startColumn), board) &&
-                board[startRow + 1][startColumn] == 0) {
-            possibleMoves.add(new PositionOnBoard(startRow + 1, startColumn));
+        if ((WHITE_PAWN_START_ROW == startRow ||
+                BLACK_PAWN_START_ROW == startRow) &&
+                startRow + TWIN_MOVE_SHIFT * isWhite <= MAX_SIDE_VALUE &&
+                startRow + TWIN_MOVE_SHIFT * isWhite >= MIN_SIDE_VALUE &&
+                isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn), board) &&
+                board[startRow + TWIN_MOVE_SHIFT * isWhite][startColumn] == 0) {
+            possibleMoves.add(new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn));
         }
 
-        if (startRow + SINGLE_MOVE_SHIFT <= MAX_SIDE_VALUE &&
-                isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT, startColumn), board) &&
+        if (startRow + SINGLE_MOVE_SHIFT * isWhite <= MAX_SIDE_VALUE &&
+                startRow + SINGLE_MOVE_SHIFT * isWhite >= MIN_SIDE_VALUE &&
+                isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn), board) &&
                 board[startRow + 1][startColumn] == 0) {
             if (startColumn + HORIZONTAL_MOVE_SHIFT <= MAX_SIDE_VALUE &&
                     board[startRow][startColumn]
-                            * board[startRow + SINGLE_MOVE_SHIFT][startColumn + HORIZONTAL_MOVE_SHIFT] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT,
+                            * board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn + HORIZONTAL_MOVE_SHIFT] < 0) {
+                possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite,
                         startColumn + HORIZONTAL_MOVE_SHIFT));
             }
             if (startColumn - HORIZONTAL_MOVE_SHIFT >= MIN_SIDE_VALUE &&
                     board[startRow][startColumn]
-                            * board[startRow + SINGLE_MOVE_SHIFT][startColumn - HORIZONTAL_MOVE_SHIFT] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT,
+                            * board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn - HORIZONTAL_MOVE_SHIFT] < 0) {
+                possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite,
                         startColumn - HORIZONTAL_MOVE_SHIFT));
             }
         }

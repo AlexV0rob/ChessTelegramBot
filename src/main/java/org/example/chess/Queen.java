@@ -1,4 +1,5 @@
-package org.example;
+package org.example.chess;
+
 
 import java.util.List;
 

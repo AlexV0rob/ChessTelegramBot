@@ -1,4 +1,4 @@
-package org.example;
+package org.example.chess;
 
 import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.ArrayList;
@@ -91,35 +91,43 @@ public class Rook implements Chessmen {
         boolean isDownFree = true;
         boolean isLeftFree = true;
         boolean isRightFree = true;
-        while (shift <= MAX_SIDE_VALUE) {
+        while (shift <= MAX_SIDE_VALUE && (isUpFree || isDownFree || isLeftFree || isRightFree)) {
             if (isUpFree && startRow + shift <= MAX_SIDE_VALUE
                     && board[startRow + shift][startColumn] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + shift, startColumn));
-            } else if (isUpFree && startRow + shift >= MIN_SIDE_VALUE && startRow + shift <= MAX_SIDE_VALUE &&
+            } else if (isUpFree && startRow + shift <= MAX_SIDE_VALUE &&
                     board[startRow + shift][startColumn] * board[startRow][startColumn] < 0) {
                 isUpFree = false;
-                possibleMoves.add(new PositionOnBoard(startRow, startColumn + shift));
+                possibleMoves.add(new PositionOnBoard(startRow + shift, startColumn));
+            } else {
+                isUpFree = false;
             }
             if (isDownFree && startRow - shift >= MIN_SIDE_VALUE && board[startRow - shift][startColumn] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
             } else if (isDownFree && startRow - shift >= MIN_SIDE_VALUE &&
                     board[startRow - shift][startColumn] * board[startRow][startColumn] < 0) {
                 isDownFree = false;
-                possibleMoves.add(new PositionOnBoard(startRow, startColumn - shift));
+                possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
+            } else {
+                isDownFree = false;
             }
             if (isRightFree && startColumn + shift <= MAX_SIDE_VALUE && board[startRow][startColumn + shift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
-            } else if (isRightFree && startRow - shift >= MIN_SIDE_VALUE &&
+                possibleMoves.add(new PositionOnBoard(startRow, startColumn + shift));
+            } else if (isRightFree && startColumn + shift <= MAX_SIDE_VALUE &&
                     board[startRow][startColumn + shift] * board[startRow][startColumn] < 0) {
                 isRightFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn + shift));
+            } else {
+                isRightFree = false;
             }
             if (isLeftFree && startColumn - shift >= MIN_SIDE_VALUE && board[startRow][startColumn - shift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
+                possibleMoves.add(new PositionOnBoard(startRow, startColumn - shift));
             } else if (isLeftFree && startRow - shift >= MIN_SIDE_VALUE &&
                     board[startRow - shift][startColumn] * board[startRow][startColumn] < 0) {
                 isLeftFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn - shift));
+            } else {
+                isLeftFree = false;
             }
             shift++;
         }

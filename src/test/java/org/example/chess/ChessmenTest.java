@@ -1,10 +1,8 @@
-package org.example;
+package org.example.chess;
 
 import org.junit.jupiter.api.Assertions;
 
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.GenericDeclaration;
 
 /**
  * Проверка работы фигур
@@ -26,14 +24,6 @@ public class ChessmenTest {
      * Длина одной линии клеток
      */
     private final static int LINE_LENGTH = (int) Math.sqrt(DESK_LENGTH);
-
-    /**
-     * Преобразователь и обработчик позиций одномерного массива
-     */
-    private final PositionConverter positionConverter =
-            new PositionConverter(LINE_LENGTH,
-                    FIRST_INDEX_IN_DESK,
-                    LAST_INDEX_IN_DESK);
 
     /**
      * Проверка ходов пешки

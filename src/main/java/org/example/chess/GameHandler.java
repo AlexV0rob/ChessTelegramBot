@@ -1,4 +1,6 @@
-package org.example;
+package org.example.chess;
+
+import org.example.states.GameState;
 
 import java.util.List;
 
@@ -39,8 +41,8 @@ public class GameHandler {
             return moveProperty.IMPOSSIBLE;
         }
         currentGameState.moveFigure(start, finish);
-        if (isCheckMove()) {
-            if (isMateMove()) {
+        if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
+            if (isMateMove(finish, currentGameState.getBoard())) {
                 return moveProperty.MATE;
             }
             return moveProperty.CHECK;
@@ -53,11 +55,36 @@ public class GameHandler {
         return FIGURES[figureCode].allPossibleMoves(start, currentGameState.getBoard());
     }
 
-    private boolean isCheckMove() {
-        return false;
+    /**
+     * проверка на шах
+     */
+    private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
+        //координаты короля
+
+        int i = 0, j = 0;
+        if (board[curentPosition.row()][curentPosition.column()] < 0) {
+            for (; i < 8; ++i) {
+                for (; j < 8; ++j) {
+                    if (board[i][j] == 6)
+                        break;
+                }
+            }
+        } else {
+            for (; i < 8; ++i) {
+                for (; j < 8; ++j) {
+                    if (board[i][j] == -6)
+                        break;
+                }
+            }
+        }
+
+        return FIGURES[figureCode].checkMove(curentPosition, new PositionOnBoard(i, j), board);
     }
 
-    private boolean isMateMove() {
-        return false;
+    /**
+     * проверка что ход на короля
+     */
+    private boolean isMateMove(PositionOnBoard finish, byte[][] board) {
+        return Math.abs(board[finish.row()][finish.column()]) == 6;
     }
 }

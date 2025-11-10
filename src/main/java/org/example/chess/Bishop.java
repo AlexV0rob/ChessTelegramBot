@@ -1,4 +1,4 @@
-package org.example;
+package org.example.chess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,69 +96,70 @@ public class Bishop implements Chessmen {
         boolean isDownAndRightFree = true;
         boolean isUpAndLeftFree = true;
         boolean isDownAndLeftFree = true;
-        while (DiagonalShift >= MIN_SIDE_VALUE && DiagonalShift <= MAX_SIDE_VALUE) {
-            if (isUpAndRightFree && startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startRow + DiagonalShift >= MIN_SIDE_VALUE &&
+        while (DiagonalShift <= MAX_SIDE_VALUE && (isUpAndRightFree || isDownAndRightFree || isUpAndLeftFree
+                || isDownAndLeftFree)) {
+            if (isUpAndRightFree &&
+                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow + DiagonalShift][startColumn + DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn + DiagonalShift));
             } else if (isUpAndRightFree && startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startRow + DiagonalShift >= MIN_SIDE_VALUE &&
+                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow + DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn + DiagonalShift));
                 isUpAndRightFree = false;
+            } else {
+                isUpAndRightFree = false;
             }
-            if (isDownAndRightFree && startRow - DiagonalShift <= MAX_SIDE_VALUE &&
+            if (isDownAndRightFree &&
                     startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow - DiagonalShift][startColumn - DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn - DiagonalShift));
-            } else if (isDownAndRightFree && startRow - DiagonalShift <= MAX_SIDE_VALUE &&
+            } else if (isDownAndRightFree &&
                     startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow - DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn - DiagonalShift));
                 isDownAndRightFree = false;
+            } else {
+                isDownAndRightFree = false;
             }
-            if (isUpAndLeftFree && startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startRow + DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift <= MAX_SIDE_VALUE &&
+            if (isUpAndLeftFree &&
+                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
-                    board[startRow - DiagonalShift][startColumn - DiagonalShift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
+                    board[startRow + DiagonalShift][startColumn - DiagonalShift] == 0) {
+                possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn - DiagonalShift));
-            } else if (isUpAndLeftFree && startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startRow + DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift <= MAX_SIDE_VALUE &&
+            } else if (isUpAndLeftFree &&
+                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
                     startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow + DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn - DiagonalShift));
                 isUpAndLeftFree = false;
+            } else {
+                isUpAndLeftFree = false;
             }
-            if (isDownAndRightFree && startRow - DiagonalShift <= MAX_SIDE_VALUE &&
+            if (isDownAndLeftFree &&
                     startRow - DiagonalShift >= MIN_SIDE_VALUE &&
                     startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift >= MIN_SIDE_VALUE &&
                     board[startRow - DiagonalShift][startColumn + DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn + DiagonalShift));
-            } else if (isDownAndLeftFree && startRow - DiagonalShift <= MAX_SIDE_VALUE &&
+            } else if (isDownAndLeftFree &&
                     startRow - DiagonalShift >= MIN_SIDE_VALUE &&
                     startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift >= MIN_SIDE_VALUE &&
-                    board[startRow - DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
+                    board[startRow - DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn + DiagonalShift));
+                isDownAndLeftFree = false;
+            } else {
                 isDownAndLeftFree = false;
             }
             DiagonalShift++;
