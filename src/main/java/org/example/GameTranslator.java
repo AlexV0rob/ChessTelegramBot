@@ -1,6 +1,17 @@
 package org.example;
 
+import org.example.chess.GameHandler;
+import org.example.chess.PositionOnBoard;
+
+import org.example.states.GameState;
+
+/**
+ * Игровой переводчик, передаёт собщения в обрвботчик игры и обратно 
+ */
 public class GameTranslator {
+	/**
+	 * Обработчик игры
+	 */
 	private GameHandler gameHandler = new GameHandler();
 
     /**
@@ -54,13 +65,16 @@ public class GameTranslator {
     private final static int SQUARES_IN_A_ROW = 8;
     
     /**
-     * Получить текущее состояние доски в виде строки для печати
+     * Получить текущее состояние доски в виде строки
      */
     public String currentBoardState(GameState currentGameState) {
     	return chessboardString(GameHandler.moveProperty.REGULAR, 
     			currentGameState.getBoard(), currentGameState.isWhiteToMove());
     }
     
+    /**
+     * Сделать ход и получить новое состояние доски в виде строки
+     */
     public String makeMove(int figureCode, PositionOnBoard start, 
     		PositionOnBoard finish, GameState currentGameState) {
     	GameHandler.moveProperty moveProperty = 
@@ -72,7 +86,10 @@ public class GameTranslator {
     	return chessboardString(moveProperty, currentGameState.getBoard(), 
     			currentGameState.isWhiteToMove());
     }
-    	
+    
+    /**
+     * Сформировать текст сообщения с состоянием доски в виде строки
+     */
     private String chessboardString(GameHandler.moveProperty moveProperty, 
     		byte[][] currentChessboard, boolean isWhiteToMove) {
         String chessboardString, side, board, additional;
@@ -91,7 +108,7 @@ public class GameTranslator {
         		"\n" + CHECKMATE_MOVE + (isWhiteToMove ? WHITE_WIN : BLACK_WIN);
         };
         if (moveProperty.equals(GameHandler.moveProperty.MATE)) {
-        	
+        	//TODO
         }
         chessboardString = """
                 %s
@@ -101,6 +118,9 @@ public class GameTranslator {
         return chessboardString;
     }
     
+    /**
+     * Посторить доску в строковом виде
+     */
     private String boardString(byte[][] currentChessboard, boolean isWhiteToMove) {
     	String boardString = "";
         if (isWhiteToMove) {

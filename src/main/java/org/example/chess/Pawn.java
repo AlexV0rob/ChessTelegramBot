@@ -1,4 +1,6 @@
-package org.example;
+package org.example.chess;
+
+import java.util.List;
 
 /**
  * Класс для реализации логики перемещения пешки
@@ -16,7 +18,9 @@ public class Pawn implements Chessmen {
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
         if (board[finish.row()][finish.column()] == 0 && 
-        		finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1)) {
+        		(finish.row() - start.row() == 
+        			1 * (board[start.row()][start.column()] < 0 ? 1 : -1)) &&
+        		finish.column() - start.column() == 0) {
             return true;
         }
         if (board[finish.row()][finish.column()] == 0 && 
@@ -28,11 +32,20 @@ public class Pawn implements Chessmen {
         		board[start.row()][start.column()] > 0))) {
             return true;
         }    
-        if ((board[finish.row()][finish.column()] < 0) != (board[start.row()][start.column()] < 0) && 
-        		finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
+        if (board[finish.row()][finish.column()] != 0 && 
+        		((board[finish.row()][finish.column()] < 0) != 
+        			(board[start.row()][start.column()] < 0)) && 
+        		(finish.row() - start.row() == 
+        			1 * (board[start.row()][start.column()] < 0 ? 1 : -1)) &&
         		Math.abs(finish.column() - start.column()) == 1) {
             return true;
         }
         return false;
     }
+
+	@Override
+	public List<PositionOnBoard> allPossibleMoves(PositionOnBoard positionOnBoard, byte[][] chessboard) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
