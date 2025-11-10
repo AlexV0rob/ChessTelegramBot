@@ -8,7 +8,13 @@ import java.util.List;
  * Класс для реализации логики перемещения коня
  */
 public class Knight implements Chessmen {
+    /**
+     * Первая компонента Г-образного сдвига коня
+     */
     private static final int firstPartOfShift = 1;
+    /**
+     * Вторая компонента Г-образного сдвига коня
+     */
     private static final int secondPartOfShift = 2;
 
     private static int MIN_SIDE_VALUE;
