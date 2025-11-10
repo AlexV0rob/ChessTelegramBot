@@ -3,7 +3,7 @@ package org.example.inputHandlers;
 import java.util.List;
 
 import org.example.GameTranslator;
-
+import org.example.chess.GameHandler;
 import org.example.states.UserState;
 
 /**
@@ -77,8 +77,10 @@ public class CommandHandler {
                 currentUserState.resetGameState();
                 return List.of(
                         GAME_STARTED,
-                        gameTranslator.currentBoardState(
-                                currentUserState.getGameState()),
+                        gameTranslator.chessboardString(
+                        		GameHandler.moveProperty.REGULAR,
+                                currentUserState.getGameState().getBoard(),
+                                currentUserState.getGameState().isWhiteToMove()),
                         YOUR_MOVE);
             }
             default -> {

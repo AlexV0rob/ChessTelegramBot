@@ -83,14 +83,16 @@ public class GameHandler {
         if (!FIGURES[figureCode].checkMove(start, finish, currentGameState.getBoard())) {
             return moveProperty.IMPOSSIBLE;
         }
-        currentGameState.moveFigure(start, finish);
+        moveProperty move = moveProperty.REGULAR;
         if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
-            if (isMateMove(finish, currentGameState.getBoard())) {
-                return moveProperty.MATE;
-            }
-            return moveProperty.CHECK;
+            move =  moveProperty.CHECK;
         }
-        return moveProperty.REGULAR;
+        if (isMateMove(finish, currentGameState.getBoard())) {
+            move =  moveProperty.MATE;
+        }
+        currentGameState.moveFigure(start, finish);
+        currentGameState.changeSide();
+        return move;
     }
 
     public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
