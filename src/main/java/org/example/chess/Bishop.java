@@ -7,9 +7,21 @@ import java.util.List;
  * Класс для реализации логики перемещения слона
  */
 public class Bishop implements Chessmen {
+    /**
+     * Расположение позиций друг относительно друга
+     */
     private enum positionRelatives {
+        /**
+         * Выше
+         */
         GREATER,
+        /**
+         * Ниже
+         */
         LESS,
+        /**
+         * Эквивалентны
+         */
         EQUAL
     }
 

@@ -5,7 +5,7 @@ import org.example.states.GameState;
 import java.util.List;
 
 /**
- * Класс
+ * Класс обработки хода
  */
 public class GameHandler {
     public enum moveProperty {

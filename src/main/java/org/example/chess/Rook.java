@@ -8,9 +8,21 @@ import java.util.List;
  * Класс для реализации логики перемещения Ладьи
  */
 public class Rook implements Chessmen {
+    /**
+     * Расположение позиций друг относительно друга
+     */
     private enum positionRelatives {
+        /**
+         * Выше
+         */
         GREATER,
+        /**
+         * Ниже
+         */
         LESS,
+        /**
+         * Эквивалентны
+         */
         EQUAL
     }
 
