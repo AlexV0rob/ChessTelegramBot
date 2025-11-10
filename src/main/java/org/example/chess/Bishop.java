@@ -1,4 +1,6 @@
-package org.example;
+package org.example.chess;
+
+import java.util.List;
 
 /**
  * Класс для реализации логики перемещения слона
@@ -82,4 +84,10 @@ public class Bishop implements Chessmen {
         }
         return (currentRow == finish.row() && currentColumn == finish.column());
     }
+
+	@Override
+	public List<PositionOnBoard> allPossibleMoves(PositionOnBoard positionOnBoard, byte[][] chessboard) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

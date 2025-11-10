@@ -1,45 +1,83 @@
 package org.example;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.example.chess.PositionOnBoard;
 
-public class MovePartsHandler extends MoveHandler {
-	private final static Map<String, String> FIGURES_NAMES = 
-			new HashMap<String, String>();
+import org.example.states.GameState;
+import org.example.states.MoveState;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Обработчик хода и его частей
+ */
+public class MovePartsHandler {
+	/**
+	 * Конвертер частей хода
+	 */
+	private final MovePartsConverter movePartsConverter = new MovePartsConverter();
 	
-	public MovePartsHandler() {
-		FIGURES_NAMES.put("p", "ПЕШКА");
-		FIGURES_NAMES.put("r", "ЛАДЬЯ");
-		FIGURES_NAMES.put("n", "КОНЬ");
-		FIGURES_NAMES.put("b", "СЛОН");
-		FIGURES_NAMES.put("q", "ФЕРЗЬ");
-		FIGURES_NAMES.put("k", "КОРОЛЬ");
-	}
+	/**
+	 * Игровой переводчик
+	 */
+	private final GameTranslator gameTranslator = new GameTranslator();
 	
-	public String processMovePart(String movePart, 
+	/**
+	 * Пригластельное сообщение к ходу
+	 */
+	private final static String YOUR_MOVE = "Ваш ход: ";
+	
+	/**
+	 * Обработать ход целиком
+	 */
+    public List<String> processMove(String figure, String startPosition, String finishPosition, 
+    		GameState currentGameState, MoveState currentMoveState) {
+        int figureCode = movePartsConverter.getFigureCode(figure);
+        int startPositionRow = movePartsConverter
+        		.getPositionRowCode(startPosition.charAt(1));
+        int startPositionColumn = movePartsConverter
+        		.getPositionColumnCode(startPosition.charAt(0));
+        int finishPositionRow = movePartsConverter
+        		.getPositionRowCode(finishPosition.charAt(1));
+        int finishPositionColumn = movePartsConverter
+        		.getPositionColumnCode(finishPosition.charAt(0));
+        currentMoveState.clearMoveState();
+        return List.of(
+        		gameTranslator.makeMove(
+        				figureCode, 
+        				new PositionOnBoard(startPositionRow, startPositionColumn), 
+        				new PositionOnBoard(finishPositionRow, finishPositionColumn),
+        				currentGameState), 
+        		YOUR_MOVE); 
+    }
+    
+    /**
+     * Обработать часть хода
+     */
+	public List<String> processMovePart(String movePart, 
 			MoveState currentMoveState, GameState currentGameState) {
-		if (movePart.isEmpty()) {
-			movePart = "p";
+		List<String> responses = new ArrayList<String>();
+		if (!movePart.isEmpty()) {
+			currentMoveState.nextStatus(movePart);
 		}
-		currentMoveState.nextStatus(movePart);
 		String currentFigure = currentMoveState.getFigure();
 		String currentStartPosition = currentMoveState.getStartPosition();
 		String currentFinishPosition = currentMoveState.getFinishPosition();
-		if (currentMoveState.isMoveReady()) {
-			currentMoveState.nextStatus("");
-			return processMove(currentFigure, currentStartPosition, 
-					currentFinishPosition, currentGameState);
-		}
-		String moveMessage = "";
+		String moveMessage = YOUR_MOVE;
 		if (!currentFigure.isEmpty()) {
-			moveMessage += FIGURES_NAMES.get(currentFigure);
+			moveMessage += movePartsConverter.getFigureName(currentFigure);
 		}
 		if (!currentStartPosition.isEmpty()) {
-			moveMessage += currentStartPosition.toUpperCase();
+			moveMessage += " " + currentStartPosition.toUpperCase();
 		}
 		if (!currentFinishPosition.isEmpty()) {
-			moveMessage += currentFinishPosition.toUpperCase();
+			moveMessage += " " + currentFinishPosition.toUpperCase();
 		}
-		return moveMessage;
+		responses.add(moveMessage);
+		if (currentMoveState.isMoveReady()) {
+			responses.addAll(processMove(currentFigure, currentStartPosition, 
+					currentFinishPosition, currentGameState, currentMoveState));
+		}
+		return responses;
 	}
 }

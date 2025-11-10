@@ -1,5 +1,8 @@
-package org.example;
+package org.example.states;
 
+/**
+ * Хранитель состояния готовности хода
+ */
 public class MoveState {
     /**
      * Возможный состояния готовности хода
@@ -54,24 +57,36 @@ public class MoveState {
         currentStatus = STATUS.NOTHING;
     }
     
+    /**
+     * Получить фигуру
+     */
     public String getFigure() {
     	return figure;
     }
     
+    /**
+     * Получить начальную позицию
+     */
     public String getStartPosition() {
     	return startPosition;
     }
     
+    /**
+     * Получить конечную позицию
+     */
     public String getFinishPosition() {
     	return finishPosition;
     }
     
+    /**
+     * Индикатор готовности хода
+     */
     public boolean isMoveReady() {
     	return currentStatus.equals(STATUS.FINISH);
     }
     
     /**
-     * Поставить новую часть хода в соответсвующее поле  поменять статус
+     * Поставить новую часть хода в соответствующее поле поменять статус
      * готовности хода на следующее
      *
      * @param newMovePart в зависимости от текущего состояния готовности хода
@@ -101,7 +116,7 @@ public class MoveState {
      * Очистить готовность хода, ставит 0 в фигуру, -1 в начальную и
      * конечную позиции и состояние отсутствия готовности хода
      */
-    private void clearMoveState() {
+    public void clearMoveState() {
         figure = "";
         startPosition = "";
         finishPosition = "";

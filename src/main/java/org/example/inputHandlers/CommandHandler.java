@@ -1,6 +1,16 @@
-package org.example;
+package org.example.inputHandlers;
 
+import java.util.List;
+
+import org.example.GameTranslator;
+
+import org.example.states.UserState;
+
+/**
+ * Обработчик команд
+ */
 public class CommandHandler {
+	private final GameTranslator gameTranslator = new GameTranslator();
 	/**
 	 * Сообщение команды /start
 	 */
@@ -41,25 +51,39 @@ public class CommandHandler {
 	private final static String GAME_STARTED = "Игра началась";
 	
 	/**
+	 * Пригласительное сообщение к ходу
+	 */
+	private final static String YOUR_MOVE = "Ваш ход: ";
+	
+	/**
 	 * Определить тип команды, поменять при необходимости на соответсвующий режим
 	 * и отправить ответ
 	 */
-	public String processCommand(String command, String argument, UserState currentUserState) {
+	public List<String> processCommand(String command, String argument, 
+			UserState currentUserState) {
 		switch (command) {
-		case "start":
-			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
-			return START_MESSAGE;
-		case "quit":
-			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
-			return MENU_MESSAGE;
-		case "help":
-			return HELP_MESSAGE;
-		case "newsinglegame":
-			currentUserState.setUserState(UserState.USER_STATE.INGAME);
-			currentUserState.resetGameState();
-			return new GameTranslator().currentBoardState(currentUserState.getGameState());
-		default:
-			return UNKNOWN_MESSAGE;
+			case "start", "quit" -> {
+				currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+				if (command.equals("start")) {
+					return List.of(START_MESSAGE, MENU_MESSAGE);
+				}
+				return List.of(MENU_MESSAGE);
+			}
+			case "help" -> {
+				return List.of(HELP_MESSAGE);
+			}
+			case "newsinglegame" -> {
+				currentUserState.setUserState(UserState.USER_STATE.INGAME);
+				currentUserState.resetGameState();
+				return List.of(
+						GAME_STARTED, 
+						gameTranslator.currentBoardState(
+								currentUserState.getGameState()), 
+						YOUR_MOVE);
+			}
+			default -> {
+				return List.of(UNKNOWN_MESSAGE);
+			}
 		}
 	}
 }

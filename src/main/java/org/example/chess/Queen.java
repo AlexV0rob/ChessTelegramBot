@@ -1,4 +1,6 @@
-package org.example;
+package org.example.chess;
+
+import java.util.List;
 
 /**
  * Класс для реализации логики перемещения Королевы
@@ -24,4 +26,10 @@ public class Queen implements Chessmen {
                 || BISHOP.checkMove(start, finish, board);
         return result;
     }
+
+	@Override
+	public List<PositionOnBoard> allPossibleMoves(PositionOnBoard positionOnBoard, byte[][] chessboard) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

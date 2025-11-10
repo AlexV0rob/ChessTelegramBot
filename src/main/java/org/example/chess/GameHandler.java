@@ -1,4 +1,6 @@
-package org.example;
+package org.example.chess;
+
+import org.example.states.GameState;
 
 public class GameHandler {
 	public enum moveProperty {
@@ -13,7 +15,7 @@ public class GameHandler {
 	private final static int MAX_SIDE_VALUE = 7;
 	private final static int FIGURES_COUNT = 6;
 	
-	private final Chessmen[] FIGURES = {
+	private final static Chessmen[] FIGURES = {
 			new Pawn(),
 			new Rook(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
 			new Knight(),
