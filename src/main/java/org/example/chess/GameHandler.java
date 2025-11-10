@@ -8,11 +8,29 @@ import java.util.List;
  * Класс обработки хода
  */
 public class GameHandler {
+    /**
+     * Статус хода
+     */
     public enum moveProperty {
+        /**
+         * Неправильный ход
+         */
         INVALID,
+        /**
+         * Невозможный ход
+         */
         IMPOSSIBLE,
+        /**
+         * Обычный правильный ход
+         */
         REGULAR,
+        /**
+         * Ход, ставящий шах
+         */
         CHECK,
+        /**
+         * Ход, ставящий мат
+         */
         MATE
     }
 
