@@ -90,6 +90,7 @@ public class GameHandler {
                 while (j < 8 && board[i][j] != BLACK_KING) {
                     j++;
                 }
+                j = 0;
                 i++;
             }
         } else {
@@ -97,6 +98,7 @@ public class GameHandler {
                 while (j < 8 && board[i][j] == WHITE_KING) {
                     j++;
                 }
+                j = 0;
                 i++;
             }
         }
