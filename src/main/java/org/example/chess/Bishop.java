@@ -28,19 +28,19 @@ public class Bishop implements Chessmen {
     /**
      * Максимальная размерность игрового поля
      */
-    private static int MIN_SIDE_VALUE;
+    private int minSideValue;
     /**
      * Минимальная размерность игрового поля
      */
-    private static int MAX_SIDE_VALUE;
+    private int maxSideValue;
 
 
     /**
      * Конструктор класса
      */
     public Bishop(int minSideValue, int maxSideValue) {
-        MIN_SIDE_VALUE = minSideValue;
-        MAX_SIDE_VALUE = maxSideValue;
+        this.minSideValue = minSideValue;
+        this.maxSideValue = maxSideValue;
     }
 
     @Override
@@ -90,8 +90,8 @@ public class Bishop implements Chessmen {
         } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
             --currentColumn;
         }
-        while ((currentRow >= MIN_SIDE_VALUE && currentRow <= MAX_SIDE_VALUE) &&
-                (currentColumn >= MIN_SIDE_VALUE && currentColumn <= MAX_SIDE_VALUE) &&
+        while ((currentRow >= minSideValue && currentRow <= maxSideValue) &&
+                (currentColumn >= minSideValue && currentColumn <= maxSideValue) &&
                 board[currentRow][currentColumn] == 0 &&
                 (currentRow != finish.row() || currentColumn != finish.column())) {
             if (verticalRelatives.equals(positionRelatives.GREATER)) {
@@ -118,17 +118,17 @@ public class Bishop implements Chessmen {
         boolean isDownAndRightFree = true;
         boolean isUpAndLeftFree = true;
         boolean isDownAndLeftFree = true;
-        while (DiagonalShift <= MAX_SIDE_VALUE && (isUpAndRightFree || isDownAndRightFree || isUpAndLeftFree
+        while (DiagonalShift <= maxSideValue && (isUpAndRightFree || isDownAndRightFree || isUpAndLeftFree
                 || isDownAndLeftFree)) {
             if (isUpAndRightFree &&
-                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
+                    startRow + DiagonalShift <= maxSideValue &&
+                    startColumn + DiagonalShift <= maxSideValue &&
                     board[startRow + DiagonalShift][startColumn + DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn + DiagonalShift));
-            } else if (isUpAndRightFree && startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
+            } else if (isUpAndRightFree && startRow + DiagonalShift <= maxSideValue &&
+                    startRow + DiagonalShift <= maxSideValue &&
+                    startColumn + DiagonalShift <= maxSideValue &&
                     board[startRow + DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn + DiagonalShift));
@@ -137,14 +137,14 @@ public class Bishop implements Chessmen {
                 isUpAndRightFree = false;
             }
             if (isDownAndRightFree &&
-                    startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
+                    startRow - DiagonalShift >= minSideValue &&
+                    startColumn - DiagonalShift >= minSideValue &&
                     board[startRow - DiagonalShift][startColumn - DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn - DiagonalShift));
             } else if (isDownAndRightFree &&
-                    startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
+                    startRow - DiagonalShift >= minSideValue &&
+                    startColumn - DiagonalShift >= minSideValue &&
                     board[startRow - DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn - DiagonalShift));
@@ -153,14 +153,14 @@ public class Bishop implements Chessmen {
                 isDownAndRightFree = false;
             }
             if (isUpAndLeftFree &&
-                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
+                    startRow + DiagonalShift <= maxSideValue &&
+                    startColumn - DiagonalShift >= minSideValue &&
                     board[startRow + DiagonalShift][startColumn - DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn - DiagonalShift));
             } else if (isUpAndLeftFree &&
-                    startRow + DiagonalShift <= MAX_SIDE_VALUE &&
-                    startColumn - DiagonalShift >= MIN_SIDE_VALUE &&
+                    startRow + DiagonalShift <= maxSideValue &&
+                    startColumn - DiagonalShift >= minSideValue &&
                     board[startRow + DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
                         startColumn - DiagonalShift));
@@ -169,14 +169,14 @@ public class Bishop implements Chessmen {
                 isUpAndLeftFree = false;
             }
             if (isDownAndLeftFree &&
-                    startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
+                    startRow - DiagonalShift >= minSideValue &&
+                    startColumn + DiagonalShift <= maxSideValue &&
                     board[startRow - DiagonalShift][startColumn + DiagonalShift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn + DiagonalShift));
             } else if (isDownAndLeftFree &&
-                    startRow - DiagonalShift >= MIN_SIDE_VALUE &&
-                    startColumn + DiagonalShift <= MAX_SIDE_VALUE &&
+                    startRow - DiagonalShift >= minSideValue &&
+                    startColumn + DiagonalShift <= maxSideValue &&
                     board[startRow - DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
                         startColumn + DiagonalShift));

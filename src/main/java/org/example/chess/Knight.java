@@ -18,18 +18,18 @@ public class Knight implements Chessmen {
     /**
      * Максимальная размерность игрового поля
      */
-    private static int MIN_SIDE_VALUE;
+    private int minSideValue;
     /**
      * Минимальная размерность игрового поля
      */
-    private static int MAX_SIDE_VALUE;
+    private int maxSideValue;
 
     /**
      * Конструктор
      */
     public Knight(int minSideValue, int maxSideValue) {
-        MIN_SIDE_VALUE = minSideValue;
-        MAX_SIDE_VALUE = maxSideValue;
+        this.minSideValue = minSideValue;
+        this.maxSideValue = maxSideValue;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Knight implements Chessmen {
         List<PositionOnBoard> possibleMoves = new ArrayList<>();
         int startRow = start.row();
         int startColumn = start.column();
-        if (startRow + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+        if (startRow + FIRST_PART_OF_SHIFT <= maxSideValue && startColumn + SECOND_PART_OF_SHIFT <= maxSideValue &&
                 (board[startRow + FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT] == 0 ||
                         board[startRow + FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -59,7 +59,7 @@ public class Knight implements Chessmen {
                     startColumn + SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+        if (startRow + SECOND_PART_OF_SHIFT <= maxSideValue && startColumn + FIRST_PART_OF_SHIFT <= maxSideValue &&
                 (board[startRow + SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT] == 0 ||
                         board[startRow + SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -67,7 +67,7 @@ public class Knight implements Chessmen {
                     startColumn + FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+        if (startRow - FIRST_PART_OF_SHIFT >= minSideValue && startColumn - SECOND_PART_OF_SHIFT >= minSideValue &&
                 (board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
                         board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -75,7 +75,7 @@ public class Knight implements Chessmen {
                     startColumn - SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+        if (startRow - SECOND_PART_OF_SHIFT >= minSideValue && startColumn - FIRST_PART_OF_SHIFT >= minSideValue &&
                 (board[startRow - SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT] == 0 ||
                         board[startRow - SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -83,7 +83,7 @@ public class Knight implements Chessmen {
                     startColumn - FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+        if (startRow - FIRST_PART_OF_SHIFT >= minSideValue && startColumn + SECOND_PART_OF_SHIFT <= maxSideValue &&
                 (board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
                         board[startRow - FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -91,7 +91,7 @@ public class Knight implements Chessmen {
                     startColumn + SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE && startColumn + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE &&
+        if (startRow - SECOND_PART_OF_SHIFT >= minSideValue && startColumn + FIRST_PART_OF_SHIFT <= maxSideValue &&
                 (board[startRow - SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT] == 0 ||
                         board[startRow - SECOND_PART_OF_SHIFT][startColumn + FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -99,7 +99,7 @@ public class Knight implements Chessmen {
                     startColumn + FIRST_PART_OF_SHIFT));
         }
 
-        if (startRow + FIRST_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn - SECOND_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+        if (startRow + FIRST_PART_OF_SHIFT <= maxSideValue && startColumn - SECOND_PART_OF_SHIFT >= minSideValue &&
                 (board[startRow + FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
                         board[startRow + FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
@@ -107,7 +107,7 @@ public class Knight implements Chessmen {
                     startColumn - SECOND_PART_OF_SHIFT));
         }
 
-        if (startRow + SECOND_PART_OF_SHIFT <= MAX_SIDE_VALUE && startColumn - FIRST_PART_OF_SHIFT >= MIN_SIDE_VALUE &&
+        if (startRow + SECOND_PART_OF_SHIFT <= maxSideValue && startColumn - FIRST_PART_OF_SHIFT >= minSideValue &&
                 (board[startRow + SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT] == 0 ||
                         board[startRow + SECOND_PART_OF_SHIFT][startColumn - FIRST_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {

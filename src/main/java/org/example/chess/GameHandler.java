@@ -37,11 +37,11 @@ public class GameHandler {
     /**
      * Максимальная размерность игрового поля
      */
-    private static int MIN_SIDE_VALUE;
+    private int minSideValue;
     /**
      * Минимальная размерность игрового поля
      */
-    private static int MAX_SIDE_VALUE;
+    private int maxSideValue;
     /**
      * Количество классов фигур
      */
@@ -50,12 +50,12 @@ public class GameHandler {
      * Список классов фигур
      */
     private final Chessmen[] FIGURES = {
-            new Pawn(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
-            new Rook(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
-            new Knight(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
-            new Bishop(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
-            new Queen(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
-            new King(MIN_SIDE_VALUE, MAX_SIDE_VALUE)
+            new Pawn(minSideValue, maxSideValue),
+            new Rook(minSideValue, maxSideValue),
+            new Knight(minSideValue, maxSideValue),
+            new Bishop(minSideValue, maxSideValue),
+            new Queen(minSideValue, maxSideValue),
+            new King(minSideValue, maxSideValue)
     };
     /**
      * Обозначение чёрного короля в массиве доски
@@ -71,10 +71,10 @@ public class GameHandler {
      */
     public moveProperty processMove(int figureCode, PositionOnBoard start,
                                     PositionOnBoard finish, GameState currentGameState) {
-        if ((start.row() < MIN_SIDE_VALUE || start.row() > MAX_SIDE_VALUE) ||
-                (start.column() < MIN_SIDE_VALUE || start.column() > MAX_SIDE_VALUE) ||
-                (finish.row() < MIN_SIDE_VALUE || finish.row() > MAX_SIDE_VALUE) ||
-                (finish.column() < MIN_SIDE_VALUE || finish.column() > MAX_SIDE_VALUE) ||
+        if ((start.row() < minSideValue || start.row() > maxSideValue) ||
+                (start.column() < minSideValue || start.column() > maxSideValue) ||
+                (finish.row() < minSideValue || finish.row() > maxSideValue) ||
+                (finish.column() < minSideValue || finish.column() > maxSideValue) ||
                 (figureCode < 0 || figureCode >= FIGURES_COUNT) ||
                 (currentGameState.getBoard()[start.row()][start.column()] < 0 !=
                         currentGameState.isWhiteToMove())) {

@@ -1,6 +1,5 @@
 package org.example.chess;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,18 +28,18 @@ public class Rook implements Chessmen {
     /**
      * Максимальная размерность игрового поля
      */
-    private static int MIN_SIDE_VALUE;
+    private int minSideValue;
     /**
      * Минимальная размерность игрового поля
      */
-    private static int MAX_SIDE_VALUE;
+    private int maxSideValue;
 
     /**
      * Конструктор класса
      */
     public Rook(int minSideValue, int maxSideValue) {
-        MIN_SIDE_VALUE = minSideValue;
-        MAX_SIDE_VALUE = maxSideValue;
+        this.minSideValue = minSideValue;
+        this.maxSideValue = maxSideValue;
     }
 
     @Override
@@ -84,8 +83,8 @@ public class Rook implements Chessmen {
         } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
             --currentColumn;
         }
-        while ((currentRow >= MIN_SIDE_VALUE && currentRow <= MAX_SIDE_VALUE) &&
-                (currentColumn >= MIN_SIDE_VALUE && currentColumn <= MAX_SIDE_VALUE) &&
+        while ((currentRow >= minSideValue && currentRow <= maxSideValue) &&
+                (currentColumn >= minSideValue && currentColumn <= maxSideValue) &&
                 board[currentRow][currentColumn] == 0 &&
                 (currentRow != finish.row() || currentColumn != finish.column())) {
             if (verticalRelatives.equals(positionRelatives.GREATER)) {
@@ -112,38 +111,38 @@ public class Rook implements Chessmen {
         boolean isDownFree = true;
         boolean isLeftFree = true;
         boolean isRightFree = true;
-        while (shift <= MAX_SIDE_VALUE && (isUpFree || isDownFree || isLeftFree || isRightFree)) {
-            if (isUpFree && startRow + shift <= MAX_SIDE_VALUE
+        while (shift <= maxSideValue && (isUpFree || isDownFree || isLeftFree || isRightFree)) {
+            if (isUpFree && startRow + shift <= maxSideValue
                     && board[startRow + shift][startColumn] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow + shift, startColumn));
-            } else if (isUpFree && startRow + shift <= MAX_SIDE_VALUE &&
+            } else if (isUpFree && startRow + shift <= maxSideValue &&
                     board[startRow + shift][startColumn] * board[startRow][startColumn] < 0) {
                 isUpFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow + shift, startColumn));
             } else {
                 isUpFree = false;
             }
-            if (isDownFree && startRow - shift >= MIN_SIDE_VALUE && board[startRow - shift][startColumn] == 0) {
+            if (isDownFree && startRow - shift >= minSideValue && board[startRow - shift][startColumn] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
-            } else if (isDownFree && startRow - shift >= MIN_SIDE_VALUE &&
+            } else if (isDownFree && startRow - shift >= minSideValue &&
                     board[startRow - shift][startColumn] * board[startRow][startColumn] < 0) {
                 isDownFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow - shift, startColumn));
             } else {
                 isDownFree = false;
             }
-            if (isRightFree && startColumn + shift <= MAX_SIDE_VALUE && board[startRow][startColumn + shift] == 0) {
+            if (isRightFree && startColumn + shift <= maxSideValue && board[startRow][startColumn + shift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn + shift));
-            } else if (isRightFree && startColumn + shift <= MAX_SIDE_VALUE &&
+            } else if (isRightFree && startColumn + shift <= maxSideValue &&
                     board[startRow][startColumn + shift] * board[startRow][startColumn] < 0) {
                 isRightFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn + shift));
             } else {
                 isRightFree = false;
             }
-            if (isLeftFree && startColumn - shift >= MIN_SIDE_VALUE && board[startRow][startColumn - shift] == 0) {
+            if (isLeftFree && startColumn - shift >= minSideValue && board[startRow][startColumn - shift] == 0) {
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn - shift));
-            } else if (isLeftFree && startRow - shift >= MIN_SIDE_VALUE &&
+            } else if (isLeftFree && startRow - shift >= minSideValue &&
                     board[startRow - shift][startColumn] * board[startRow][startColumn] < 0) {
                 isLeftFree = false;
                 possibleMoves.add(new PositionOnBoard(startRow, startColumn - shift));
