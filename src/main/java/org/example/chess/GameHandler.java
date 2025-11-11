@@ -85,16 +85,19 @@ public class GameHandler {
         }
         moveProperty move = moveProperty.REGULAR;
         if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
-            move =  moveProperty.CHECK;
+            move = moveProperty.CHECK;
         }
-        if (isMateMove(finish, currentGameState.getBoard())) {
-            move =  moveProperty.MATE;
+        if (isMateMove(finish, currentGameState)) {
+            move = moveProperty.MATE;
         }
         currentGameState.moveFigure(start, finish);
         currentGameState.changeSide();
         return move;
     }
 
+    /**
+     *
+     */
     public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
                                                                GameState currentGameState) {
         return FIGURES[figureCode].allPossibleMoves(start, currentGameState.getBoard());
@@ -106,35 +109,35 @@ public class GameHandler {
     private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
         int kingRow = -1, kingColumn = -1;
         if (board[curentPosition.row()][curentPosition.column()] < 0) {
-        	for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
-        		for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
-        			if (board[i][j] == BLACK_KING) {
-        				kingRow = i;
-        				kingColumn = j;
-        			}
-        		}
-        	}
+            for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
+                for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+                    if (board[i][j] == BLACK_KING) {
+                        kingRow = i;
+                        kingColumn = j;
+                    }
+                }
+            }
         } else {
-        	for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
-        		for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
-        			if (board[i][j] == WHITE_KING) {
-        				kingRow = i;
-        				kingColumn = j;
-        			}
-        		}
-        	}
+            for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
+                for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+                    if (board[i][j] == WHITE_KING) {
+                        kingRow = i;
+                        kingColumn = j;
+                    }
+                }
+            }
         }
         if (kingRow < 0 || kingColumn < 0) {
             return false;
         }
         return FIGURES[figureCode].checkMove(
-        		curentPosition, new PositionOnBoard(kingRow, kingColumn), board);
+                curentPosition, new PositionOnBoard(kingRow, kingColumn), board);
     }
 
     /**
      * проверка что ход на короля
      */
-    private boolean isMateMove(PositionOnBoard finish, byte[][] board) {
-        return Math.abs(board[finish.row()][finish.column()]) == 6;
+    private boolean isMateMove(PositionOnBoard finish, GameState gameState) {
+        return Math.abs(gameState.getBoard()[finish.row()][finish.column()]) == 6;
     }
 }
