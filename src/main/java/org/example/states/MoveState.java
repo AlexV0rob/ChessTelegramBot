@@ -6,8 +6,8 @@ package org.example.states;
 public class MoveState {
     /**
      * Возможный состояния готовности хода
-	     */
-    private static enum STATUS {
+     */
+    private enum status {
         /**
          * Ход не собран
          */
@@ -17,7 +17,7 @@ public class MoveState {
          */
         FIGURE,
         /**
-	     * Известна фигура и начальная позиция
+         * Известна фигура и начальная позиция
          */
         START,
         /**
@@ -27,25 +27,25 @@ public class MoveState {
     }
 
     /**
-    * Код фигуры
-    */
+     * Код фигуры
+     */
     private String figure;
-    
+
     /**
      * Код начальной позиции
      */
     private String startPosition;
-    
+
     /**
-	 * Код конечной позиции
+     * Код конечной позиции
      */
     private String finishPosition;
-    
+
     /**
      * Текущее состояние готовности хода
      */
-    private STATUS currentStatus;
-    
+    private status currentStatus;
+
     /**
      * Конструктор, ставит 0 в фигуру, -1 в начальную и конечную позиции и
      * состояние отсутствия готовности хода
@@ -54,64 +54,64 @@ public class MoveState {
         figure = "";
         startPosition = "";
         finishPosition = "";
-        currentStatus = STATUS.NOTHING;
+        currentStatus = status.NOTHING;
     }
-    
+
     /**
      * Получить фигуру
      */
     public String getFigure() {
-    	return figure;
+        return figure;
     }
-    
+
     /**
      * Получить начальную позицию
      */
     public String getStartPosition() {
-    	return startPosition;
+        return startPosition;
     }
-    
+
     /**
      * Получить конечную позицию
      */
     public String getFinishPosition() {
-    	return finishPosition;
+        return finishPosition;
     }
-    
+
     /**
      * Индикатор готовности хода
      */
     public boolean isMoveReady() {
-    	return currentStatus.equals(STATUS.FINISH);
+        return currentStatus.equals(status.FINISH);
     }
-    
+
     /**
      * Поставить новую часть хода в соответствующее поле поменять статус
      * готовности хода на следующее
      *
      * @param newMovePart в зависимости от текущего состояния готовности хода
-     * может быть фигурой, начальной или конечной позицией
+     *                    может быть фигурой, начальной или конечной позицией
      */
     public void nextStatus(String newMovePart) {
         switch (currentStatus) {
             case NOTHING -> {
                 figure = newMovePart;
-                currentStatus = STATUS.FIGURE;
+                currentStatus = status.FIGURE;
             }
             case FIGURE -> {
                 startPosition = newMovePart;
-                currentStatus = STATUS.START;
+                currentStatus = status.START;
             }
             case START -> {
                 finishPosition = newMovePart;
-                currentStatus = STATUS.FINISH;
+                currentStatus = status.FINISH;
             }
             case FINISH -> {
                 clearMoveState();
-        	}
+            }
         }
     }
-	
+
     /**
      * Очистить готовность хода, ставит 0 в фигуру, -1 в начальную и
      * конечную позиции и состояние отсутствия готовности хода
@@ -120,6 +120,6 @@ public class MoveState {
         figure = "";
         startPosition = "";
         finishPosition = "";
-        currentStatus = STATUS.NOTHING;
+        currentStatus = status.NOTHING;
     }
 }
