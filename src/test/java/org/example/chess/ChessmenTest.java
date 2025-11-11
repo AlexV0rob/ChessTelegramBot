@@ -9,23 +9,6 @@ import org.junit.jupiter.api.Test;
  */
 public class ChessmenTest {
     /**
-     * Число клеток на доске
-     */
-    private final static int DESK_LENGTH = 64;
-    /**
-     * Максимальная позиция на доске
-     */
-    private final static int LAST_INDEX_IN_DESK = DESK_LENGTH - 1;
-    /**
-     * Минимальная позиция на доске
-     */
-    private final static int FIRST_INDEX_IN_DESK = 0;
-    /**
-     * Длина одной линии клеток
-     */
-    private final static int LINE_LENGTH = (int) Math.sqrt(DESK_LENGTH);
-
-    /**
      * Проверка ходов пешки
      */
     @Test

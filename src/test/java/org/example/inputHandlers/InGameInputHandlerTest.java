@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
 import org.example.GameTranslator;
-
-import org.example.chess.PositionOnBoard;
-
+import org.example.MoveHandler;
+import org.example.chess.GameHandler;
 import org.example.states.UserState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +20,11 @@ public class InGameInputHandlerTest {
 	 */
 	private final InGameInputHandler inGameInputHandler = 
 			new InGameInputHandler();
+	
+	/**
+	 * Обработчик хода и частей хода
+	 */
+	private final MoveHandler moveHandler = new MoveHandler();
 	
 	/**
 	 * Игровой переводчик
@@ -38,23 +43,34 @@ public class InGameInputHandlerTest {
 	public void moveTest() {
 		UserState userStateReal = new UserState();
 		UserState userStateExpected = new UserState();
-		List<String> real = inGameInputHandler.processInput("e2e4", userStateReal);
-		List<String> expected = List.of(
-				gameTranslator.makeMove(
-						1, new PositionOnBoard(1, 4), new PositionOnBoard(3, 4), 
-						userStateExpected.getGameState()),
+		GameHandler.moveProperty moveExpected = 
+				moveHandler.processMove("", "e2", "e4", userStateExpected.getGameState());
+		List<String> textsExpected = List.of(
+				gameTranslator.chessboardString(
+						moveExpected, 
+						userStateExpected.getGameState().getBoard(), 
+						userStateExpected.getGameState().isWhiteToMove()), 
 				YOUR_MOVE);
-		Assertions.assertIterableEquals(expected, real);
+		List<String> textsReal = inGameInputHandler.processInput("e2e4", userStateReal);
+		Assertions.assertIterableEquals(textsExpected, textsReal);
 	}
 	
 	/**
 	 * Проверить обработку части хода
 	 */
 	@Test
-	public void movePartTest() {
-		UserState userState = new UserState();
-		List<String> real = inGameInputHandler.processInput("__p__", userState);
+	public void movePartsTest() {
+		UserState userStateReal = new UserState();
+		UserState userStateExpected = new UserState();
+		List<String> real = inGameInputHandler.processInput("__p__", userStateReal);
 		Assertions.assertEquals(List.of(YOUR_MOVE + "ПЕШКА"), real);
+		real = inGameInputHandler.processInput("__e2__", userStateReal);
+		Assertions.assertEquals(List.of(YOUR_MOVE + "ПЕШКА E2"), real);
+		real = inGameInputHandler.processInput("__e4__", userStateReal);
+		List<String> expected = new ArrayList<String>();
+		expected.add(YOUR_MOVE + "ПЕШКА E2 E4");
+		expected.addAll(inGameInputHandler.processInput("pe2e4", userStateExpected));
+		Assertions.assertEquals(expected, real);
 	}
 	
 	/**

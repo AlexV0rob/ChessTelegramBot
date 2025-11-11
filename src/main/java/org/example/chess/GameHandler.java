@@ -35,13 +35,13 @@ public class GameHandler {
     }
 
     /**
-     * Максимальная размерность игрового поля
-     */
-    private int minSideValue;
-    /**
      * Минимальная размерность игрового поля
      */
-    private int maxSideValue;
+    private int minSideValue = 0;
+    /**
+     * Максимальная размерность игрового поля
+     */
+    private int maxSideValue = 7;
     /**
      * Количество классов фигур
      */
@@ -83,14 +83,16 @@ public class GameHandler {
         if (!FIGURES[figureCode].checkMove(start, finish, currentGameState.getBoard())) {
             return moveProperty.IMPOSSIBLE;
         }
-        currentGameState.moveFigure(start, finish);
+        moveProperty move = moveProperty.REGULAR;
         if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
-            if (isMateMove(finish, currentGameState.getBoard())) {
-                return moveProperty.MATE;
-            }
-            return moveProperty.CHECK;
+            move =  moveProperty.CHECK;
         }
-        return moveProperty.REGULAR;
+        if (isMateMove(finish, currentGameState.getBoard())) {
+            move =  moveProperty.MATE;
+        }
+        currentGameState.moveFigure(start, finish);
+        currentGameState.changeSide();
+        return move;
     }
 
     public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
@@ -102,28 +104,31 @@ public class GameHandler {
      * проверка на шах
      */
     private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
-        int i = 0, j = 0;
+        int kingRow = -1, kingColumn = -1;
         if (board[curentPosition.row()][curentPosition.column()] < 0) {
-            while (i < 8 && board[i][j] != BLACK_KING) {
-                while (j < 8 && board[i][j] != BLACK_KING) {
-                    j++;
-                }
-                j = 0;
-                i++;
-            }
+        	for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
+        		for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+        			if (board[i][j] == BLACK_KING) {
+        				kingRow = i;
+        				kingColumn = j;
+        			}
+        		}
+        	}
         } else {
-            while (i < 8 && board[i][j] == WHITE_KING) {
-                while (j < 8 && board[i][j] == WHITE_KING) {
-                    j++;
-                }
-                j = 0;
-                i++;
-            }
+        	for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
+        		for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+        			if (board[i][j] == WHITE_KING) {
+        				kingRow = i;
+        				kingColumn = j;
+        			}
+        		}
+        	}
         }
-        if (i == 8 || j == 8) {
+        if (kingRow < 0 || kingColumn < 0) {
             return false;
         }
-        return FIGURES[figureCode].checkMove(curentPosition, new PositionOnBoard(i, j), board);
+        return FIGURES[figureCode].checkMove(
+        		curentPosition, new PositionOnBoard(kingRow, kingColumn), board);
     }
 
     /**

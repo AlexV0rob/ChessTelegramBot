@@ -48,27 +48,19 @@ public class Pawn implements Chessmen {
      * Проверка отсутствия препятствий на пути из стартовой позиции в конечную
      */
     private boolean isWayFree(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (start.row() == maxSideValue) {
+        if (Math.abs(finish.row() - start.row()) == TWIN_MOVE_SHIFT && 
+                board[(finish.row() + start.row()) / 2][finish.column()] != 0) {
             return false;
         }
-        if (finish.row() - start.row() == SINGLE_MOVE_SHIFT &&
-                board[finish.row()][finish.column()] == 0) {
-            return true;
-        }
-        if (Math.abs(finish.row() - start.row()) == TWIN_MOVE_SHIFT &&
-                finish.row() <= maxSideValue &&
-                board[(finish.row() + start.row()) / 2][finish.column()] == 0 &&
-                board[finish.row()][finish.column()] == 0) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
         if (board[finish.row()][finish.column()] == 0 &&
                 isWayFree(start, finish, board) &&
-                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1)) {
+                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
+                finish.column() == start.column()) {
             return true;
         }
         if (board[finish.row()][finish.column()] == 0 &&
@@ -81,7 +73,8 @@ public class Pawn implements Chessmen {
                                 board[start.row()][start.column()] > 0))) {
             return true;
         }
-        if ((board[finish.row()][finish.column()] < 0) != (board[start.row()][start.column()] < 0) &&
+        if (board[finish.row()][finish.column()] != 0 &&
+        		(board[finish.row()][finish.column()] < 0) != (board[start.row()][start.column()] < 0) &&
                 isWayFree(start, finish, board) &&
                 finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
                 Math.abs(finish.column() - start.column()) == 1) {

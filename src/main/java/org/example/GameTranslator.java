@@ -1,19 +1,11 @@
 package org.example;
 
 import org.example.chess.GameHandler;
-import org.example.chess.PositionOnBoard;
-
-import org.example.states.GameState;
 
 /**
  * Игровой переводчик, передаёт собщения в обрвботчик игры и обратно
  */
 public class GameTranslator {
-    /**
-     * Обработчик игры
-     */
-    private GameHandler gameHandler = new GameHandler();
-
     /**
      * Сообщения о ходе определённой стороны
      */
@@ -63,34 +55,11 @@ public class GameTranslator {
      * Число клеток в одном ряду
      */
     private final static int SQUARES_IN_A_ROW = 8;
-
-    /**
-     * Получить текущее состояние доски в виде строки
-     */
-    public String currentBoardState(GameState currentGameState) {
-        return chessboardString(GameHandler.moveProperty.REGULAR,
-                currentGameState.getBoard(), currentGameState.isWhiteToMove());
-    }
-
-    /**
-     * Сделать ход и получить новое состояние доски в виде строки
-     */
-    public String makeMove(int figureCode, PositionOnBoard start,
-                           PositionOnBoard finish, GameState currentGameState) {
-        GameHandler.moveProperty moveProperty =
-                gameHandler.processMove(figureCode - 1, start, finish, currentGameState);
-        if (!moveProperty.equals(GameHandler.moveProperty.IMPOSSIBLE) &&
-                !moveProperty.equals(GameHandler.moveProperty.INVALID)) {
-            currentGameState.changeSide();
-        }
-        return chessboardString(moveProperty, currentGameState.getBoard(),
-                currentGameState.isWhiteToMove());
-    }
-
+    
     /**
      * Сформировать текст сообщения с состоянием доски в виде строки
      */
-    private String chessboardString(GameHandler.moveProperty moveProperty,
+    public String chessboardString(GameHandler.moveProperty moveProperty,
                                     byte[][] currentChessboard, boolean isWhiteToMove) {
         String chessboardString, side, board, additional;
         board = boardString(currentChessboard, isWhiteToMove);
@@ -104,11 +73,8 @@ public class GameTranslator {
             case GameHandler.moveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
             case GameHandler.moveProperty.INVALID -> "\n" + INVALID_MOVE;
             case GameHandler.moveProperty.CHECK -> "\n" + CHECK_MOVE;
-            case GameHandler.moveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? WHITE_WIN : BLACK_WIN);
+            case GameHandler.moveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? BLACK_WIN : WHITE_WIN);
         };
-        if (moveProperty.equals(GameHandler.moveProperty.MATE)) {
-            //TODO
-        }
         chessboardString = """
                 %s
                 
