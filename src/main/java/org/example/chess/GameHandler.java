@@ -96,7 +96,7 @@ public class GameHandler {
     }
 
     /**
-     *
+     * Получение всех доступных позиций для фигуры в конкретной клетке
      */
     public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
                                                                GameState currentGameState) {

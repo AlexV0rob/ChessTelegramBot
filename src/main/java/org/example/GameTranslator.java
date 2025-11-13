@@ -3,7 +3,7 @@ package org.example;
 import org.example.chess.GameHandler;
 
 /**
- * Игровой переводчик, передаёт собщения в обрвботчик игры и обратно
+ * Игровой переводчик, передаёт собщения в обработчик игры и обратно
  */
 public class GameTranslator {
     /**
@@ -55,12 +55,12 @@ public class GameTranslator {
      * Число клеток в одном ряду
      */
     private final static int SQUARES_IN_A_ROW = 8;
-    
+
     /**
      * Сформировать текст сообщения с состоянием доски в виде строки
      */
     public String chessboardString(GameHandler.moveProperty moveProperty,
-                                    byte[][] currentChessboard, boolean isWhiteToMove) {
+                                   byte[][] currentChessboard, boolean isWhiteToMove) {
         String chessboardString, side, board, additional;
         board = boardString(currentChessboard, isWhiteToMove);
         if (isWhiteToMove) {

@@ -10,6 +10,9 @@ import org.example.states.UserState;
  * Обработчик хода фигуры
  */
 public class CommandHandler {
+    /**
+     * Переводчик игры
+     */
     private final GameTranslator gameTranslator = new GameTranslator();
     /**
      * Сообщение команды /start
@@ -78,7 +81,7 @@ public class CommandHandler {
                 return List.of(
                         GAME_STARTED,
                         gameTranslator.chessboardString(
-                        		GameHandler.moveProperty.REGULAR,
+                                GameHandler.moveProperty.REGULAR,
                                 currentUserState.getGameState().getBoard(),
                                 currentUserState.getGameState().isWhiteToMove()),
                         YOUR_MOVE);
