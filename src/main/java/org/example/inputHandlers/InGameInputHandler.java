@@ -101,7 +101,7 @@ public class InGameInputHandler implements InputHandler {
     				currentUserState.getGameState().getBoard(), 
     				currentUserState.getGameState().isWhiteToMove()));
     		if (move.equals(GameHandler.moveProperty.MATE)) {
-    			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+    			currentUserState.setUserState(UserState.userState.MAINMENU);
             } else {
             	responses.add(YOUR_MOVE);
             }

@@ -66,7 +66,7 @@ public class CommandHandler {
                                        UserState currentUserState) {
         switch (command) {
             case "start", "quit" -> {
-                currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+                currentUserState.setUserState(UserState.userState.MAINMENU);
                 if (command.equals("start")) {
                     return List.of(START_MESSAGE, MENU_MESSAGE);
                 }
@@ -76,7 +76,7 @@ public class CommandHandler {
                 return List.of(HELP_MESSAGE);
             }
             case "newsinglegame" -> {
-                currentUserState.setUserState(UserState.USER_STATE.INGAME);
+                currentUserState.setUserState(UserState.userState.INGAME);
                 currentUserState.resetGameState();
                 return List.of(
                         GAME_STARTED,

@@ -4,6 +4,34 @@ package org.example.states;
  * Хранитель состояния пользователя
  */
 public class UserState {
+	/**
+	 * Вид мессенджера
+	 */
+	public enum messengerType {
+		/**
+		 * Фальшивый аккумулирующий бот
+		 */
+		FAKE,
+		/**
+		 * Telegram
+		 */
+		TELEGRAM
+	}
+
+    /**
+     * Состояние пользователя
+     */
+    public enum userState {
+        /**
+         * Главное меню
+         */
+        MAINMENU,
+        /**
+         * В игре
+         */
+        INGAME
+    }
+
     /**
      * Начальная доска
      */
@@ -20,20 +48,6 @@ public class UserState {
             };
 
     /**
-     * Состояние пользователя
-     */
-    public enum USER_STATE {
-        /**
-         * Главное меню
-         */
-        MAINMENU,
-        /**
-         * В игре
-         */
-        INGAME
-    }
-
-    /**
      * Длина стороны доски
      */
     private final static int BOARD_SIDE_LENGTH = 8;
@@ -41,7 +55,7 @@ public class UserState {
     /**
      * Текущее состояние пользователя
      */
-    private USER_STATE currentUserState;
+    private userState currentUserState;
 
     /**
      * Состояние игры
@@ -52,20 +66,26 @@ public class UserState {
      * Состояние готовности пользователя
      */
     private final MoveState currentMoveState;
+    
+    /**
+     * Тип мессенджера пользователя
+     */
+    private final messengerType messenger;
 
     /**
      * Конструктор класса
      */
-    public UserState() {
+    public UserState(messengerType userMessenger) {
         currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
-        currentUserState = USER_STATE.MAINMENU;
+        currentUserState = userState.MAINMENU;
         currentMoveState = new MoveState();
+        messenger = userMessenger;
     }
 
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(USER_STATE newUserState) {
+    public void setUserState(userState newUserState) {
         currentUserState = newUserState;
     }
 
@@ -79,7 +99,7 @@ public class UserState {
     /**
      * Получить текущее состояние пользователя
      */
-    public USER_STATE getUserState() {
+    public userState getUserState() {
         return currentUserState;
     }
 
@@ -95,5 +115,12 @@ public class UserState {
      */
     public MoveState getMoveState() {
         return currentMoveState;
+    }
+    
+    /**
+     * Получить тип мессенджера пользователя
+     */
+    public messengerType getUserMessenger() {
+    	return messenger;
     }
 }

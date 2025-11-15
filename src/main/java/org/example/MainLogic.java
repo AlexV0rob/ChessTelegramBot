@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.bots.Bot;
+import org.example.bots.TelegramBot;
 import org.example.buttons.IdentifiedButton;
 import org.example.buttons.SimpleButton;
 
@@ -43,6 +45,11 @@ public class MainLogic {
 	 * его состояния
 	 */
 	private Map<Long, UserState> games = new HashMap<Long, UserState>();
+	
+	/**
+	 * Экземпляр TelegramBot для отправки сообщений в Телеграм
+	 */
+	private TelegramBot tgBot = null;
     
 	/**
 	 * Скомпилированный паттерн команды
@@ -53,40 +60,63 @@ public class MainLogic {
     /**
      * Обработать ввод в соответствии с режимом пользователя
      */
-	public List<String> processInput(String userInput, long chatId) {
+	public void processInput(Bot bot, String userInput, long chatId) {
+		if (bot instanceof TelegramBot && tgBot == null) {
+			tgBot = (TelegramBot) bot;
+		}
     	if (!games.containsKey(chatId)) {
-        	games.put(chatId, new UserState());
+    		UserState.messengerType newUserMessenger = null;
+    		if (bot instanceof TelegramBot) {
+    			newUserMessenger = UserState.messengerType.TELEGRAM;
+    		}
+        	games.put(chatId, new UserState(newUserMessenger));
         }
     	UserState currentUserState = games.get(chatId);
 
         Matcher command = COMMAND_PATTERN.matcher(userInput);
         
+        List<String> responseMessages = null;
+        
         if (command.find()) {
         	String commandText = command.group(1).toLowerCase();
         	String commandArgument = command.group(2);
-        	return commandHandler.processCommand(commandText, commandArgument, currentUserState);
+        	responseMessages = commandHandler.processCommand(
+        			commandText, commandArgument, currentUserState);
+        } else {
+        	responseMessages = switch (currentUserState.getUserState()) {
+        	case UserState.userState.MAINMENU -> inMenuHandler.processInput(
+        				userInput, currentUserState);
+        	case UserState.userState.INGAME -> inGameHandler.processInput(
+        				userInput, currentUserState);
+        	default -> commandHandler.processCommand(
+        				"quit", "", currentUserState);
+        	};
         }
-        switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
-        	return inMenuHandler.processInput(userInput, currentUserState);
-        case UserState.USER_STATE.INGAME:
-        	return inGameHandler.processInput(userInput, currentUserState);
+		bot.sendMessages(chatId, responseMessages.iterator());
+		/*
+        switch(currentUserState.getUserMessenger()) {
+        	case UserState.messengerType.TELEGRAM -> {
+        	}
         }
-        return commandHandler.processCommand("quit", "", currentUserState);
+        */
 	}
 	
 	/**
 	 * Получить простые кнопки в соответствии с режимом пользователя
 	 */
-	public List<SimpleButton> getCurrentSimpleButtons(long chatId) {
+	public List<SimpleButton> getCurrentSimpleButtons(Bot bot, long chatId) {
     	if (!games.containsKey(chatId)) {
-        	games.put(chatId, new UserState());
+    		UserState.messengerType newUserMessenger = null;
+    		if (bot instanceof TelegramBot) {
+    			newUserMessenger = UserState.messengerType.TELEGRAM;
+    		}
+        	games.put(chatId, new UserState(newUserMessenger));
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
+        case UserState.userState.MAINMENU:
         	return buttonsCreator.getMenuButtons();
-        case UserState.USER_STATE.INGAME:
+        case UserState.userState.INGAME:
         	return List.of();
         }
     	return List.of();
@@ -95,15 +125,19 @@ public class MainLogic {
 	/**
 	 * Получить идентифицированные кнопки в соответствии с режимом пользователя
 	 */
-	public List<IdentifiedButton> getCurrentIdentifiedButtons(long chatId) {
+	public List<IdentifiedButton> getCurrentIdentifiedButtons(Bot bot, long chatId) {
     	if (!games.containsKey(chatId)) {
-        	games.put(chatId, new UserState());
+    		UserState.messengerType newUserMessenger = null;
+    		if (bot instanceof TelegramBot) {
+    			newUserMessenger = UserState.messengerType.TELEGRAM;
+    		}
+        	games.put(chatId, new UserState(newUserMessenger));
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
+        case UserState.userState.MAINMENU:
         	return List.of();
-        case UserState.USER_STATE.INGAME:
+        case UserState.userState.INGAME:
         	return buttonsCreator.getGameButtons(
         			currentUserState.getMoveState(), 
         			currentUserState.getGameState().getBoard(),

@@ -14,7 +14,7 @@ public class UserStateTest {
 	/**
 	 * Храниель пользовательского состояния
 	 */
-	private final UserState userState = new UserState();
+	private final UserState userState = new UserState(UserState.messengerType.FAKE);
 	
 	/**
 	 * Проверка перезапуска игры

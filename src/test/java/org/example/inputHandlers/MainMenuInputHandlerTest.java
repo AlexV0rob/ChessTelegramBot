@@ -22,11 +22,11 @@ public class MainMenuInputHandlerTest {
 	 */
 	@Test
 	public void startGameTest() {
-		UserState userState = new UserState();
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
+		UserState userState = new UserState(UserState.messengerType.FAKE);
+		userState.setUserState(UserState.userState.MAINMENU);
 		mainMenuInputHandler.processInput(
 				"Начать игру на этом устройстве", userState);
-		Assertions.assertEquals(userState.getUserState(), UserState.USER_STATE.INGAME);
+		Assertions.assertEquals(userState.getUserState(), UserState.userState.INGAME);
 	}
 	
 	/**
@@ -34,12 +34,12 @@ public class MainMenuInputHandlerTest {
 	 */
 	@Test
 	public void unknownQueryTest() {
-		UserState userState = new UserState();
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
+		UserState userState = new UserState(UserState.messengerType.FAKE);
+		userState.setUserState(UserState.userState.MAINMENU);
 		List<String> unknownQuery = mainMenuInputHandler.processInput(
 				"Какой-то запрос", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
+				userState.getUserState(), UserState.userState.MAINMENU);
 		Assertions.assertIterableEquals(
 				List.of("Неизвестный запрос меню"), unknownQuery);
 	}

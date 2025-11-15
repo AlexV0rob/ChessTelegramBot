@@ -2,7 +2,7 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-
+import org.junit.jupiter.api.BeforeAll;
 import org.example.buttons.IdentifiedButton;
 import org.example.buttons.SimpleButton;
 
@@ -19,6 +19,16 @@ import java.util.List;
  * Проверка главного логического модуля 
  */
 public class MainLogicTest {
+	/**
+	 * Фальшивый аккумулирующий бот
+	 */
+	private final FakeBot fakeBot = new FakeBot();
+	
+	/**
+	 * Пользовательское состояние для проверки ответов
+	 */
+	private UserState userStateExpected;
+	
 	/**
 	 * Главный логический модуль
 	 */
@@ -65,9 +75,11 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void userInputCommandTest() {
-		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.MAINMENU);
-		List<String> responseReal = mainLogic.processInput("/newsinglegame", 0);
+		fakeBot.clearMessages();
+		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected.setUserState(UserState.userState.MAINMENU);
+		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
+		List<String> responseReal = fakeBot.getAccumulatedMessages();
 		List<String> responseExpected = 
 				commandHandler.processCommand("newsinglegame", "", userStateExpected);
 		Assertions.assertIterableEquals(responseExpected, responseReal);
@@ -78,10 +90,13 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void userInputInGameTest() {
-		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.INGAME);
-		mainLogic.processInput("/newsinglegame", 0);
-		List<String> responseReal = mainLogic.processInput("something", 0);
+		fakeBot.clearMessages();
+		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected.setUserState(UserState.userState.INGAME);
+		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "something", 0);
+		List<String> responseReal = fakeBot.getAccumulatedMessages();
 		List<String> responseExpected = 
 				inGameInputHandler.processInput("something", userStateExpected);
 		Assertions.assertIterableEquals(responseExpected, responseReal);
@@ -92,10 +107,13 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void userInputInMenuTest() {
-		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.MAINMENU);
-		mainLogic.processInput("/quit", 0);
-		List<String> responseReal = mainLogic.processInput("something", 0);
+		fakeBot.clearMessages();
+		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected.setUserState(UserState.userState.MAINMENU);
+		mainLogic.processInput(fakeBot, "/quit", 0);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "something", 0);
+		List<String> responseReal = fakeBot.getAccumulatedMessages();
 		List<String> responseExpected = 
 				mainMenuInputHandler.processInput("something", userStateExpected);
 		Assertions.assertIterableEquals(responseExpected, responseReal);
@@ -107,10 +125,10 @@ public class MainLogicTest {
 	@Test
 	public void buttonsInGameTest() {
 		MoveState moveStateExpected = new MoveState();
-		mainLogic.processInput("/newsinglegame", 0);
-		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(0);
+		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
+		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(fakeBot, 0);
 		List<IdentifiedButton> identifiedButtonsReal = 
-				mainLogic.getCurrentIdentifiedButtons(0);
+				mainLogic.getCurrentIdentifiedButtons(fakeBot, 0);
 		List<SimpleButton> simpleButtonsExpected = List.of();
 		List<IdentifiedButton> identifiedButtonsExpected = 
 				buttonsCreator.getGameButtons(moveStateExpected, START_BOARD, true);
@@ -122,11 +140,11 @@ public class MainLogicTest {
 	 * Проверить кнопки в главном меню
 	 */
 	@Test
-	public void ButtonsInMenuTest() {
-		mainLogic.processInput("/quit", 0);
-		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(0);
+	public void buttonsInMenuTest() {
+		mainLogic.processInput(fakeBot, "/quit", 0);
+		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(fakeBot, 0);
 		List<IdentifiedButton> identifiedButtonsReal = 
-				mainLogic.getCurrentIdentifiedButtons(0);
+				mainLogic.getCurrentIdentifiedButtons(fakeBot, 0);
 		List<SimpleButton> simpleButtonsExpected = 
 				buttonsCreator.getMenuButtons();
 		List<IdentifiedButton> identifiedButtonsExpected = List.of();
