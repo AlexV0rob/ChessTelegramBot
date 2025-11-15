@@ -1,136 +1,183 @@
 package org.example;
 
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-
 /**
  * Конвертер частей хода
  */
 public class MovePartsConverter {
-	/**
-	 * Двунаправленный ассоциативный массив с соответствием 
-	 * символ фигуры - код фигуры 
-	 */
-	private final static BidiMap<String, Integer> FIGURES_CODES = 
-			new DualHashBidiMap<String, Integer>();
-	/**
-	 * Двунаправленный ассоциативный массив с соответствием 
-	 * символ столбца - код столбца 
-	 */
-	private final static BidiMap<Character, Integer> LETTERS_CODES = 
-			new DualHashBidiMap<Character, Integer>();
-	/**
-	 * Двунаправленный ассоциативный массив с соответствием 
-	 * символ ряда - код ряда 
-	 */
-	private final static BidiMap<Character, Integer> DIGITS_CODES = 
-			new DualHashBidiMap<Character, Integer>();
-	/**
-	 * Двунаправленный ассоциативный массив с соответствием 
-	 * символ фигуры - название фигуры 
-	 */
-	private final static BidiMap<String, String> FIGURES_NAMES = 
-			new DualHashBidiMap<String, String>();
 	/**
 	 * Строка с сообщением о неизвестном коде, символе или названии
 	 */
 	private final static String UNKNOWN_FIGURE = "НЕИЗВЕСТНО";
 	
 	/**
-	 * Конструктор класса
-	 */
-	public MovePartsConverter() {
-		FIGURES_CODES.put("p", 1);
-		FIGURES_CODES.put("r", 2);
-		FIGURES_CODES.put("n", 3);
-		FIGURES_CODES.put("b", 4);
-		FIGURES_CODES.put("q", 5);
-		FIGURES_CODES.put("k", 6);
-
-		LETTERS_CODES.put('a', 0);
-		LETTERS_CODES.put('b', 1);
-		LETTERS_CODES.put('c', 2);
-		LETTERS_CODES.put('d', 3);
-		LETTERS_CODES.put('e', 4);
-		LETTERS_CODES.put('f', 5);
-		LETTERS_CODES.put('g', 6);
-		LETTERS_CODES.put('h', 7);
-		
-		DIGITS_CODES.put('1', 0);
-		DIGITS_CODES.put('2', 1);
-		DIGITS_CODES.put('3', 2);
-		DIGITS_CODES.put('4', 3);
-		DIGITS_CODES.put('5', 4);
-		DIGITS_CODES.put('6', 5);
-		DIGITS_CODES.put('7', 6);
-		DIGITS_CODES.put('8', 7);
-		
-		FIGURES_NAMES.put("p", "ПЕШКА");
-		FIGURES_NAMES.put("r", "ЛАДЬЯ");
-		FIGURES_NAMES.put("n", "КОНЬ");
-		FIGURES_NAMES.put("b", "СЛОН");
-		FIGURES_NAMES.put("q", "ФЕРЗЬ");
-		FIGURES_NAMES.put("k", "КОРОЛЬ");
-	}
-	
-	/**
 	 * Получить название фигуры по символу
 	 */
 	public String getFigureName(String figureSymbol) {
-    	return FIGURES_NAMES.getOrDefault(figureSymbol, UNKNOWN_FIGURE);
+		switch (figureSymbol) {
+		case "p":
+			return "ПЕШКА";
+		case "r":
+			return "ЛАДЬЯ";
+		case "n":
+			return "КОНЬ";
+		case "b":
+			return "СЛОН";
+		case "q":
+			return "ФЕРЗЬ";
+		case "k":
+			return "КОРОЛЬ";
+		default:
+			return UNKNOWN_FIGURE;
+		}
 	}
 	
 	/**
 	 * Получить код фигуры по символу
 	 */
 	public int getFigureCode(String figure) {
-		if (figure.isEmpty()) {
+		switch (figure) {
+		case "":
 			return 1;
+		case "p":
+			return 1;
+		case "r":
+			return 2;
+		case "n":
+			return 3;
+		case "b":
+			return 4;
+		case "q":
+			return 5;
+		case "k":
+			return 6;
+		default:
+			return 0;
 		}
-    	return FIGURES_CODES.getOrDefault(figure, 0);
     }
     
 	/**
 	 * Получить код ряда по символу
 	 */
     public int getPositionRowCode(char digit) {
-    	return DIGITS_CODES.getOrDefault(digit, -1);
+    	switch (digit) {
+		case '1':
+			return 0;
+		case '2':
+			return 1;
+		case '3':
+			return 2;
+		case '4':
+			return 3;
+		case '5':
+			return 4;
+		case '6':
+			return 5;
+		case '7':
+			return 6;
+		case '8':
+			return 7;
+		default:
+			return -1;
+		}
     }
     
     /**
 	 * Получить код столбца по символу
 	 */
     public int getPositionColumnCode(char letter) {
-    	return LETTERS_CODES.getOrDefault(letter, -1);
+    	switch (letter) {
+		case 'a':
+			return 0;
+		case 'b':
+			return 1;
+		case 'c':
+			return 2;
+		case 'd':
+			return 3;
+		case 'e':
+			return 4;
+		case 'f':
+			return 5;
+		case 'g':
+			return 6;
+		case 'h':
+			return 7;
+		default:
+			return -1;
+		}
     }
     
     /**
 	 * Получить символ фигуры по коду
 	 */
     public String getFigureSymbol(int figureCode) {
-    	if (FIGURES_CODES.getKey(figureCode) == null) {
-    		return "";
-    	}
-    	return FIGURES_CODES.getKey(figureCode);
+    	switch (figureCode) {
+		case 1:
+			return "p";
+		case 2:
+			return "r";
+		case 3:
+			return "n";
+		case 4:
+			return "b";
+		case 5:
+			return "q";
+		case 6:
+			return "k";
+		default:
+			return "";
+		}
     }
     
     /**
 	 * Получить символ ряда по коду
 	 */
     public char getPositionRowSymbol(int rowCode) {
-    	if (DIGITS_CODES.getKey(rowCode) == null) {
-    		return '\0';
-    	}
-    	return DIGITS_CODES.getKey(rowCode);
+    	switch (rowCode) {
+		case 0:
+			return '1';
+		case 1:
+			return '2';
+		case 2:
+			return '3';
+		case 3:
+			return '4';
+		case 4:
+			return '5';
+		case 5:
+			return '6';
+		case 6:
+			return '7';
+		case 7:
+			return '8';
+		default:
+			return '\0';
+		}
     }
     
     /**
 	 * Получить символ столбца по коду
 	 */
-    public char getPositionColumnSymbol(int rowCode) {
-    	if (LETTERS_CODES.getKey(rowCode) == null) {
-    		return '\0';
-    	}
-    	return LETTERS_CODES.getKey(rowCode);
+    public char getPositionColumnSymbol(int columnCode) {
+    	switch (columnCode) {
+		case 0:
+			return 'a';
+		case 1:
+			return 'b';
+		case 2:
+			return 'c';
+		case 3:
+			return 'd';
+		case 4:
+			return 'e';
+		case 5:
+			return 'f';
+		case 6:
+			return 'g';
+		case 7:
+			return 'h';
+		default:
+			return '\0';
+		}
     }
 }

@@ -122,7 +122,7 @@ public class MainLogicTest {
 	 * Проверить кнопки в главном меню
 	 */
 	@Test
-	public void ButtonsInMenuTest() {
+	public void buttonsInMenuTest() {
 		mainLogic.processInput("/quit", 0);
 		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(0);
 		List<IdentifiedButton> identifiedButtonsReal = 
