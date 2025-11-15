@@ -17,15 +17,48 @@ public class GameTranslatorTest {
 	 * Доска, на которой идёт проверка
 	 */
 	private final static byte[][] BOARD = {
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0}
+			{0, -1, 0, 0, 0, 0, 0, 0},
+			{1, 0, -2, 0, 0, 0, 0, 0},
+			{0, 6, 0, -3, 0, 0, 0, 0},
+			{0, 0, 5, 0, -4, 0, 0, 0},
+			{0, 0, 0, 4, 0, -5, 0, 0},
+			{0, 0, 0, 0, 3, 0, -6, 0},
+			{0, 0, 0, 0, 0, 2, 0, -1},
+			{0, 0, 0, 0, 0, 0, 1, 0}
 	};
+	
+	/**
+	 * Строка с доской с белой стороны
+	 */
+	private final static String BOARD_STRING_WHITE = """
+Ход белых
+
+8  [      ][      ][      ][      ][      ][      ][ BP][      ]
+7  [      ][      ][      ][      ][      ][ BR][      ][WP]
+6  [      ][      ][      ][      ][ BN][      ][WK][      ]
+5  [      ][      ][      ][ BB][      ][WQ][      ][      ]
+4  [      ][      ][ BQ][      ][WB][      ][      ][      ]
+3  [      ][ BK][      ][WN][      ][      ][      ][      ]
+2  [ BP][      ][WR][      ][      ][      ][      ][      ]
+1  [      ][WP][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+			""";
+	/**
+	 * Строка с доской с чёрной стороны
+	 */
+	private final static String BOARD_STRING_BLACK = """
+Ход чёрных
+
+1  [      ][      ][      ][      ][      ][      ][WP][      ]
+2  [      ][      ][      ][      ][      ][WR][      ][ BP]
+3  [      ][      ][      ][      ][WN][      ][ BK][      ]
+4  [      ][      ][      ][WB][      ][ BQ][      ][      ]
+5  [      ][      ][WQ][      ][ BB][      ][      ][      ]
+6  [      ][WK][      ][ BN][      ][      ][      ][      ]
+7  [WP][      ][ BR][      ][      ][      ][      ][      ]
+8  [      ][ BP][      ][      ][      ][      ][      ][      ]
+      H      G      F      E      D      C      B      A     \s
+			""";
 	
 	/**
 	 * Проверить обычный вывод доски
@@ -34,10 +67,10 @@ public class GameTranslatorTest {
 	public void sideTest() {
 		String boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.REGULAR, BOARD, true);
-		Assertions.assertTrue(boardString.contains("Ход белых"));
+		Assertions.assertEquals(BOARD_STRING_WHITE, boardString);
 		boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.REGULAR, BOARD, false);
-		Assertions.assertTrue(boardString.contains("Ход чёрных"));
+		Assertions.assertEquals(BOARD_STRING_BLACK, boardString);
 	}
 	
 	/**
@@ -47,8 +80,9 @@ public class GameTranslatorTest {
 	public void impossibleMoveTest() {
 		String boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.IMPOSSIBLE, BOARD, true);
-		Assertions.assertTrue(boardString.contains(
-				"Невозможный ход! Попробуйте снова."));
+		Assertions.assertEquals("""
+				%sНевозможный ход! Попробуйте снова.
+				""".formatted(BOARD_STRING_WHITE), boardString);
 	}
 	
 	/**
@@ -58,8 +92,9 @@ public class GameTranslatorTest {
 	public void invalidMoveTest() {
 		String boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.INVALID, BOARD, true);
-		Assertions.assertTrue(
-				boardString.contains("Неверная запись хода! Попробуйте снова."));
+		Assertions.assertEquals("""
+				%sНеверная запись хода! Попробуйте снова.
+				""".formatted(BOARD_STRING_WHITE), boardString);
 	}
 	
 	/**
@@ -69,8 +104,9 @@ public class GameTranslatorTest {
 	public void checkMoveTest() {
 		String boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.CHECK, BOARD, true);
-		Assertions.assertTrue(boardString.contains(
-				"Шах! Ваш король под угрозой!"));
+		Assertions.assertEquals("""
+				%sШах! Ваш король под угрозой!
+				""".formatted(BOARD_STRING_WHITE), boardString);
 	}
 	
 	/**
@@ -80,11 +116,13 @@ public class GameTranslatorTest {
 	public void mateMoveTest() {
 		String boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.MATE, BOARD, false);
-		Assertions.assertTrue(boardString.contains(
-				"Шах и мат! Партия окончена. Победили белые."));
+		Assertions.assertEquals("""
+				%sШах и мат! Партия окончена. Победили белые.
+				""".formatted(BOARD_STRING_BLACK), boardString);
 		boardString = gameTranslator.chessboardString(
 				GameHandler.moveProperty.MATE, BOARD, true);
-		Assertions.assertTrue(boardString.contains(
-				"Шах и мат! Партия окончена. Победили чёрные."));
+		Assertions.assertEquals("""
+				%sШах и мат! Партия окончена. Победили чёрные.
+				""".formatted(BOARD_STRING_WHITE), boardString);
 	}
 }
