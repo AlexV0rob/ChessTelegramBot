@@ -10,11 +10,11 @@ public class Queen implements Chessmen {
     /**
      * ладья для проверки вертикальных и горизонтальных ходов
      */
-    private Chessmen ROOK;
+    private final Chessmen ROOK;
     /**
      * слон для проверки диагональных ходов
      */
-    private Chessmen BISHOP;
+    private final Chessmen BISHOP;
 
     /**
      * Конструктор класса
