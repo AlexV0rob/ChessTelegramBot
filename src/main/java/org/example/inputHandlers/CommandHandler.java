@@ -1,10 +1,10 @@
 package org.example.inputHandlers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.example.GameTranslator;
-import org.example.chess.GameHandler;
-import org.example.states.UserState;
+import org.example.auxiliary.CommandResults;
 
 /**
  * Обработчик хода фигуры
@@ -62,33 +62,30 @@ public class CommandHandler {
      * Определить тип команды, поменять при необходимости на соответсвующий режим
      * и отправить ответ
      */
-    public List<String> processCommand(String command, String argument,
-                                       UserState currentUserState) {
+    public CommandResults processCommand(String command) {
+    	List<String> responseTextsFirst = new ArrayList<String>();
+    	List<String> responseTextsSecond = new ArrayList<String>();
+    	CommandResults.lobbyStatus commandLobbyStatus = CommandResults.lobbyStatus.NOTHING;
         switch (command) {
             case "start", "quit" -> {
-                currentUserState.setUserState(UserState.userState.MAINMENU);
                 if (command.equals("start")) {
-                    return List.of(START_MESSAGE, MENU_MESSAGE);
+                	responseTextsFirst.add(START_MESSAGE);
                 }
-                return List.of(MENU_MESSAGE);
+                responseTextsFirst.add(MENU_MESSAGE);
+                commandLobbyStatus = CommandResults.lobbyStatus.CLOSE;
             }
             case "help" -> {
-                return List.of(HELP_MESSAGE);
+            	responseTextsFirst.add(HELP_MESSAGE);
             }
             case "newsinglegame" -> {
-                currentUserState.setUserState(UserState.userState.INGAME);
-                currentUserState.resetGameState();
-                return List.of(
-                        GAME_STARTED,
-                        gameTranslator.chessboardString(
-                                GameHandler.moveProperty.REGULAR,
-                                currentUserState.getGameState().getBoard(),
-                                currentUserState.getGameState().isWhiteToMove()),
-                        YOUR_MOVE);
+            	responseTextsFirst.add(GAME_STARTED);
+            	commandLobbyStatus = CommandResults.lobbyStatus.SINGLEPLAYER;
             }
             default -> {
-                return List.of(UNKNOWN_MESSAGE);
+            	responseTextsFirst.add(UNKNOWN_MESSAGE);
             }
         }
+        return new CommandResults(commandLobbyStatus, List.of(
+        		responseTextsFirst, responseTextsSecond));
     }
 }

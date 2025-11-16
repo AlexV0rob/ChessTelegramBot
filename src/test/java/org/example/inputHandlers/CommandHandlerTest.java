@@ -17,7 +17,7 @@ public class CommandHandlerTest {
 	/**
 	 * Состояние работы пользователя
 	 */
-	private final UserState userState = new UserState(UserState.messengerType.FAKE);
+	private final UserState userState = new UserState(null);
 	
 	/**
 	 * Проверить команду /start

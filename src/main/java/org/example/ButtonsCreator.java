@@ -1,8 +1,7 @@
 package org.example;
 
-import org.example.buttons.IdentifiedButton;
-import org.example.buttons.SimpleButton;
-
+import org.example.auxiliary.IdentifiedButton;
+import org.example.auxiliary.SimpleButton;
 import org.example.chess.Bishop;
 import org.example.chess.Chessmen;
 import org.example.chess.King;
@@ -30,6 +29,11 @@ public class ButtonsCreator {
      * Текст кнопки для начала игры в главном меню
      */
     private final static String NEW_SINGLE_GAME = "Начать игру на этом устройстве";
+    
+    /**
+     * Текст кнопки для выхода из режима ожидания
+     */
+    private final static String QUIT_LOBBY = "Отменить поиск матча и удалить лобби";
 
     /**
      * Минимальная позиция в стороне доски
@@ -58,7 +62,14 @@ public class ButtonsCreator {
     public List<SimpleButton> getMenuButtons() {
         return List.of(new SimpleButton(NEW_SINGLE_GAME));
     }
-
+    
+    /**
+     * Получить список кнопок ожидания начала матча
+     */
+    public List<SimpleButton> getAwaitingButtons() {
+    	return List.of(new SimpleButton(QUIT_LOBBY));
+    }
+    
     /**
      * Получить список кнопок игры
      */

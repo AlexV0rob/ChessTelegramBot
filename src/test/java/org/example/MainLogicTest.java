@@ -3,9 +3,8 @@ package org.example;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.example.buttons.IdentifiedButton;
-import org.example.buttons.SimpleButton;
-
+import org.example.auxiliary.IdentifiedButton;
+import org.example.auxiliary.SimpleButton;
 import org.example.inputHandlers.CommandHandler;
 import org.example.inputHandlers.InGameInputHandler;
 import org.example.inputHandlers.MainMenuInputHandler;
@@ -76,7 +75,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputCommandTest() {
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected = new UserState(null);
 		userStateExpected.setUserState(UserState.userState.MAINMENU);
 		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
 		List<String> responseReal = fakeBot.getAccumulatedMessages();
@@ -91,7 +90,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputInGameTest() {
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected = new UserState(null);
 		userStateExpected.setUserState(UserState.userState.INGAME);
 		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
 		fakeBot.clearMessages();
@@ -108,7 +107,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputInMenuTest() {
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(UserState.messengerType.FAKE);
+		userStateExpected = new UserState(null);
 		userStateExpected.setUserState(UserState.userState.MAINMENU);
 		mainLogic.processInput(fakeBot, "/quit", 0);
 		fakeBot.clearMessages();

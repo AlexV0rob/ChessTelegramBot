@@ -73,7 +73,8 @@ public class GameTranslator {
             case GameHandler.moveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
             case GameHandler.moveProperty.INVALID -> "\n" + INVALID_MOVE;
             case GameHandler.moveProperty.CHECK -> "\n" + CHECK_MOVE;
-            case GameHandler.moveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? BLACK_WIN : WHITE_WIN);
+            case GameHandler.moveProperty.MATE -> 
+            	"\n" + CHECKMATE_MOVE + (isWhiteToMove ? WHITE_WIN : BLACK_WIN);
         };
         chessboardString = """
                 %s

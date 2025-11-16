@@ -9,10 +9,6 @@ public class UserState {
 	 */
 	public enum messengerType {
 		/**
-		 * Фальшивый аккумулирующий бот
-		 */
-		FAKE,
-		/**
 		 * Telegram
 		 */
 		TELEGRAM
@@ -29,38 +25,17 @@ public class UserState {
         /**
          * В игре
          */
-        INGAME
+        INGAME,
+        /**
+         * В ожидании начала матча
+         */
+        AWAITING
     }
-
-    /**
-     * Начальная доска
-     */
-    private final static byte[][] START_BOARD =
-            {
-                    {-2, -3, -4, -5, -6, -4, -3, -2},
-                    {-1, -1, -1, -1, -1, -1, -1, -1},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {2, 3, 4, 5, 6, 4, 3, 2}
-            };
-
-    /**
-     * Длина стороны доски
-     */
-    private final static int BOARD_SIDE_LENGTH = 8;
 
     /**
      * Текущее состояние пользователя
      */
     private userState currentUserState;
-
-    /**
-     * Состояние игры
-     */
-    private GameState currentGameState;
 
     /**
      * Состояние готовности пользователя
@@ -71,15 +46,20 @@ public class UserState {
      * Тип мессенджера пользователя
      */
     private final messengerType messenger;
+    
+    /**
+     * Идентфикатор матча. в котором находится пользователь
+     */
+    private String currentLobbyId;
 
     /**
      * Конструктор класса
      */
     public UserState(messengerType userMessenger) {
-        currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
         currentUserState = userState.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
+        currentLobbyId = null;
     }
 
     /**
@@ -88,12 +68,23 @@ public class UserState {
     public void setUserState(userState newUserState) {
         currentUserState = newUserState;
     }
-
+    
     /**
-     * Перезапустить состояние игры
+     * Установить новый идентификатор матча
      */
-    public void resetGameState() {
-        currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
+    public boolean setCurrentLobbyId(String newLobbyId) {
+    	if (currentLobbyId == null) {
+    		currentLobbyId = newLobbyId;
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Сбросить идентификатор матча
+     */
+    public void resetLobbyId() {
+    	currentLobbyId = null;
     }
 
     /**
@@ -101,13 +92,6 @@ public class UserState {
      */
     public userState getUserState() {
         return currentUserState;
-    }
-
-    /**
-     * Получить текущее состояние игры
-     */
-    public GameState getGameState() {
-        return currentGameState;
     }
 
     /**
@@ -122,5 +106,12 @@ public class UserState {
      */
     public messengerType getUserMessenger() {
     	return messenger;
+    }
+    
+    /**
+     * Получить идентифкатор матча
+     */
+    public String getCurrentLobbyId() {
+    	return currentLobbyId;
     }
 }

@@ -89,9 +89,10 @@ public class GameHandler {
         }
         if (isMateMove(finish, currentGameState)) {
             move = moveProperty.MATE;
+        } else {
+        	currentGameState.changeSide();
         }
         currentGameState.moveFigure(start, finish);
-        currentGameState.changeSide();
         return move;
     }
 

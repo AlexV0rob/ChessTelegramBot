@@ -17,8 +17,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.example.MainLogic;
-import org.example.buttons.IdentifiedButton;
-import org.example.buttons.SimpleButton;
+import org.example.auxiliary.IdentifiedButton;
+import org.example.auxiliary.SimpleButton;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,13 +56,11 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
             		update.getMessage().getChatId());
         //Проверка на callback запрос
         } else if (update.hasCallbackQuery()) {
-            /*
         	processCallbackQuery(
             		update.getCallbackQuery().getData(),
             		Math.toIntExact(
             				update.getCallbackQuery().getMessage().getMessageId()),
             		update.getCallbackQuery().getMessage().getChatId());
-            */
         }
     }
     
@@ -133,19 +131,36 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     /**
      * Изменить сообщение
      */
-    private void editMessage(long chatId, int messageId, String messageText,
-    		InlineKeyboardMarkup keyboardMarkup) {
-    	EditMessageText updatedMessage = EditMessageText.builder()
-        		.chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .replyMarkup(keyboardMarkup)
-                .build();
-        try {
-        	telegramClient.execute(updatedMessage);
-        } catch (TelegramApiException e) {
-        	System.out.println("Couldn't edit message in Telegram: " + e);
-        	e.printStackTrace();
+    private void editMessage(long chatId, long messageId, 
+    		Iterator<String> messagesTextsIterator) {
+    	InlineKeyboardMarkup editedMessageKeyboard = null;
+    	String editedMessageText = "";
+        if (messagesTextsIterator.hasNext()) {
+        	editedMessageText = messagesTextsIterator.next();
+        }
+        if (!messagesTextsIterator.hasNext()) {
+        	List<IdentifiedButton> inlineButtons = 
+        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
+        	editedMessageKeyboard = InlineKeyboardMarkup
+        			.builder()
+        			.keyboard(createInlineKeyboard(inlineButtons))
+        			.build();
+        } else {
+        	editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
+        }
+        if (!editedMessageText.isEmpty()) {
+        	EditMessageText updatedMessage = EditMessageText.builder()
+        			.chatId(chatId)
+                	.messageId(Math.toIntExact(messageId))
+                	.text(editedMessageText)
+                	.replyMarkup(editedMessageKeyboard)
+                	.build();
+        	try {
+        		telegramClient.execute(updatedMessage);
+        	} catch (TelegramApiException e) {
+        		System.out.println("Couldn't edit message in Telegram: " + e);
+        		e.printStackTrace();
+        	}
         }
     }
     
@@ -159,30 +174,9 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     /**
      * Обработать callback запрос, полученный от пользователя
      */
-    /*
     private void processCallbackQuery(String callbackData, int messageId, long chatId) {
-        List<String> responseMessageText = 
-        		mainLogic.processInput(this, callbackData, chatId);
-        Iterator<String> responseMessagesIterator = responseMessageText.iterator();
-        String currentMessageText = "";
-        InlineKeyboardMarkup editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
-        if (responseMessagesIterator.hasNext()) {
-        	currentMessageText = responseMessagesIterator.next();
-        }
-        if (!responseMessagesIterator.hasNext()) {
-        	List<IdentifiedButton> inlineButtons = 
-        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
-        	editedMessageKeyboard = InlineKeyboardMarkup
-        			.builder()
-        			.keyboard(createInlineKeyboard(inlineButtons))
-        			.build();
-        }
-        if (!currentMessageText.isEmpty()) {
-        	editMessage(chatId, messageId, currentMessageText, editedMessageKeyboard);
-        }
-        sendMessages(chatId, responseMessagesIterator);
+        mainLogic.processInput(this, callbackData, chatId);
     }
-    */
     
     @Override
     public void sendMessages(long chatId, Iterator<String> messagesTextsIterator) {

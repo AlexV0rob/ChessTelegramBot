@@ -41,8 +41,8 @@ public class InGameInputHandlerTest {
 	 */
 	@Test
 	public void moveTest() {
-		UserState userStateReal = new UserState(UserState.messengerType.FAKE);
-		UserState userStateExpected = new UserState(UserState.messengerType.FAKE);
+		UserState userStateReal = new UserState(null);
+		UserState userStateExpected = new UserState(null);
 		GameHandler.moveProperty moveExpected = 
 				moveHandler.processMove("", "e2", "e4", userStateExpected.getGameState());
 		List<String> textsExpected = List.of(
@@ -60,8 +60,8 @@ public class InGameInputHandlerTest {
 	 */
 	@Test
 	public void movePartsTest() {
-		UserState userStateReal = new UserState(UserState.messengerType.FAKE);
-		UserState userStateExpected = new UserState(UserState.messengerType.FAKE);
+		UserState userStateReal = new UserState(null);
+		UserState userStateExpected = new UserState(null);
 		List<String> real = inGameInputHandler.processInput("__p__", userStateReal);
 		Assertions.assertEquals(List.of(YOUR_MOVE + "ПЕШКА"), real);
 		real = inGameInputHandler.processInput("__e2__", userStateReal);
@@ -78,7 +78,7 @@ public class InGameInputHandlerTest {
 	 */
 	@Test
 	public void unknownInputTest() {
-		UserState userState = new UserState(UserState.messengerType.FAKE);
+		UserState userState = new UserState(null);
 		List<String> real = inGameInputHandler.processInput("something", userState);
 		Assertions.assertIterableEquals(List.of("Неизвестный формат ввода хода"), real);
 	}
