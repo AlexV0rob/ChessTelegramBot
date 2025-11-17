@@ -78,13 +78,14 @@ public class MainLogic {
     private final static String OPPONENTS_MOVE =
             "Вы не можете сейчас ходить. Дождитесь хода противника.";
     /**
-     * Команда подключения к лобби
-     */
-    private final static String JOIN_COMMAND = "joinlobby";
-    /**
      * Сообщение о начале игры
      */
     private final static String GAME_BEGIN = "Игра началась";
+
+    /**
+     * Сообщение об ошибке подключения к лобби
+     */
+    private final static String JOIN_ERROR = "Лобби с таких идентификатором не существует ";
 
     /**
      * Обработать ввод в соответствии с режимом пользователя
@@ -250,75 +251,80 @@ public class MainLogic {
         List<String> messagesFirst = null;
         List<String> messagesSecond = null;
         long chatIdSecond = 0;
-        if (command == JOIN_COMMAND) {
-            games.get(argument).setSecondPlayerId(chatId);
-            users.get(chatId).setUserState(UserState.userState.INGAME);
-            users.get(games.get(argument).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
-            messagesFirst.add(GAME_BEGIN);
-            messagesSecond.add(GAME_BEGIN);
-            sendMessagesTo(games.get(argument).getFirstPlayerId(),
-                    users.get(games.get(argument).getFirstPlayerId()).getUserMessenger(), messagesSecond);
-            sendMessagesTo(chatId, users.get(chatId).getUserMessenger(), messagesSecond);
-        } else {
-            switch (results.userLobbyStatus()) {
-                case CommandResults.lobbyStatus.CLOSE -> {
-                    String lobbyId = currentUserState.getCurrentLobbyId();
-                    LobbyState currentLobbyState = games.get(lobbyId);
-                    if (currentLobbyState != null) {
-                        if (currentLobbyState.getFirstPlayerId() == chatId) {
-                            chatIdSecond = currentLobbyState.getSecondPlayerId();
-                        } else {
-                            chatIdSecond = currentLobbyState.getFirstPlayerId();
-                        }
-                        UserState secondUserState = users.get(chatIdSecond);
-                        secondUserState.setUserState(UserState.userState.MAINMENU);
-                        secondUserState.resetLobbyId();
-                        messagesSecond = results.messagesTextsLists().getLast();
-                        games.remove(lobbyId);
+        switch (results.userLobbyStatus()) {
+            case CommandResults.lobbyStatus.CLOSE -> {
+                String lobbyId = currentUserState.getCurrentLobbyId();
+                LobbyState currentLobbyState = games.get(lobbyId);
+                if (currentLobbyState != null) {
+                    if (currentLobbyState.getFirstPlayerId() == chatId) {
+                        chatIdSecond = currentLobbyState.getSecondPlayerId();
+                    } else {
+                        chatIdSecond = currentLobbyState.getFirstPlayerId();
                     }
-                    currentUserState.setUserState(UserState.userState.MAINMENU);
-                    currentUserState.resetLobbyId();
-                    messagesFirst = results.messagesTextsLists().getFirst();
+                    UserState secondUserState = users.get(chatIdSecond);
+                    secondUserState.setUserState(UserState.userState.MAINMENU);
+                    secondUserState.resetLobbyId();
+                    messagesSecond = results.messagesTextsLists().getLast();
+                    games.remove(lobbyId);
                 }
-                case CommandResults.lobbyStatus.SINGLEPLAYER -> {
-                    LobbyState newLobby = new LobbyState(
-                            chatId, LobbyState.lobbyType.SINGLEPLAYER);
-                    newLobby.setSecondPlayerId(chatId);
-                    currentUserState.setUserState(UserState.userState.INGAME);
-                    List<List<String>> startBoards = inGameHandler.getStartingBoard(
-                            newLobby.getGameState(), newLobby.isFirstPlayerWhite());
-                    messagesFirst = results.messagesTextsLists().getFirst();
-                    messagesFirst.addAll(startBoards.getFirst());
-                    currentUserState.setCurrentLobbyId(String.valueOf(chatId));
-                    games.put(String.valueOf(chatId), newLobby);
-                }
-                case CommandResults.lobbyStatus.MULTIPLAYER -> {
-                    LobbyState newLobby = new LobbyState(
-                            chatId, LobbyState.lobbyType.MULTIPLAYER);
-                    currentUserState.setUserState(UserState.userState.AWAITING);
-                    messagesFirst = results.messagesTextsLists().getFirst();
-                    currentUserState.setCurrentLobbyId(argument);
-                    games.put(argument, newLobby);
-                }
-                case CommandResults.lobbyStatus.CHOOSING -> {
+                currentUserState.setUserState(UserState.userState.MAINMENU);
+                currentUserState.resetLobbyId();
+                messagesFirst = results.messagesTextsLists().getFirst();
+            }
+            case CommandResults.lobbyStatus.SINGLEPLAYER -> {
+                LobbyState newLobby = new LobbyState(
+                        chatId, LobbyState.lobbyType.SINGLEPLAYER);
+                newLobby.setSecondPlayerId(chatId);
+                currentUserState.setUserState(UserState.userState.INGAME);
+                List<List<String>> startBoards = inGameHandler.getStartingBoard(
+                        newLobby.getGameState(), newLobby.isFirstPlayerWhite());
+                messagesFirst = results.messagesTextsLists().getFirst();
+                messagesFirst.addAll(startBoards.getFirst());
+                currentUserState.setCurrentLobbyId(String.valueOf(chatId));
+                games.put(String.valueOf(chatId), newLobby);
+            }
+            case CommandResults.lobbyStatus.JOIN -> {
+                if (argument != null) {
+                    if (games.containsKey(argument)) {
+                        chatIdSecond = games.get(argument).getFirstPlayerId();
+                        games.get(argument).setSecondPlayerId(chatId);
+                        users.get(chatId).setUserState(UserState.userState.INGAME);
+                        users.get(games.get(argument).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
+                        messagesFirst.add(GAME_BEGIN);
+                        messagesSecond.add(GAME_BEGIN);
+
+                    } else {
+                        messagesFirst = results.messagesTextsLists().getFirst();
+                        messagesFirst.add(JOIN_ERROR);
+                    }
+                } else {
                     currentUserState.setUserState(UserState.userState.CHOOSING);
-                }
-                case CommandResults.lobbyStatus.NOTHING -> {
                     messagesFirst = results.messagesTextsLists().getFirst();
                 }
             }
-            if (messagesFirst != null) {
-                sendMessagesTo(
-                        chatId,
-                        currentUserState.getUserMessenger(),
-                        messagesFirst);
+            case CommandResults.lobbyStatus.MULTIPLAYER -> {
+                LobbyState newLobby = new LobbyState(
+                        chatId, LobbyState.lobbyType.MULTIPLAYER);
+                currentUserState.setUserState(UserState.userState.AWAITING);
+                messagesFirst = results.messagesTextsLists().getFirst();
+                currentUserState.setCurrentLobbyId(argument);
+                games.put(argument, newLobby);
             }
-            if (messagesSecond != null && chatIdSecond != chatId) {
-                sendMessagesTo(
-                        chatIdSecond,
-                        users.get(chatIdSecond).getUserMessenger(),
-                        messagesSecond);
+            case CommandResults.lobbyStatus.NOTHING -> {
+                messagesFirst = results.messagesTextsLists().getFirst();
             }
+        }
+        if (messagesFirst != null) {
+            sendMessagesTo(
+                    chatId,
+                    currentUserState.getUserMessenger(),
+                    messagesFirst);
+        }
+        if (messagesSecond != null && chatIdSecond != chatId) {
+            sendMessagesTo(
+                    chatIdSecond,
+                    users.get(chatIdSecond).getUserMessenger(),
+                    messagesSecond);
         }
     }
 

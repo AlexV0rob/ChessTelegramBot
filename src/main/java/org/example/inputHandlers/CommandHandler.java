@@ -57,7 +57,10 @@ public class CommandHandler {
      * Пригласительное сообщение к ходу
      */
     private final static String YOUR_MOVE = "Ваш ход: ";
-
+    /**
+     * Сообщение о подключении к игре
+     */
+    private final static String CHOOSE_GAME = "Выберите Лобби:";
     /**
      * Сообщение о подключении к игре
      */
@@ -90,14 +93,18 @@ public class CommandHandler {
                 responseTextsFirst.add(GAME_STARTED);
                 commandLobbyStatus = CommandResults.lobbyStatus.SINGLEPLAYER;
             }
-            case "joinmultiplayergame" -> {
-                responseTextsFirst.add(JOIN_GAME);
-                commandLobbyStatus = CommandResults.lobbyStatus.CHOOSING;
+            case "joingame" -> {
+                responseTextsFirst.add(CHOOSE_GAME);
+                commandLobbyStatus = CommandResults.lobbyStatus.JOIN;
             }
             case "newmultiplayergame" -> {
                 responseTextsFirst.add(GAME_CREATED);
                 commandLobbyStatus = CommandResults.lobbyStatus.MULTIPLAYER;
 
+            }
+            case "joinlobby" -> {
+                responseTextsFirst.add(JOIN_GAME);
+                commandLobbyStatus = CommandResults.lobbyStatus.JOIN;
             }
             default -> {
                 responseTextsFirst.add(UNKNOWN_MESSAGE);

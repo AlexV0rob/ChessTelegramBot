@@ -27,7 +27,7 @@ public class MainMenuInputHandler {
             case NEW_MULTIPLAYER_GAME:
                 return "newmultiplayergame";
             case JOIN_MULTIPLAYER_GAME:
-                return "joinmultiplayergame";
+                return "joingame";
             default:
                 return "unknown";
         }

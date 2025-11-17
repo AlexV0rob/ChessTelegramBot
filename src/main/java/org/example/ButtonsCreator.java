@@ -45,7 +45,7 @@ public class ButtonsCreator {
     /**
      * Текст команды подключения к лобби
      */
-    private final static String JOIN_COMMAND = "joinlobby";
+    private final static String JOIN_COMMAND = "/joinlobby";
 
     /**
      * Текст кнопки для выхода из режима ожидания

@@ -28,8 +28,8 @@ public record CommandResults(lobbyStatus userLobbyStatus,
          */
         CLOSE,
         /**
-         * В поиске подходящего матча
+         * Присоединить к лобби
          */
-        CHOOSING
+        JOIN,
     }
 }
