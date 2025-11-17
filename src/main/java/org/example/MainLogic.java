@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,9 +77,12 @@ public class MainLogic {
      */
     private final static String OPPONENTS_MOVE =
             "Вы не можете сейчас ходить. Дождитесь хода противника.";
-
     /**
-     * Сообщение о ходе противника
+     * Команда подключения к лобби
+     */
+    private final static String JOIN_COMMAND = "joinlobby";
+    /**
+     * Сообщение о начале игры
      */
     private final static String GAME_BEGIN = "Игра началась";
 
@@ -86,6 +90,7 @@ public class MainLogic {
      * Обработать ввод в соответствии с режимом пользователя
      */
     public void processInput(Bot bot, String userInput, long chatId) {
+
         if (bot instanceof TelegramBot && tgBot == null) {
             tgBot = (TelegramBot) bot;
         }
@@ -173,6 +178,9 @@ public class MainLogic {
                 } else {
                     return List.of();
                 }
+            case UserState.userState.CHOOSING:
+                Set<String> setOfLobbiesID = games.keySet();
+                return buttonsCreator.getLobbyButtons(setOfLobbiesID);
         }
         return List.of();
     }
@@ -242,27 +250,15 @@ public class MainLogic {
         List<String> messagesFirst = null;
         List<String> messagesSecond = null;
         long chatIdSecond = 0;
-        String potentialGameID = "";
-        //проверяем что пользователь пытается подключится
-        if (command.contains("joinmultiplayergame")) {
-            if (0 < command.indexOf(" ") && command.indexOf(" ") < command.length()) {
-                potentialGameID = command.substring(command.indexOf(" ") + 1);
-                if (games.get(potentialGameID) != null &&
-                        games.get(potentialGameID).getLobbyType() == LobbyState.lobbyType.MULTIPLAYER) {
-                    games.get(potentialGameID).setSecondPlayerId(chatId);
-                    users.get(chatId).setCurrentLobbyId(potentialGameID);
-                    users.get(chatId).setUserState(UserState.userState.INGAME);
-                    users.get(games.get(potentialGameID).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
-                    messagesFirst.add(GAME_BEGIN);
-                    // отправляем сообщение первому
-                    sendMessagesTo(games.get(potentialGameID).getFirstPlayerId(),
-                            users.get(games.get(potentialGameID).getFirstPlayerId()).getUserMessenger(),
-                            messagesFirst);
-                    //отправляем сообщение второму
-                    messagesSecond.add(GAME_BEGIN);
-                    sendMessagesTo(chatId, users.get(chatId).getUserMessenger(), messagesSecond);
-                }
-            }
+        if (command == JOIN_COMMAND) {
+            games.get(argument).setSecondPlayerId(chatId);
+            users.get(chatId).setUserState(UserState.userState.INGAME);
+            users.get(games.get(argument).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
+            messagesFirst.add(GAME_BEGIN);
+            messagesSecond.add(GAME_BEGIN);
+            sendMessagesTo(games.get(argument).getFirstPlayerId(),
+                    users.get(games.get(argument).getFirstPlayerId()).getUserMessenger(), messagesSecond);
+            sendMessagesTo(chatId, users.get(chatId).getUserMessenger(), messagesSecond);
         } else {
             switch (results.userLobbyStatus()) {
                 case CommandResults.lobbyStatus.CLOSE -> {
@@ -303,6 +299,9 @@ public class MainLogic {
                     messagesFirst = results.messagesTextsLists().getFirst();
                     currentUserState.setCurrentLobbyId(argument);
                     games.put(argument, newLobby);
+                }
+                case CommandResults.lobbyStatus.CHOOSING -> {
+                    currentUserState.setUserState(UserState.userState.CHOOSING);
                 }
                 case CommandResults.lobbyStatus.NOTHING -> {
                     messagesFirst = results.messagesTextsLists().getFirst();
