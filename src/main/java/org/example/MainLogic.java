@@ -295,11 +295,11 @@ public class MainLogic {
                         users.get(chatId).setUserState(UserState.userState.INGAME);
                         users.get(games.get(argument).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
                         messagesFirst = results.messagesTextsLists().getFirst();
-                        messagesSecond = results.messagesTextsLists().getFirst();
+                        messagesSecond = results.messagesTextsLists().getLast();
                         messagesFirst.add(GAME_BEGIN);
-                        messagesSecond.add(GAME_BEGIN);
                         List<List<String>> listOfChessBoards =
                                 inGameHandler.getStartingBoard(gameState, gameState.isWhiteToMove());
+                        List<String> someList = listOfChessBoards.getFirst();
                         messagesFirst.addAll(listOfChessBoards.getFirst());
                         messagesSecond.addAll(listOfChessBoards.getLast());
 
