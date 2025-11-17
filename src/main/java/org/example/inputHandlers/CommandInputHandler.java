@@ -1,19 +1,14 @@
 package org.example.inputHandlers;
 
+import org.example.auxiliary.CommandResults;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.example.GameTranslator;
-import org.example.auxiliary.CommandResults;
 
 /**
  * Обработчик хода фигуры
  */
-public class CommandHandler {
-    /**
-     * Переводчик игры
-     */
-    private final GameTranslator gameTranslator = new GameTranslator();
+public class CommandInputHandler {
     /**
      * Сообщение команды /start
      */
@@ -54,32 +49,27 @@ public class CommandHandler {
     private final static String GAME_STARTED = "Игра началась";
 
     /**
-     * Пригласительное сообщение к ходу
-     */
-    private final static String YOUR_MOVE = "Ваш ход: ";
-
-    /**
      * Определить тип команды, поменять при необходимости на соответсвующий режим
      * и отправить ответ
      */
     public CommandResults processCommand(String command) {
     	List<String> responseTextsFirst = new ArrayList<String>();
     	List<String> responseTextsSecond = new ArrayList<String>();
-    	CommandResults.lobbyStatus commandLobbyStatus = CommandResults.lobbyStatus.NOTHING;
+    	CommandResults.LobbyStatus commandLobbyStatus = CommandResults.LobbyStatus.NOTHING;
         switch (command) {
             case "start", "quit" -> {
                 if (command.equals("start")) {
                 	responseTextsFirst.add(START_MESSAGE);
                 }
                 responseTextsFirst.add(MENU_MESSAGE);
-                commandLobbyStatus = CommandResults.lobbyStatus.CLOSE;
+                commandLobbyStatus = CommandResults.LobbyStatus.CLOSE;
             }
             case "help" -> {
             	responseTextsFirst.add(HELP_MESSAGE);
             }
             case "newsinglegame" -> {
             	responseTextsFirst.add(GAME_STARTED);
-            	commandLobbyStatus = CommandResults.lobbyStatus.SINGLEPLAYER;
+            	commandLobbyStatus = CommandResults.LobbyStatus.SINGLEPLAYER;
             }
             default -> {
             	responseTextsFirst.add(UNKNOWN_MESSAGE);

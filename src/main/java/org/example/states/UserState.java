@@ -7,7 +7,7 @@ public class UserState {
 	/**
 	 * Вид мессенджера
 	 */
-	public enum messengerType {
+	public enum MessengerType {
 		/**
 		 * Telegram
 		 */
@@ -17,7 +17,7 @@ public class UserState {
     /**
      * Состояние пользователя
      */
-    public enum userState {
+    public enum UserStatus {
         /**
          * Главное меню
          */
@@ -35,7 +35,7 @@ public class UserState {
     /**
      * Текущее состояние пользователя
      */
-    private userState currentUserState;
+    private UserStatus currentUserState;
 
     /**
      * Состояние готовности пользователя
@@ -45,7 +45,7 @@ public class UserState {
     /**
      * Тип мессенджера пользователя
      */
-    private final messengerType messenger;
+    private final MessengerType messenger;
     
     /**
      * Идентфикатор матча. в котором находится пользователь
@@ -55,8 +55,8 @@ public class UserState {
     /**
      * Конструктор класса
      */
-    public UserState(messengerType userMessenger) {
-        currentUserState = userState.MAINMENU;
+    public UserState(MessengerType userMessenger) {
+        currentUserState = UserStatus.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
         currentLobbyId = null;
@@ -65,7 +65,7 @@ public class UserState {
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(userState newUserState) {
+    public void setUserState(UserStatus newUserState) {
         currentUserState = newUserState;
     }
     
@@ -90,7 +90,7 @@ public class UserState {
     /**
      * Получить текущее состояние пользователя
      */
-    public userState getUserState() {
+    public UserStatus getUserState() {
         return currentUserState;
     }
 
@@ -104,7 +104,7 @@ public class UserState {
     /**
      * Получить тип мессенджера пользователя
      */
-    public messengerType getUserMessenger() {
+    public MessengerType getUserMessenger() {
     	return messenger;
     }
     

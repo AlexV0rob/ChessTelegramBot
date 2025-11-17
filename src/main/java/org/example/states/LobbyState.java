@@ -7,7 +7,7 @@ public class LobbyState {
 	/**
 	 * Возможные состояния матча
 	 */
-	public enum lobbyType {
+	public enum LobbyType {
 		/**
 		 * Одиночная игра
 		 */
@@ -41,12 +41,12 @@ public class LobbyState {
 	/**
 	 * Тип матча
 	 */
-	private final lobbyType type;
+	private final LobbyType type;
 	
 	/**
 	 * Конструктор
 	 */
-	public LobbyState(long firstPlayerId, lobbyType thisLobbyType) {
+	public LobbyState(long firstPlayerId, LobbyType thisLobbyType) {
 		firstId = firstPlayerId;
 		isFirstWhite = true;
 		type = thisLobbyType;
@@ -99,7 +99,7 @@ public class LobbyState {
 	/**
 	 * Получить тип матча
 	 */
-	public lobbyType getLobbyType() {
+	public LobbyType getLobbyType() {
 		return type;
 	}
 }

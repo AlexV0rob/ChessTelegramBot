@@ -5,12 +5,12 @@ import java.util.List;
 /**
  * Результаты обработки команды для более высокоуровневой обработки
  */
-public record CommandResults(lobbyStatus userLobbyStatus, 
+public record CommandResults(LobbyStatus userLobbyStatus, 
 		List<List<String>> messagesTextsLists) {
 	/**
 	 * Состояние относительно матча после обработки команды
 	 */
-	public enum lobbyStatus {
+	public enum LobbyStatus {
 		/**
 		 * С матчем ничего делать не нужно
 		 */

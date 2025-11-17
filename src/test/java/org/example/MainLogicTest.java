@@ -2,13 +2,13 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
-import org.example.inputHandlers.CommandHandler;
+import org.example.bots.FakeBot;
+import org.example.inputHandlers.CommandInputHandler;
 import org.example.inputHandlers.InGameInputHandler;
-import org.example.inputHandlers.MainMenuInputHandler;
-
+import org.example.states.GameState;
 import org.example.states.MoveState;
 import org.example.states.UserState;
 
@@ -36,19 +36,13 @@ public class MainLogicTest {
 	/**
 	 * Обработчик комманд
 	 */
-	private final CommandHandler commandHandler = new CommandHandler();
+	private final CommandInputHandler commandHandler = new CommandInputHandler();
 	
 	/**
 	 * Обработчик ввода в игре
 	 */
 	private final InGameInputHandler inGameInputHandler = 
 			new InGameInputHandler();
-	
-	/**
-	 * Обработчик ввода в главном меню
-	 */
-	private final MainMenuInputHandler mainMenuInputHandler = 
-			new MainMenuInputHandler();
 	
 	/**
 	 * Создатель кнопок
@@ -76,11 +70,11 @@ public class MainLogicTest {
 	public void userInputCommandTest() {
 		fakeBot.clearMessages();
 		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.userState.MAINMENU);
-		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages();
-		List<String> responseExpected = 
-				commandHandler.processCommand("newsinglegame", "", userStateExpected);
+		userStateExpected.setUserState(UserState.UserStatus.MAINMENU);
+		mainLogic.processInput(fakeBot, "/help", 0);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
+		List<String> responseExpected = commandHandler
+				.processCommand("help").messagesTextsLists().getFirst();
 		Assertions.assertIterableEquals(responseExpected, responseReal);
 	}
 	
@@ -91,13 +85,18 @@ public class MainLogicTest {
 	public void userInputInGameTest() {
 		fakeBot.clearMessages();
 		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.userState.INGAME);
+		userStateExpected.setUserState(UserState.UserStatus.INGAME);
+		GameState gameStateExpected = new GameState();
 		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "something", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages();
-		List<String> responseExpected = 
-				inGameInputHandler.processInput("something", userStateExpected);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
+		List<String> responseExpected = inGameInputHandler
+				.processInputSingleGame(
+						"something", 
+						userStateExpected.getMoveState(), 
+						gameStateExpected)
+				.messagesTextsLists().getFirst();
 		Assertions.assertIterableEquals(responseExpected, responseReal);
 	}
 	
@@ -108,13 +107,14 @@ public class MainLogicTest {
 	public void userInputInMenuTest() {
 		fakeBot.clearMessages();
 		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.userState.MAINMENU);
+		userStateExpected.setUserState(UserState.UserStatus.MAINMENU);
 		mainLogic.processInput(fakeBot, "/quit", 0);
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "something", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages();
-		List<String> responseExpected = 
-				mainMenuInputHandler.processInput("something", userStateExpected);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
+		List<String> responseExpected = commandHandler
+				.processCommand("something")
+				.messagesTextsLists().getFirst();
 		Assertions.assertIterableEquals(responseExpected, responseReal);
 	}
 	

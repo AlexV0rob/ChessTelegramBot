@@ -5,12 +5,12 @@ import java.util.List;
 /**
  * Возможные результаты хода для более высокоуровневой обработки
  */
-public record MoveResults(moveStatus thisMoveStatus, 
+public record MoveResults(MoveStatus thisMoveStatus, 
 		List<List<String>> messagesTextsLists) {
 	/**
 	 * Возможные результаты хода
 	 */
-	public enum moveStatus {
+	public enum MoveStatus {
 		/**
 		 * Совершить ход не удалось
 		 */
