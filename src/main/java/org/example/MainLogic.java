@@ -10,6 +10,7 @@ import org.example.inputHandlers.AwaitingInputHandler;
 import org.example.inputHandlers.CommandHandler;
 import org.example.inputHandlers.InGameInputHandler;
 import org.example.inputHandlers.MainMenuInputHandler;
+import org.example.states.GameState;
 import org.example.states.LobbyState;
 import org.example.states.UserState;
 
@@ -47,7 +48,10 @@ public class MainLogic {
      * Создатель кнопок
      */
     private final ButtonsCreator buttonsCreator = new ButtonsCreator();
-
+    /**
+     * Хранитель стартового состояния игры
+     */
+    private final GameState gameState = new GameState();
     /**
      * Ассоциативный массив с соответствием идентификатора пользователя и
      * его состояния
@@ -294,6 +298,10 @@ public class MainLogic {
                         messagesSecond = results.messagesTextsLists().getFirst();
                         messagesFirst.add(GAME_BEGIN);
                         messagesSecond.add(GAME_BEGIN);
+                        List<List<String>> listOfChessBoards =
+                                inGameHandler.getStartingBoard(gameState, gameState.isWhiteToMove());
+                        messagesFirst.addAll(listOfChessBoards.getFirst());
+                        messagesSecond.addAll(listOfChessBoards.getLast());
 
                     } else {
                         messagesFirst = results.messagesTextsLists().getFirst();
