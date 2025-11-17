@@ -4,15 +4,15 @@ package org.example.states;
  * Хранитель состояния пользователя
  */
 public class UserState {
-	/**
-	 * Вид мессенджера
-	 */
-	public enum MessengerType {
-		/**
-		 * Telegram
-		 */
-		TELEGRAM
-	}
+    /**
+     * Вид мессенджера
+     */
+    public enum MessengerType {
+        /**
+         * Telegram
+         */
+        TELEGRAM
+    }
 
     /**
      * Состояние пользователя
@@ -29,7 +29,11 @@ public class UserState {
         /**
          * В ожидании начала матча
          */
-        AWAITING
+        AWAITING,
+        /**
+         * В поиске подходящего матча
+         */
+        CHOOSING
     }
 
     /**
@@ -41,12 +45,12 @@ public class UserState {
      * Состояние готовности пользователя
      */
     private final MoveState currentMoveState;
-    
+
     /**
      * Тип мессенджера пользователя
      */
     private final MessengerType messenger;
-    
+
     /**
      * Идентфикатор матча. в котором находится пользователь
      */
@@ -68,23 +72,23 @@ public class UserState {
     public void setUserState(UserStatus newUserState) {
         currentUserState = newUserState;
     }
-    
+
     /**
      * Установить новый идентификатор матча
      */
     public boolean setCurrentLobbyId(String newLobbyId) {
-    	if (currentLobbyId == null) {
-    		currentLobbyId = newLobbyId;
-    		return true;
-    	}
-    	return false;
+        if (currentLobbyId == null) {
+            currentLobbyId = newLobbyId;
+            return true;
+        }
+        return false;
     }
-    
+
     /**
      * Сбросить идентификатор матча
      */
     public void resetLobbyId() {
-    	currentLobbyId = null;
+        currentLobbyId = null;
     }
 
     /**
@@ -100,18 +104,18 @@ public class UserState {
     public MoveState getMoveState() {
         return currentMoveState;
     }
-    
+
     /**
      * Получить тип мессенджера пользователя
      */
     public MessengerType getUserMessenger() {
     	return messenger;
     }
-    
+
     /**
      * Получить идентифкатор матча
      */
     public String getCurrentLobbyId() {
-    	return currentLobbyId;
+        return currentLobbyId;
     }
 }
