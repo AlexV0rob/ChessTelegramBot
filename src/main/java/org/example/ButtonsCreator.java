@@ -94,7 +94,7 @@ public class ButtonsCreator {
     public List<IdentifiedButton> getLobbyButtons(Set<String> listOfLobbies) {
         List<IdentifiedButton> lobbyButtons = new ArrayList<IdentifiedButton>();
         for (String lobbyID : listOfLobbies) {
-            lobbyButtons.add(new IdentifiedButton(lobbyID, JOIN_COMMAND + " " + lobbyID));
+            lobbyButtons.add(new IdentifiedButton(JOIN_COMMAND + " " + lobbyID, lobbyID));
         }
         return lobbyButtons;
     }

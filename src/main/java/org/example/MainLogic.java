@@ -284,12 +284,14 @@ public class MainLogic {
                 games.put(String.valueOf(chatId), newLobby);
             }
             case CommandResults.lobbyStatus.JOIN -> {
-                if (argument != null) {
+                if (argument != null && argument != "") {
                     if (games.containsKey(argument)) {
                         chatIdSecond = games.get(argument).getFirstPlayerId();
                         games.get(argument).setSecondPlayerId(chatId);
                         users.get(chatId).setUserState(UserState.userState.INGAME);
                         users.get(games.get(argument).getFirstPlayerId()).setUserState(UserState.userState.INGAME);
+                        messagesFirst = results.messagesTextsLists().getFirst();
+                        messagesSecond = results.messagesTextsLists().getFirst();
                         messagesFirst.add(GAME_BEGIN);
                         messagesSecond.add(GAME_BEGIN);
 
