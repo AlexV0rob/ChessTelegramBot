@@ -58,8 +58,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
         } else if (update.hasCallbackQuery()) {
         	processCallbackQuery(
             		update.getCallbackQuery().getData(),
-            		Math.toIntExact(
-            				update.getCallbackQuery().getMessage().getMessageId()),
             		update.getCallbackQuery().getMessage().getChatId());
         }
     }
@@ -127,43 +125,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
         }
     }
     
-
-    /**
-     * Изменить сообщение
-     */
-    private void editMessage(long chatId, long messageId, 
-    		Iterator<String> messagesTextsIterator) {
-    	InlineKeyboardMarkup editedMessageKeyboard = null;
-    	String editedMessageText = "";
-        if (messagesTextsIterator.hasNext()) {
-        	editedMessageText = messagesTextsIterator.next();
-        }
-        if (!messagesTextsIterator.hasNext()) {
-        	List<IdentifiedButton> inlineButtons = 
-        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
-        	editedMessageKeyboard = InlineKeyboardMarkup
-        			.builder()
-        			.keyboard(createInlineKeyboard(inlineButtons))
-        			.build();
-        } else {
-        	editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
-        }
-        if (!editedMessageText.isEmpty()) {
-        	EditMessageText updatedMessage = EditMessageText.builder()
-        			.chatId(chatId)
-                	.messageId(Math.toIntExact(messageId))
-                	.text(editedMessageText)
-                	.replyMarkup(editedMessageKeyboard)
-                	.build();
-        	try {
-        		telegramClient.execute(updatedMessage);
-        	} catch (TelegramApiException e) {
-        		System.out.println("Couldn't edit message in Telegram: " + e);
-        		e.printStackTrace();
-        	}
-        }
-    }
-    
     /**
      * Обработать текстовое сообщение, полученное от пользователя
      */
@@ -174,12 +135,12 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     /**
      * Обработать callback запрос, полученный от пользователя
      */
-    private void processCallbackQuery(String callbackData, int messageId, long chatId) {
+    private void processCallbackQuery(String callbackData, long chatId) {
         mainLogic.processInput(this, callbackData, chatId);
     }
     
     @Override
-    public void sendMessages(long chatId, Iterator<String> messagesTextsIterator) {
+    public long sendMessages(long chatId, Iterator<String> messagesTextsIterator) {
     	String currentMessageText = "";
     	while (messagesTextsIterator.hasNext()) {
         	currentMessageText = messagesTextsIterator.next();
@@ -190,7 +151,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     	if (!currentMessageText.isEmpty()) {
     		List<SimpleButton> replyButtons = 
     				mainLogic.getCurrentSimpleButtons(this, chatId);
-        	List<IdentifiedButton>inlineButtons = 
+        	List<IdentifiedButton> inlineButtons = 
         			mainLogic.getCurrentIdentifiedButtons(this, chatId);
         	ReplyKeyboard lastMessageKeyboard;
         	if (!replyButtons.isEmpty()) {
@@ -209,7 +170,41 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
         	} else {
         		lastMessageKeyboard = new ReplyKeyboardRemove(true);
         	}
-        	sendMessage(chatId, currentMessageText, lastMessageKeyboard);
+        	long messageId = sendMessage(chatId, currentMessageText, lastMessageKeyboard);
+        	if (inlineButtons.isEmpty()) {
+        		return -1;
+        	} else {
+        		return messageId;
+        	}
     	}
+    	return -1;
+    }
+    
+    @Override
+    public void editMessage(long chatId, long messageId, 
+    		String editedMessageText, boolean moreMessages) {
+    	InlineKeyboardMarkup editedMessageKeyboard = null;
+        if (!moreMessages) {
+        	List<IdentifiedButton> inlineButtons = 
+        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
+        	editedMessageKeyboard = InlineKeyboardMarkup
+        			.builder()
+        			.keyboard(createInlineKeyboard(inlineButtons))
+        			.build();
+        } else {
+        	editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
+        }
+        EditMessageText updatedMessage = EditMessageText.builder()
+        		.chatId(chatId)
+                .messageId(Math.toIntExact(messageId))
+                .text(editedMessageText)
+                .replyMarkup(editedMessageKeyboard)
+                .build();
+        try {
+        	telegramClient.execute(updatedMessage);
+        } catch (TelegramApiException e) {
+        	System.out.println("Couldn't edit message in Telegram: " + e);
+        	e.printStackTrace();
+        }
     }
 }

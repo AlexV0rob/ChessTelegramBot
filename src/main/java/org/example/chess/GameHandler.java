@@ -11,7 +11,7 @@ public class GameHandler {
     /**
      * Статус хода
      */
-    public enum moveProperty {
+    public enum MoveProperty {
         /**
          * Неправильный ход
          */
@@ -69,7 +69,7 @@ public class GameHandler {
     /**
      * Возвращает статус хода
      */
-    public moveProperty processMove(int figureCode, PositionOnBoard start,
+    public MoveProperty processMove(int figureCode, PositionOnBoard start,
                                     PositionOnBoard finish, GameState currentGameState) {
         if ((start.row() < minSideValue || start.row() > maxSideValue) ||
                 (start.column() < minSideValue || start.column() > maxSideValue) ||
@@ -78,21 +78,18 @@ public class GameHandler {
                 (figureCode < 0 || figureCode >= FIGURES_COUNT) ||
                 (currentGameState.getBoard()[start.row()][start.column()] < 0 !=
                         currentGameState.isWhiteToMove())) {
-            return moveProperty.INVALID;
+            return MoveProperty.INVALID;
         }
         if (!FIGURES[figureCode].checkMove(start, finish, currentGameState.getBoard())) {
-            return moveProperty.IMPOSSIBLE;
+            return MoveProperty.IMPOSSIBLE;
         }
-        moveProperty move = moveProperty.REGULAR;
+        MoveProperty move = MoveProperty.REGULAR;
         if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
-            move = moveProperty.CHECK;
+            move = MoveProperty.CHECK;
         }
         if (isMateMove(finish, currentGameState)) {
-            move = moveProperty.MATE;
-        } else {
-        	currentGameState.changeSide();
+            move = MoveProperty.MATE;
         }
-        currentGameState.moveFigure(start, finish);
         return move;
     }
 
