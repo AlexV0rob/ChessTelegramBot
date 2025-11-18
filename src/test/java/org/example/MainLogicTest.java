@@ -6,11 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.FakeBot;
-import org.example.inputHandlers.CommandInputHandler;
-import org.example.inputHandlers.InGameInputHandler;
-import org.example.states.GameState;
-import org.example.states.MoveState;
-import org.example.states.UserState;
 
 import java.util.List;
 
@@ -24,131 +19,233 @@ public class MainLogicTest {
 	private final FakeBot fakeBot = new FakeBot();
 	
 	/**
-	 * Пользовательское состояние для проверки ответов
-	 */
-	private UserState userStateExpected;
-	
-	/**
 	 * Главный логический модуль
 	 */
 	private final MainLogic mainLogic = new MainLogic();
 	
 	/**
-	 * Обработчик комманд
-	 */
-	private final CommandInputHandler commandHandler = new CommandInputHandler();
-	
-	/**
-	 * Обработчик ввода в игре
-	 */
-	private final InGameInputHandler inGameInputHandler = 
-			new InGameInputHandler();
-	
-	/**
-	 * Создатель кнопок
-	 */
-	private final ButtonsCreator buttonsCreator = new ButtonsCreator();
-	
-	/**
-	 * Начальная доска
-	 */
-	private final static byte[][] START_BOARD = {
-			{-2, -3, -4, -5, -6, -4, -3, -2},
-			{-1, -1, -1, -1, -1, -1, -1, -1},
-			{ 0,  0,  0,  0,  0,  0,  0,  0},
-			{ 0,  0,  0,  0,  0,  0,  0,  0},
-			{ 0,  0,  0,  0,  0,  0,  0,  0},
-			{ 0,  0,  0,  0,  0,  0,  0,  0},
-			{ 1,  1,  1,  1,  1,  1,  1,  1},
-			{ 2,  3,  4,  5,  6,  4,  3,  2},
-	};
-	
-	/**
-	 * Проверить ввод команды
+	 * Проверить работу меню
 	 */
 	@Test
-	public void userInputCommandTest() {
+	public void menuInputTest() {
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.UserStatus.MAINMENU);
-		mainLogic.processInput(fakeBot, "/help", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
-		List<String> responseExpected = commandHandler
-				.processCommand("help").messagesTextsLists().getFirst();
-		Assertions.assertIterableEquals(responseExpected, responseReal);
+		mainLogic.processInput(fakeBot, "/quit", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(List.of("Чем займёмся?"), responseReal);
+		Assertions.assertIterableEquals(
+                List.of(new SimpleButton("Начать игру на этом устройстве"),
+                		new SimpleButton("Создать собственное лобби"), 
+                		new SimpleButton("Присоединится к чужому лобби")),
+                mainLogic.getCurrentSimpleButtons(fakeBot, 1));
+		Assertions.assertIterableEquals(List.of(),
+                mainLogic.getCurrentIdentifiedButtons(fakeBot, 1));
 	}
 	
 	/**
-	 * Проверить ввод в игре
+	 * Проверить создание матча
 	 */
 	@Test
-	public void userInputInGameTest() {
+	public void createValidLobbyTest() {
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.UserStatus.INGAME);
-		GameState gameStateExpected = new GameState();
-		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
-		fakeBot.clearMessages();
-		mainLogic.processInput(fakeBot, "something", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
-		List<String> responseExpected = inGameInputHandler
-				.processInputSingleGame(
-						"something", 
-						userStateExpected.getMoveState(), 
-						gameStateExpected)
-				.messagesTextsLists().getFirst();
-		Assertions.assertIterableEquals(responseExpected, responseReal);
+		mainLogic.processInput(fakeBot, "/creategame game", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(
+				List.of("""
+						Матч game создан и доступен для других игроков.
+						Ожидайте присоединения противника
+						"""), 
+				responseReal);
+		mainLogic.processInput(fakeBot, "/joingame", 1);
+		List<IdentifiedButton> lobbiesButtons = mainLogic
+				.getCurrentIdentifiedButtons(fakeBot, 1);
+		Assertions.assertIterableEquals(
+				List.of(new IdentifiedButton("__game__", "game")), 
+				lobbiesButtons);
 	}
 	
 	/**
-	 * Проверить ввод в главном меню
+	 * Проверить неверное создание матча
 	 */
 	@Test
-	public void userInputInMenuTest() {
+	public void createInvalidLobbyTest() {
+		mainLogic.processInput(fakeBot, "/creategame game", 1);
 		fakeBot.clearMessages();
-		userStateExpected = new UserState(null);
-		userStateExpected.setUserState(UserState.UserStatus.MAINMENU);
-		mainLogic.processInput(fakeBot, "/quit", 0);
-		fakeBot.clearMessages();
-		mainLogic.processInput(fakeBot, "something", 0);
-		List<String> responseReal = fakeBot.getAccumulatedMessages(0);
-		List<String> responseExpected = commandHandler
-				.processCommand("something")
-				.messagesTextsLists().getFirst();
-		Assertions.assertIterableEquals(responseExpected, responseReal);
+		mainLogic.processInput(fakeBot, "/creategame очевиднослишкомдлинноеимя", 1);
+		mainLogic.processInput(fakeBot, "/creategame game", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(
+				List.of("Извините, название должно быть не более 16 символов. Придумайте другое:",
+						"Извините, данное название уже занято. Придумайте другое:"), 
+				responseReal);
 	}
 	
 	/**
-	 * Проверить кнопки в игре
+	 * Проверить создание одиночной игры
 	 */
 	@Test
-	public void buttonsInGameTest() {
-		MoveState moveStateExpected = new MoveState();
-		mainLogic.processInput(fakeBot, "/newsinglegame", 0);
-		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(fakeBot, 0);
-		List<IdentifiedButton> identifiedButtonsReal = 
-				mainLogic.getCurrentIdentifiedButtons(fakeBot, 0);
-		List<SimpleButton> simpleButtonsExpected = List.of();
-		List<IdentifiedButton> identifiedButtonsExpected = 
-				buttonsCreator.getGameButtons(moveStateExpected, START_BOARD, true);
-		Assertions.assertIterableEquals(simpleButtonsExpected, simpleButtonsReal);
-		Assertions.assertIterableEquals(identifiedButtonsExpected, identifiedButtonsReal);
+	public void createSinglegameTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/newsinglegame", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(List.of(
+				"Игра началась",
+				"""
+Ход белых
+
+8  [ BR][ BN][ BB][ BQ][ BK][ BB][ BN][ BR]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [WP][WP][WP][WP][WP][WP][WP][WP]
+1  [WR][WN][WB][WQ][WK][WB][WN][WR]
+      A      B      C      D      E      F      G      H     \s
+				""",
+				"Ваш ход: "),
+				responseReal);
 	}
 	
 	/**
-	 * Проверить кнопки в главном меню
+	 * Проверить совершение хода целиком
 	 */
 	@Test
-	public void buttonsInMenuTest() {
-		mainLogic.processInput(fakeBot, "/quit", 0);
-		List<SimpleButton> simpleButtonsReal = mainLogic.getCurrentSimpleButtons(fakeBot, 0);
-		List<IdentifiedButton> identifiedButtonsReal = 
-				mainLogic.getCurrentIdentifiedButtons(fakeBot, 0);
-		List<SimpleButton> simpleButtonsExpected = 
-				buttonsCreator.getMenuButtons();
-		List<IdentifiedButton> identifiedButtonsExpected = List.of();
-				
-		Assertions.assertIterableEquals(simpleButtonsExpected, simpleButtonsReal);
-		Assertions.assertIterableEquals(identifiedButtonsExpected, identifiedButtonsReal);
+	public void makeMoveTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/newsinglegame", 1);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "e2e4", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(List.of(
+				"""
+Ход чёрных
+
+1  [WR][WN][WB][WK][WQ][WB][WN][WR]
+2  [WP][WP][WP][      ][WP][WP][WP][WP]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][WP][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+8  [ BR][ BN][ BB][ BK][ BQ][ BB][ BN][ BR]
+      H      G      F      E      D      C      B      A     \s
+				""", 
+				"Ваш ход: "),
+				responseReal);
+	}
+	
+	/**
+	 * Проверить совершение хода по частям
+	 */
+	@Test
+	public void makeMoveByPartsTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/newsinglegame", 1);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "__p__", 1);
+		mainLogic.processInput(fakeBot, "__e2__", 1);
+		mainLogic.processInput(fakeBot, "__e4__", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertIterableEquals(List.of(
+				"Ваш ход: ПЕШКА",
+				"Ваш ход: ПЕШКА E2",
+				"Ваш ход: ПЕШКА E2 E4",
+				"""
+Ход чёрных
+
+1  [WR][WN][WB][WK][WQ][WB][WN][WR]
+2  [WP][WP][WP][      ][WP][WP][WP][WP]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][WP][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+8  [ BR][ BN][ BB][ BK][ BQ][ BB][ BN][ BR]
+      H      G      F      E      D      C      B      A     \s
+				""", 
+				"Ваш ход: "),
+				responseReal);
+	}
+	
+	/**
+	 * Проверить невозможный ход
+	 */
+	@Test
+	public void impossibleMoveTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/newsinglegame", 1);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "e2e8", 1);
+		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
+		Assertions.assertTrue(responseReal.getFirst().contains("Невозможный ход! Попробуйте снова."));
+	}
+	
+	/**
+	 * Проверить присоединение к матчу
+	 */
+	@Test
+	public void joinLobbyTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/creategame game", 1);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/joingame game", 2);
+		List<String> responseRealFirst = fakeBot.getAccumulatedMessages(1);
+		List<String> responseRealSecond = fakeBot.getAccumulatedMessages(2);
+		Assertions.assertIterableEquals(List.of(
+				"Игра началась",
+				"""
+Ход белых
+
+8  [ BR][ BN][ BB][ BQ][ BK][ BB][ BN][ BR]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [WP][WP][WP][WP][WP][WP][WP][WP]
+1  [WR][WN][WB][WQ][WK][WB][WN][WR]
+      A      B      C      D      E      F      G      H     \s
+				""",
+				"Ваш ход: "),
+				responseRealFirst);
+		Assertions.assertIterableEquals(List.of(
+				"Игра началась",
+				"""
+Ход белых
+
+1  [WR][WN][WB][WK][WQ][WB][WN][WR]
+2  [WP][WP][WP][WP][WP][WP][WP][WP]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+8  [ BR][ BN][ BB][ BK][ BQ][ BB][ BN][ BR]
+      H      G      F      E      D      C      B      A     \s
+				""",
+				"Сейчас ходит противник."),
+				responseRealSecond);
+	}
+	
+	/**
+	 * Проверить совершение хода в многопользовательской игре
+	 */
+	@Test
+	public void multiplayerMoveTest() {
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "/creategame game", 1);
+		mainLogic.processInput(fakeBot, "/joingame game", 2);
+		fakeBot.clearMessages();
+		mainLogic.processInput(fakeBot, "e7e5", 2);
+		mainLogic.processInput(fakeBot, "e2e4", 1);
+		mainLogic.processInput(fakeBot, "e7e5", 2);
+		List<String> responseRealSecond = fakeBot.getAccumulatedMessages(1);
+		List<String> responseRealFirst = fakeBot.getAccumulatedMessages(2);
+		Assertions.assertEquals("Вы не можете сейчас ходить. Дождитесь хода противника.",
+				responseRealFirst.get(0));
+		Assertions.assertEquals("Ваш ход: ",
+				responseRealFirst.get(2));
+		Assertions.assertEquals("Сейчас ходит противник.",
+				responseRealSecond.get(1));
 	}
 }

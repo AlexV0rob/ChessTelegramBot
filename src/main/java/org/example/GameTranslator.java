@@ -59,10 +59,10 @@ public class GameTranslator {
     /**
      * Сформировать текст сообщения с состоянием доски в виде строки
      */
-    public String chessboardString(GameHandler.MoveProperty moveProperty,
-                                   byte[][] currentChessboard, boolean isWhiteToMove) {
+    public String chessboardString(GameHandler.MoveProperty moveProperty, 
+    		byte[][] currentChessboard, boolean isWhiteToMove, boolean forWhiteSide) {
         String chessboardString, side, board, additional;
-        board = boardString(currentChessboard, isWhiteToMove);
+        board = boardString(currentChessboard, forWhiteSide);
         if (isWhiteToMove) {
             side = MOVING_SIDES[0];
         } else {

@@ -33,7 +33,11 @@ public class UserState {
         /**
          * В поиске подходящего матча
          */
-        CHOOSING
+        CHOOSING,
+        /**
+         * Создаёт матч
+         */
+        CREATING
     }
 
     /**
@@ -109,7 +113,7 @@ public class UserState {
      * Получить тип мессенджера пользователя
      */
     public MessengerType getUserMessenger() {
-        return messenger;
+    	return messenger;
     }
 
     /**

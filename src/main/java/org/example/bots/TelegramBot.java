@@ -151,7 +151,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     	if (!currentMessageText.isEmpty()) {
     		List<SimpleButton> replyButtons = 
     				mainLogic.getCurrentSimpleButtons(this, chatId);
-        	List<IdentifiedButton>inlineButtons = 
+        	List<IdentifiedButton> inlineButtons = 
         			mainLogic.getCurrentIdentifiedButtons(this, chatId);
         	ReplyKeyboard lastMessageKeyboard;
         	if (!replyButtons.isEmpty()) {
@@ -170,7 +170,12 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
         	} else {
         		lastMessageKeyboard = new ReplyKeyboardRemove(true);
         	}
-        	return sendMessage(chatId, currentMessageText, lastMessageKeyboard);
+        	long messageId = sendMessage(chatId, currentMessageText, lastMessageKeyboard);
+        	if (inlineButtons.isEmpty()) {
+        		return -1;
+        	} else {
+        		return messageId;
+        	}
     	}
     	return -1;
     }
