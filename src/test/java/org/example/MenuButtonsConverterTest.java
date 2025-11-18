@@ -27,6 +27,6 @@ public class MenuButtonsConverterTest {
 	@Test
 	public void commandToButtonTest() {
 		Assertions.assertEquals("Начать игру на этом устройстве", 
-				menuButtonsConverter.getMenuCommand("newsinglegame"));
+				menuButtonsConverter.getCommandText("newsinglegame"));
 	}
 }
