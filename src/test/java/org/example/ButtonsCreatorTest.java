@@ -42,7 +42,9 @@ public class ButtonsCreatorTest {
     @Test
     public void menuButtonsTest() {
         Assertions.assertIterableEquals(
-                List.of(new SimpleButton("Начать игру на этом устройстве")),
+                List.of(new SimpleButton("Начать игру на этом устройстве"),
+                		new SimpleButton("Создать собственное лобби"), 
+                		new SimpleButton("Присоединится к чужому лобби")),
                 buttonsCreator.getMenuButtons());
     }
 

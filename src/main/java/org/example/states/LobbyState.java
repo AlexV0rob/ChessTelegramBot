@@ -36,7 +36,7 @@ public class LobbyState {
 	/**
 	 * Сторона первого пользователя
 	 */
-	private final boolean isFirstWhite;
+	private boolean isFirstMove;
 	
 	/**
 	 * Тип матча
@@ -48,7 +48,7 @@ public class LobbyState {
 	 */
 	public LobbyState(long firstPlayerId, LobbyType thisLobbyType) {
 		firstId = firstPlayerId;
-		isFirstWhite = true;
+		isFirstMove = true;
 		type = thisLobbyType;
 	}
 	
@@ -59,6 +59,13 @@ public class LobbyState {
 		if (secondId == 0) {
 			secondId = playerId;
 		}
+	}
+
+	/**
+	 * Поменять ходящего игрока
+	 */
+	public void changeMovingPlayer() {
+		isFirstMove = !isFirstMove;
 	}
 	
 	/**
@@ -83,17 +90,10 @@ public class LobbyState {
 	}
 	
 	/**
-	 * Получить сторону первого игрока
+	 * Ходит ли первый игрок
 	 */
-	public boolean isFirstPlayerWhite() {
-		return isFirstWhite;
-	}
-	
-	/**
-	 * Получить сторону второго игрока
-	 */
-	public boolean isSecondPlayerWhite() {
-		return !isFirstWhite;
+	public boolean isFirstPlayerToMove() {
+		return isFirstMove;
 	}
 	
 	/**
@@ -101,5 +101,12 @@ public class LobbyState {
 	 */
 	public LobbyType getLobbyType() {
 		return type;
+	}
+	
+	/**
+	 * Получить идентификатор другого игрока
+	 */
+	public long getAnotherPlayerId(long thatId) {
+		return thatId == firstId ? secondId : firstId;
 	}
 }

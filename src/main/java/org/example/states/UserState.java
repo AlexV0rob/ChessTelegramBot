@@ -33,7 +33,11 @@ public class UserState {
         /**
          * В поиске подходящего матча
          */
-        CHOOSING
+        CHOOSING,
+        /**
+         * Создаёт матч
+         */
+        CREATING
     }
 
     /**
