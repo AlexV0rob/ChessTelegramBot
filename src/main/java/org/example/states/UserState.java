@@ -4,20 +4,20 @@ package org.example.states;
  * Хранитель состояния пользователя
  */
 public class UserState {
-    /**
-     * Вид мессенджера
-     */
-    public enum messengerType {
-        /**
-         * Telegram
-         */
-        TELEGRAM
-    }
+	/**
+	 * Вид мессенджера
+	 */
+	public enum MessengerType {
+		/**
+		 * Telegram
+		 */
+		TELEGRAM
+	}
 
     /**
      * Состояние пользователя
      */
-    public enum userState {
+    public enum UserStatus {
         /**
          * Главное меню
          */
@@ -29,28 +29,24 @@ public class UserState {
         /**
          * В ожидании начала матча
          */
-        AWAITING,
-        /**
-         * В поиске подходящего матча
-         */
-        CHOOSING
+        AWAITING
     }
 
     /**
      * Текущее состояние пользователя
      */
-    private userState currentUserState;
+    private UserStatus currentUserState;
 
     /**
      * Состояние готовности пользователя
      */
     private final MoveState currentMoveState;
-
+    
     /**
      * Тип мессенджера пользователя
      */
-    private final messengerType messenger;
-
+    private final MessengerType messenger;
+    
     /**
      * Идентфикатор матча. в котором находится пользователь
      */
@@ -59,8 +55,8 @@ public class UserState {
     /**
      * Конструктор класса
      */
-    public UserState(messengerType userMessenger) {
-        currentUserState = userState.MAINMENU;
+    public UserState(MessengerType userMessenger) {
+        currentUserState = UserStatus.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
         currentLobbyId = null;
@@ -69,32 +65,32 @@ public class UserState {
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(userState newUserState) {
+    public void setUserState(UserStatus newUserState) {
         currentUserState = newUserState;
     }
-
+    
     /**
      * Установить новый идентификатор матча
      */
     public boolean setCurrentLobbyId(String newLobbyId) {
-        if (currentLobbyId == null) {
-            currentLobbyId = newLobbyId;
-            return true;
-        }
-        return false;
+    	if (currentLobbyId == null) {
+    		currentLobbyId = newLobbyId;
+    		return true;
+    	}
+    	return false;
     }
-
+    
     /**
      * Сбросить идентификатор матча
      */
     public void resetLobbyId() {
-        currentLobbyId = null;
+    	currentLobbyId = null;
     }
 
     /**
      * Получить текущее состояние пользователя
      */
-    public userState getUserState() {
+    public UserStatus getUserState() {
         return currentUserState;
     }
 
@@ -104,18 +100,18 @@ public class UserState {
     public MoveState getMoveState() {
         return currentMoveState;
     }
-
+    
     /**
      * Получить тип мессенджера пользователя
      */
-    public messengerType getUserMessenger() {
-        return messenger;
+    public MessengerType getUserMessenger() {
+    	return messenger;
     }
-
+    
     /**
      * Получить идентифкатор матча
      */
     public String getCurrentLobbyId() {
-        return currentLobbyId;
+    	return currentLobbyId;
     }
 }

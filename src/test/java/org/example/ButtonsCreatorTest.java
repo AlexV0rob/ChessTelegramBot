@@ -47,6 +47,16 @@ public class ButtonsCreatorTest {
     }
 
     /**
+     * Проверить список кнопок главного меню
+     */
+    @Test
+    public void awaitButtonsTest() {
+        Assertions.assertIterableEquals(
+                List.of(new SimpleButton("Отменить поиск матча и удалить лобби")),
+                buttonsCreator.getAwaitingButtons());
+    }
+    
+    /**
      * Проверить кнопки игры
      */
     @Test

@@ -66,10 +66,10 @@ public class GameTranslatorTest {
 	@Test
 	public void sideTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.REGULAR, BOARD, true);
+				GameHandler.MoveProperty.REGULAR, BOARD, true);
 		Assertions.assertEquals(BOARD_STRING_WHITE, boardString);
 		boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.REGULAR, BOARD, false);
+				GameHandler.MoveProperty.REGULAR, BOARD, false);
 		Assertions.assertEquals(BOARD_STRING_BLACK, boardString);
 	}
 	
@@ -79,7 +79,7 @@ public class GameTranslatorTest {
 	@Test
 	public void impossibleMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.IMPOSSIBLE, BOARD, true);
+				GameHandler.MoveProperty.IMPOSSIBLE, BOARD, true);
 		Assertions.assertEquals("""
 				%sНевозможный ход! Попробуйте снова.
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -91,7 +91,7 @@ public class GameTranslatorTest {
 	@Test
 	public void invalidMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.INVALID, BOARD, true);
+				GameHandler.MoveProperty.INVALID, BOARD, true);
 		Assertions.assertEquals("""
 				%sНеверная запись хода! Попробуйте снова.
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -103,7 +103,7 @@ public class GameTranslatorTest {
 	@Test
 	public void checkMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.CHECK, BOARD, true);
+				GameHandler.MoveProperty.CHECK, BOARD, true);
 		Assertions.assertEquals("""
 				%sШах! Ваш король под угрозой!
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -115,14 +115,14 @@ public class GameTranslatorTest {
 	@Test
 	public void mateMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.MATE, BOARD, false);
-		Assertions.assertEquals("""
-				%sШах и мат! Партия окончена. Победили белые.
-				""".formatted(BOARD_STRING_BLACK), boardString);
-		boardString = gameTranslator.chessboardString(
-				GameHandler.moveProperty.MATE, BOARD, true);
+				GameHandler.MoveProperty.MATE, BOARD, false);
 		Assertions.assertEquals("""
 				%sШах и мат! Партия окончена. Победили чёрные.
+				""".formatted(BOARD_STRING_BLACK), boardString);
+		boardString = gameTranslator.chessboardString(
+				GameHandler.MoveProperty.MATE, BOARD, true);
+		Assertions.assertEquals("""
+				%sШах и мат! Партия окончена. Победили белые.
 				""".formatted(BOARD_STRING_WHITE), boardString);
 	}
 }

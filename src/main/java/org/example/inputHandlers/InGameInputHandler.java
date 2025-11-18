@@ -71,30 +71,30 @@ public class InGameInputHandler {
     		messagesFirst = List.of(
     				createBoardString(
     						startingGameState.getBoard(),
-    						GameHandler.moveProperty.REGULAR,
+    						GameHandler.MoveProperty.REGULAR,
     						true), 
     				YOUR_MOVE);
 
     		messagesSecond = List.of(
     				createBoardString(
     						startingGameState.getBoard(),
-    						GameHandler.moveProperty.REGULAR,
+    						GameHandler.MoveProperty.REGULAR,
     						false), 
     				NOT_YOUR_MOVE);
     	} else {
     		messagesFirst = List.of(
     				createBoardString(
     						startingGameState.getBoard(),
-    						GameHandler.moveProperty.REGULAR,
+    						GameHandler.MoveProperty.REGULAR,
     						false), 
-    				YOUR_MOVE);
+    				NOT_YOUR_MOVE);
 
     		messagesSecond = List.of(
     				createBoardString(
     						startingGameState.getBoard(),
-    						GameHandler.moveProperty.REGULAR,
+    						GameHandler.MoveProperty.REGULAR,
     						true), 
-    				NOT_YOUR_MOVE);    		
+    				YOUR_MOVE);    		
     	}
     	return List.of(messagesFirst, messagesSecond);
     }
@@ -108,7 +108,7 @@ public class InGameInputHandler {
     	Matcher callbackMatch = CALLBACK_PATTERN.matcher(userInput);
     	List<String> responseTextsFirst = new ArrayList<String>();
     	List<String> responseTextsSecond = new ArrayList<String>();
-    	MoveResults.moveStatus thisMoveStatus = MoveResults.moveStatus.FAILURE;
+    	MoveResults.MoveStatus thisMoveStatus = MoveResults.MoveStatus.FAILURE;
     	if (callbackMatch.find()) {
     		String movePart = callbackMatch.group(1).toLowerCase();
     		if (!movePart.isEmpty()) {
@@ -117,7 +117,7 @@ public class InGameInputHandler {
     		responseTextsFirst.add(createMoveString(currentMoveState));
     	}
     	if (notationMatch.find() || currentMoveState.isMoveReady()) {
-        	GameHandler.moveProperty move = GameHandler.moveProperty.REGULAR;
+        	GameHandler.MoveProperty move = GameHandler.MoveProperty.REGULAR;
     		if (currentMoveState.isMoveReady()) {
     			move = moveHandler.processMove(
     					currentMoveState.getFigure(), 
@@ -132,10 +132,10 @@ public class InGameInputHandler {
     					currentGameState);
     		}
     		currentMoveState.clearMoveState();
-    		if (move.equals(GameHandler.moveProperty.CHECK)) {
+    		if (move.equals(GameHandler.MoveProperty.CHECK)) {
     			responseTextsFirst.add(createBoardString(
     				currentGameState.getBoard(), 
-    				GameHandler.moveProperty.REGULAR, 
+    				GameHandler.MoveProperty.REGULAR, 
     				movingIsWhite));
     		} else {
     			responseTextsFirst.add(createBoardString(
@@ -144,21 +144,21 @@ public class InGameInputHandler {
     				movingIsWhite));
     		}
     		thisMoveStatus = switch (move) {
-    			case GameHandler.moveProperty.IMPOSSIBLE, 
-    			GameHandler.moveProperty.INVALID -> 
-    				MoveResults.moveStatus.FAILURE;
-    			case GameHandler.moveProperty.REGULAR, 
-    			GameHandler.moveProperty.CHECK -> 
-					MoveResults.moveStatus.SUCCESS;
-    			case GameHandler.moveProperty.MATE -> 
-    				MoveResults.moveStatus.GAMEOVER;
+    			case GameHandler.MoveProperty.IMPOSSIBLE, 
+    			GameHandler.MoveProperty.INVALID -> 
+    				MoveResults.MoveStatus.FAILURE;
+    			case GameHandler.MoveProperty.REGULAR, 
+    			GameHandler.MoveProperty.CHECK -> 
+					MoveResults.MoveStatus.SUCCESS;
+    			case GameHandler.MoveProperty.MATE -> 
+    				MoveResults.MoveStatus.GAMEOVER;
     		};
-    		if (thisMoveStatus.equals(MoveResults.moveStatus.FAILURE)) {
+    		if (thisMoveStatus.equals(MoveResults.MoveStatus.FAILURE)) {
             	responseTextsFirst.add(YOUR_MOVE);
             } else {
             	responseTextsSecond.add(createBoardString(
             			currentGameState.getBoard(), move, !movingIsWhite));
-            	if (thisMoveStatus.equals(MoveResults.moveStatus.SUCCESS)) {
+            	if (thisMoveStatus.equals(MoveResults.MoveStatus.SUCCESS)) {
             		responseTextsFirst.add(NOT_YOUR_MOVE);
             		responseTextsSecond.add(YOUR_MOVE);
             	}
@@ -180,7 +180,7 @@ public class InGameInputHandler {
     	Matcher notationMatch = NOTATION_PATTERN.matcher(userInput);
     	Matcher callbackMatch = CALLBACK_PATTERN.matcher(userInput);
     	List<String> responseTexts = new ArrayList<String>();
-    	MoveResults.moveStatus thisMoveStatus = MoveResults.moveStatus.FAILURE;
+    	MoveResults.MoveStatus thisMoveStatus = MoveResults.MoveStatus.FAILURE;
     	if (callbackMatch.find()) {
     		String movePart = callbackMatch.group(1).toLowerCase();
     		if (!movePart.isEmpty()) {
@@ -189,7 +189,7 @@ public class InGameInputHandler {
     		responseTexts.add(createMoveString(currentMoveState));
     	}
     	if (notationMatch.find() || currentMoveState.isMoveReady()) {
-        	GameHandler.moveProperty move = GameHandler.moveProperty.REGULAR;
+        	GameHandler.MoveProperty move = GameHandler.MoveProperty.REGULAR;
     		if (currentMoveState.isMoveReady()) {
     			move = moveHandler.processMove(
     					currentMoveState.getFigure(), 
@@ -207,21 +207,22 @@ public class InGameInputHandler {
     		responseTexts.add(createBoardString(
     				currentGameState.getBoard(), move, currentGameState.isWhiteToMove()));
     		thisMoveStatus = switch (move) {
-    			case GameHandler.moveProperty.IMPOSSIBLE, 
-    			GameHandler.moveProperty.INVALID -> 
-    				MoveResults.moveStatus.FAILURE;
-    			case GameHandler.moveProperty.REGULAR, 
-    			GameHandler.moveProperty.CHECK -> 
-					MoveResults.moveStatus.SUCCESS;
-    			case GameHandler.moveProperty.MATE -> 
-    				MoveResults.moveStatus.GAMEOVER;
+    			case GameHandler.MoveProperty.IMPOSSIBLE, 
+    			GameHandler.MoveProperty.INVALID -> 
+    				MoveResults.MoveStatus.FAILURE;
+    			case GameHandler.MoveProperty.REGULAR, 
+    			GameHandler.MoveProperty.CHECK -> 
+					MoveResults.MoveStatus.SUCCESS;
+    			case GameHandler.MoveProperty.MATE -> 
+    				MoveResults.MoveStatus.GAMEOVER;
     		};
-    		if (!move.equals(GameHandler.moveProperty.MATE)) {
+    		if (!move.equals(GameHandler.MoveProperty.MATE)) {
             	responseTexts.add(YOUR_MOVE);
             }
     	}    	
     	if (responseTexts.isEmpty()) {
     		responseTexts.add(UNKNOWN_INPUT);
+        	responseTexts.add(YOUR_MOVE);
     	}
     	return new MoveResults(thisMoveStatus, List.of(responseTexts));
     }
@@ -250,7 +251,7 @@ public class InGameInputHandler {
      * Сформировать строку с состоянием доски
      */
     private String createBoardString(byte[][] chessboard, 
-    		GameHandler.moveProperty moveProperty, boolean whiteSide) {
+    		GameHandler.MoveProperty moveProperty, boolean whiteSide) {
     	return gameTranslator.chessboardString(moveProperty, chessboard, whiteSide);
     }
 }

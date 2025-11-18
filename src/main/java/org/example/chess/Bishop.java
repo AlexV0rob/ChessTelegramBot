@@ -10,7 +10,7 @@ public class Bishop implements Chessmen {
     /**
      * Расположение позиций друг относительно друга
      */
-    private enum positionRelatives {
+    private enum PositionRelatives {
         /**
          * Выше
          */
@@ -66,42 +66,42 @@ public class Bishop implements Chessmen {
      * Проверка отсутствия препятствий на пути из стартовой позиции в конечную
      */
     private boolean isWayFree(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        positionRelatives verticalRelatives = positionRelatives.EQUAL;
-        positionRelatives horizontalRelatives = positionRelatives.EQUAL;
+        PositionRelatives verticalRelatives = PositionRelatives.EQUAL;
+        PositionRelatives horizontalRelatives = PositionRelatives.EQUAL;
         if (start.row() < finish.row()) {
-            verticalRelatives = positionRelatives.GREATER;
+            verticalRelatives = PositionRelatives.GREATER;
         } else if (start.row() > finish.row()) {
-            verticalRelatives = positionRelatives.LESS;
+            verticalRelatives = PositionRelatives.LESS;
         }
         if (start.column() < finish.column()) {
-            horizontalRelatives = positionRelatives.GREATER;
+            horizontalRelatives = PositionRelatives.GREATER;
         } else if (start.column() > finish.column()) {
-            horizontalRelatives = positionRelatives.LESS;
+            horizontalRelatives = PositionRelatives.LESS;
         }
         int currentRow = start.row();
         int currentColumn = start.column();
-        if (verticalRelatives.equals(positionRelatives.GREATER)) {
+        if (verticalRelatives.equals(PositionRelatives.GREATER)) {
             ++currentRow;
-        } else if (verticalRelatives.equals(positionRelatives.LESS)) {
+        } else if (verticalRelatives.equals(PositionRelatives.LESS)) {
             --currentRow;
         }
-        if (horizontalRelatives.equals(positionRelatives.GREATER)) {
+        if (horizontalRelatives.equals(PositionRelatives.GREATER)) {
             ++currentColumn;
-        } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
+        } else if (horizontalRelatives.equals(PositionRelatives.LESS)) {
             --currentColumn;
         }
         while ((currentRow >= minSideValue && currentRow <= maxSideValue) &&
                 (currentColumn >= minSideValue && currentColumn <= maxSideValue) &&
                 board[currentRow][currentColumn] == 0 &&
                 (currentRow != finish.row() || currentColumn != finish.column())) {
-            if (verticalRelatives.equals(positionRelatives.GREATER)) {
+            if (verticalRelatives.equals(PositionRelatives.GREATER)) {
                 ++currentRow;
-            } else if (verticalRelatives.equals(positionRelatives.LESS)) {
+            } else if (verticalRelatives.equals(PositionRelatives.LESS)) {
                 --currentRow;
             }
-            if (horizontalRelatives.equals(positionRelatives.GREATER)) {
+            if (horizontalRelatives.equals(PositionRelatives.GREATER)) {
                 ++currentColumn;
-            } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
+            } else if (horizontalRelatives.equals(PositionRelatives.LESS)) {
                 --currentColumn;
             }
         }
