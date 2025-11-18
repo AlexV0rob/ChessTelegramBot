@@ -17,20 +17,20 @@ public class CommandHandlerTest {
 	/**
 	 * Состояние работы пользователя
 	 */
-	private final UserState userState = new UserState();
+	private final UserState userState = new UserState(null);
 	
 	/**
 	 * Проверить команду /start
 	 */
 	@Test
 	public void startCommandTest() {
-		userState.setUserState(UserState.USER_STATE.INGAME);
+		userState.setUserState(UserState.userState.INGAME);
 		commandHandler.processCommand("start", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
+				userState.getUserState(), UserState.userState.MAINMENU);
 		commandHandler.processCommand("start", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
+				userState.getUserState(), UserState.userState.MAINMENU);
 	}
 	
 	/**
@@ -38,13 +38,13 @@ public class CommandHandlerTest {
 	 */
 	@Test
 	public void quitCommandTest() {
-		userState.setUserState(UserState.USER_STATE.INGAME);
+		userState.setUserState(UserState.userState.INGAME);
 		commandHandler.processCommand("quit", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
+				userState.getUserState(), UserState.userState.MAINMENU);
 		commandHandler.processCommand("quit", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
+				userState.getUserState(), UserState.userState.MAINMENU);
 	}
 	
 	/**
@@ -52,14 +52,14 @@ public class CommandHandlerTest {
 	 */
 	@Test
 	public void helpCommandTest() {
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
+		userState.setUserState(UserState.userState.MAINMENU);
 		commandHandler.processCommand("help", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
-		userState.setUserState(UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.MAINMENU);
+		userState.setUserState(UserState.userState.INGAME);
 		commandHandler.processCommand("help", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.INGAME);
 	}
 	
 	/**
@@ -67,13 +67,13 @@ public class CommandHandlerTest {
 	 */
 	@Test
 	public void newsinglegameCommandTest() {
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
+		userState.setUserState(UserState.userState.MAINMENU);
 		commandHandler.processCommand("newsinglegame", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.INGAME);
 		commandHandler.processCommand("newsinglegame", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.INGAME);
 	}
 	
 	/**
@@ -81,13 +81,13 @@ public class CommandHandlerTest {
 	 */
 	@Test
 	public void unknownCommandTest() {
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
+		userState.setUserState(UserState.userState.MAINMENU);
 		commandHandler.processCommand("unknown", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
-		userState.setUserState(UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.MAINMENU);
+		userState.setUserState(UserState.userState.INGAME);
 		commandHandler.processCommand("unknown", "", userState);
 		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.INGAME);
+				userState.getUserState(), UserState.userState.INGAME);
 	}
 }

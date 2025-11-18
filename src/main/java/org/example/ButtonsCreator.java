@@ -1,8 +1,7 @@
 package org.example;
 
-import org.example.buttons.IdentifiedButton;
-import org.example.buttons.SimpleButton;
-
+import org.example.auxiliary.IdentifiedButton;
+import org.example.auxiliary.SimpleButton;
 import org.example.chess.Bishop;
 import org.example.chess.Chessmen;
 import org.example.chess.King;
@@ -12,10 +11,13 @@ import org.example.chess.PositionOnBoard;
 import org.example.chess.Queen;
 import org.example.chess.Rook;
 
+import org.example.states.LobbyState;
 import org.example.states.MoveState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Создатель кнопок
@@ -31,6 +33,24 @@ public class ButtonsCreator {
      */
     private final static String NEW_SINGLE_GAME = "Начать игру на этом устройстве";
 
+    /**
+     * Текст кнопки для начала игры в главном меню
+     */
+    private final static String NEW_MULTIPLAYER_GAME = "Создать собственное лобби";
+
+    /**
+     * Текст кнопки для начала игры в главном меню
+     */
+    private final static String JOIN_MULTIPLAYER_GAME = "Присоединится к чужому лобби";
+    /**
+     * Текст команды подключения к лобби
+     */
+    private final static String JOIN_COMMAND = "/joinlobby";
+
+    /**
+     * Текст кнопки для выхода из режима ожидания
+     */
+    private final static String QUIT_LOBBY = "Отменить поиск матча и удалить лобби";
     /**
      * Минимальная позиция в стороне доски
      */
@@ -56,7 +76,27 @@ public class ButtonsCreator {
      * Получить список кнопок главного меню
      */
     public List<SimpleButton> getMenuButtons() {
-        return List.of(new SimpleButton(NEW_SINGLE_GAME));
+        return List.of(new SimpleButton(NEW_SINGLE_GAME),
+                new SimpleButton(NEW_MULTIPLAYER_GAME),
+                new SimpleButton(JOIN_MULTIPLAYER_GAME));
+    }
+
+    /**
+     * Получить список кнопок ожидания начала матча
+     */
+    public List<SimpleButton> getAwaitingButtons() {
+        return List.of(new SimpleButton(QUIT_LOBBY));
+    }
+
+    /**
+     * Получить список кнопок доступных лобби
+     */
+    public List<IdentifiedButton> getLobbyButtons(Set<String> listOfLobbies) {
+        List<IdentifiedButton> lobbyButtons = new ArrayList<IdentifiedButton>();
+        for (String lobbyID : listOfLobbies) {
+            lobbyButtons.add(new IdentifiedButton(JOIN_COMMAND + " " + lobbyID, lobbyID));
+        }
+        return lobbyButtons;
     }
 
     /**

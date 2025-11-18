@@ -5,24 +5,19 @@ package org.example.states;
  */
 public class UserState {
     /**
-     * Начальная доска
+     * Вид мессенджера
      */
-    private final static byte[][] START_BOARD =
-            {
-                    {-2, -3, -4, -5, -6, -4, -3, -2},
-                    {-1, -1, -1, -1, -1, -1, -1, -1},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {2, 3, 4, 5, 6, 4, 3, 2}
-            };
+    public enum messengerType {
+        /**
+         * Telegram
+         */
+        TELEGRAM
+    }
 
     /**
      * Состояние пользователя
      */
-    public enum USER_STATE {
+    public enum userState {
         /**
          * Главное меню
          */
@@ -30,23 +25,21 @@ public class UserState {
         /**
          * В игре
          */
-        INGAME
+        INGAME,
+        /**
+         * В ожидании начала матча
+         */
+        AWAITING,
+        /**
+         * В поиске подходящего матча
+         */
+        CHOOSING
     }
-
-    /**
-     * Длина стороны доски
-     */
-    private final static int BOARD_SIDE_LENGTH = 8;
 
     /**
      * Текущее состояние пользователя
      */
-    private USER_STATE currentUserState;
-
-    /**
-     * Состояние игры
-     */
-    private GameState currentGameState;
+    private userState currentUserState;
 
     /**
      * Состояние готовности пользователя
@@ -54,40 +47,55 @@ public class UserState {
     private final MoveState currentMoveState;
 
     /**
+     * Тип мессенджера пользователя
+     */
+    private final messengerType messenger;
+
+    /**
+     * Идентфикатор матча. в котором находится пользователь
+     */
+    private String currentLobbyId;
+
+    /**
      * Конструктор класса
      */
-    public UserState() {
-        currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
-        currentUserState = USER_STATE.MAINMENU;
+    public UserState(messengerType userMessenger) {
+        currentUserState = userState.MAINMENU;
         currentMoveState = new MoveState();
+        messenger = userMessenger;
+        currentLobbyId = null;
     }
 
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(USER_STATE newUserState) {
+    public void setUserState(userState newUserState) {
         currentUserState = newUserState;
     }
 
     /**
-     * Перезапустить состояние игры
+     * Установить новый идентификатор матча
      */
-    public void resetGameState() {
-        currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
+    public boolean setCurrentLobbyId(String newLobbyId) {
+        if (currentLobbyId == null) {
+            currentLobbyId = newLobbyId;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Сбросить идентификатор матча
+     */
+    public void resetLobbyId() {
+        currentLobbyId = null;
     }
 
     /**
      * Получить текущее состояние пользователя
      */
-    public USER_STATE getUserState() {
+    public userState getUserState() {
         return currentUserState;
-    }
-
-    /**
-     * Получить текущее состояние игры
-     */
-    public GameState getGameState() {
-        return currentGameState;
     }
 
     /**
@@ -95,5 +103,19 @@ public class UserState {
      */
     public MoveState getMoveState() {
         return currentMoveState;
+    }
+
+    /**
+     * Получить тип мессенджера пользователя
+     */
+    public messengerType getUserMessenger() {
+        return messenger;
+    }
+
+    /**
+     * Получить идентифкатор матча
+     */
+    public String getCurrentLobbyId() {
+        return currentLobbyId;
     }
 }

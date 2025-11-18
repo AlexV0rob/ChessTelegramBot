@@ -2,10 +2,8 @@ package org.example;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import org.example.buttons.IdentifiedButton;
-import org.example.buttons.SimpleButton;
-
+import org.example.auxiliary.IdentifiedButton;
+import org.example.auxiliary.SimpleButton;
 import org.example.states.MoveState;
 
 import java.util.List;

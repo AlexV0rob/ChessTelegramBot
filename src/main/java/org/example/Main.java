@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.bots.TelegramBot;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
 /**

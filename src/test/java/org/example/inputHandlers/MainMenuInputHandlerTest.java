@@ -3,10 +3,6 @@ package org.example.inputHandlers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-import org.example.states.UserState;
-
-import java.util.List;
-
 /**
  * Проверка обрабтчика ввода в главном меню
  */
@@ -22,11 +18,9 @@ public class MainMenuInputHandlerTest {
 	 */
 	@Test
 	public void startGameTest() {
-		UserState userState = new UserState();
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
-		mainMenuInputHandler.processInput(
-				"Начать игру на этом устройстве", userState);
-		Assertions.assertEquals(userState.getUserState(), UserState.USER_STATE.INGAME);
+		String startGameString = mainMenuInputHandler.processInput(
+				"Начать игру на этом устройстве");
+		Assertions.assertEquals("newsinglegame", startGameString);
 	}
 	
 	/**
@@ -34,13 +28,7 @@ public class MainMenuInputHandlerTest {
 	 */
 	@Test
 	public void unknownQueryTest() {
-		UserState userState = new UserState();
-		userState.setUserState(UserState.USER_STATE.MAINMENU);
-		List<String> unknownQuery = mainMenuInputHandler.processInput(
-				"Какой-то запрос", userState);
-		Assertions.assertEquals(
-				userState.getUserState(), UserState.USER_STATE.MAINMENU);
-		Assertions.assertIterableEquals(
-				List.of("Неизвестный запрос меню"), unknownQuery);
+		String unknownQueryString = mainMenuInputHandler.processInput("Какой-то запрос");
+		Assertions.assertEquals("unknown", unknownQueryString);
 	}
 }

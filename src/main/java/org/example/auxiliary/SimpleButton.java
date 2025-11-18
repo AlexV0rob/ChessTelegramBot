@@ -1,4 +1,4 @@
-package org.example.buttons;
+package org.example.auxiliary;
 
 /**
  * Кнопка, содержащая только текст
