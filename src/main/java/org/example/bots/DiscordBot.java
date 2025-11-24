@@ -4,6 +4,8 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import org.example.Main;
@@ -40,10 +42,7 @@ public class DiscordBot implements Bot {
     public void consume() {
         discordClient.on(MessageCreateEvent.class).subscribe(event -> {
             Message message = event.getMessage();
-            if ("!ping".equals(message.getContent())) {
-                MessageChannel channel = message.getChannel().block();
-                channel.createMessage("Pong!").block();
-            }
+            processTextMessage(message.getContent(), message.getChannelId().asLong());
         });
     }
 
@@ -64,7 +63,7 @@ public class DiscordBot implements Bot {
 
         while (messagesTextsIterator.hasNext()) {
             String messageText = messagesTextsIterator.next();
-            if (messageText != null && !messageText.trim().isEmpty()) {
+            if (messageText != null) {
                 channel.createMessage(MessageCreateSpec.builder()
                         .content(messageText)
                         .build()).block();

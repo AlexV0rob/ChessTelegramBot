@@ -136,6 +136,40 @@ public class GameHandler {
      * проверка что ход на короля
      */
     private boolean isMateMove(PositionOnBoard finish, GameState gameState) {
+        byte[][] board = gameState.getBoard();
+        int kingRow = -1, kingColumn = -1;
+        if (gameState.isWhiteToMove()) {
+            for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
+                for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+                    if (board[i][j] == BLACK_KING) {
+                        kingRow = i;
+                        kingColumn = j;
+                    }
+                }
+
+            }
+            List<PositionOnBoard> kingsPossiblleMoves = allPossiblePositionsForFigure(board[kingRow][kingColumn],
+                    new PositionOnBoard(kingRow, kingColumn), gameState);
+            for (int i = minSideValue; i < maxSideValue; ++i) {
+                for (int j = minSideValue; j < maxSideValue; ++j) {
+                    if (board[i][j] < 0) {
+                        for (PositionOnBoard position : kingsPossiblleMoves) {
+                            if (FIGURES[Math.abs(board[i][j])].checkMove(new PositionOnBoard(i, j),
+                                    new PositionOnBoard(kingRow, kingColumn), gameState.getBoard())) {
+                                if (!canPlayerProtectKing(new PositionOnBoard(i, j), gameState)) {
+                                    kingsPossiblleMoves.remove(position);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return Math.abs(gameState.getBoard()[finish.row()][finish.column()]) == 6;
+    }
+
+    private boolean canPlayerProtectKing(PositionOnBoard enemyFigurePosition, GameState gameState) {
+        //TODO сделать проверку на защиту короля
+        return false;
     }
 }
