@@ -2,7 +2,6 @@ package org.example.bots;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +15,11 @@ public class FakeBot implements Bot {
 	private final Map<Long, List<String>> users = new HashMap<Long, List<String>>();
 	
 	@Override
-	public long sendMessages(long chatId, Iterator<String> messagesTextsIterator) {
+	public long sendMessages(long chatId, List<String> messagesTexts) {
 		users.putIfAbsent(chatId, new ArrayList<String>());
 		List<String> currentUserMessages = users.get(chatId);
-		while (messagesTextsIterator.hasNext()) {
-			currentUserMessages.add(messagesTextsIterator.next());
+		for (int i = 0; i < messagesTexts.size(); ++i) {
+			currentUserMessages.add(messagesTexts.get(i));
 		}
 		return -1;
 	}

@@ -19,9 +19,9 @@ public class UserStateTest {
 	public void modeChangingTest() {
 		userState.setUserState(UserState.UserStatus.INGAME);
 		Assertions.assertEquals(UserState.UserStatus.INGAME, 
-				userState.getUserState());
+				userState.getUserStatus());
 		userState.setUserState(UserState.UserStatus.MAINMENU);
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, 
-				userState.getUserState());
+				userState.getUserStatus());
 	}
 }

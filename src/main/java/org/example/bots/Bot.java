@@ -1,6 +1,6 @@
 package org.example.bots;
 
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Интерфейс бота
@@ -9,7 +9,7 @@ public interface Bot {
 	/**
 	 * Отправить список сообщений
 	 */
-	public long sendMessages(long chatId, Iterator<String> messagesTextsIterator);
+	public long sendMessages(long chatId, List<String> messagesTexts);
 	
 	/**
 	 * Редактировать сообщение по идентификатору или отправить новое, если 

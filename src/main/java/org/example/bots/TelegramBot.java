@@ -21,7 +21,6 @@ import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,14 +36,15 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
 	/**
 	 * Экземпляр класса MainLogic, обрабатывает входящие сообщения
 	 */
-	private MainLogic mainLogic = new MainLogic();
+	private final MainLogic logic;
 	
 	/**
 	 * Конструктор класса
 	 * Получение токена бота из Main
 	 */
-	public TelegramBot(String botToken) {
+	public TelegramBot(String botToken, MainLogic mainLogic) {
         telegramClient = new OkHttpTelegramClient(botToken);
+        logic = mainLogic;
     }
 	
     @Override
@@ -129,55 +129,49 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
      * Обработать текстовое сообщение, полученное от пользователя
      */
     private void processTextMessage(String incomingMessage, long chatId) {
-    	mainLogic.processInput(this, incomingMessage, chatId);
+    	logic.processInput(this, incomingMessage, chatId);
     }
     
     /**
      * Обработать callback запрос, полученный от пользователя
      */
     private void processCallbackQuery(String callbackData, long chatId) {
-        mainLogic.processInput(this, callbackData, chatId);
+        logic.processInput(this, callbackData, chatId);
     }
     
     @Override
-    public long sendMessages(long chatId, Iterator<String> messagesTextsIterator) {
-    	String currentMessageText = "";
-    	while (messagesTextsIterator.hasNext()) {
-        	currentMessageText = messagesTextsIterator.next();
-        	if (messagesTextsIterator.hasNext()) {
-        		sendMessage(chatId, currentMessageText, new ReplyKeyboardRemove(true));
-        	}
+    public long sendMessages(long chatId, List<String> messagesTexts) {
+    	String lastMessage = messagesTexts.removeLast();
+    	for (int i = 0; i < messagesTexts.size(); ++i) {
+        	sendMessage(chatId, messagesTexts.get(i), new ReplyKeyboardRemove(true));
         }
-    	if (!currentMessageText.isEmpty()) {
-    		List<SimpleButton> replyButtons = 
-    				mainLogic.getCurrentSimpleButtons(this, chatId);
-        	List<IdentifiedButton> inlineButtons = 
-        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
-        	ReplyKeyboard lastMessageKeyboard;
-        	if (!replyButtons.isEmpty()) {
-        		lastMessageKeyboard = ReplyKeyboardMarkup
-        				.builder()
-        				.keyboard(createReplyKeyboard(replyButtons))
-        				.resizeKeyboard(true)
-        				.selective(true)
-        				.oneTimeKeyboard(true)
-        				.build();
-        	} else if (!inlineButtons.isEmpty()) {
-        		lastMessageKeyboard = InlineKeyboardMarkup
-        				.builder()
-        				.keyboard(createInlineKeyboard(inlineButtons))
-        				.build();
-        	} else {
-        		lastMessageKeyboard = new ReplyKeyboardRemove(true);
-        	}
-        	long messageId = sendMessage(chatId, currentMessageText, lastMessageKeyboard);
-        	if (inlineButtons.isEmpty()) {
-        		return -1;
-        	} else {
-        		return messageId;
-        	}
-    	}
-    	return -1;
+    	List<SimpleButton> replyButtons = 
+    			logic.getCurrentSimpleButtons(this, chatId);
+        List<IdentifiedButton> inlineButtons = 
+        		logic.getCurrentIdentifiedButtons(this, chatId);
+        ReplyKeyboard lastMessageKeyboard;
+        if (!replyButtons.isEmpty()) {
+        	lastMessageKeyboard = ReplyKeyboardMarkup
+        			.builder()
+        			.keyboard(createReplyKeyboard(replyButtons))
+        			.resizeKeyboard(true)
+        			.selective(true)
+        			.oneTimeKeyboard(true)
+        			.build();
+        } else if (!inlineButtons.isEmpty()) {
+        	lastMessageKeyboard = InlineKeyboardMarkup
+        			.builder()
+        			.keyboard(createInlineKeyboard(inlineButtons))
+        			.build();
+        } else {
+        	lastMessageKeyboard = new ReplyKeyboardRemove(true);
+        }
+        long messageId = sendMessage(chatId, lastMessage, lastMessageKeyboard);
+        if (inlineButtons.isEmpty()) {
+        	return -1;
+        } else {
+        	return messageId;
+        }
     }
     
     @Override
@@ -186,7 +180,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
     	InlineKeyboardMarkup editedMessageKeyboard = null;
         if (!moreMessages) {
         	List<IdentifiedButton> inlineButtons = 
-        			mainLogic.getCurrentIdentifiedButtons(this, chatId);
+        			logic.getCurrentIdentifiedButtons(this, chatId);
         	editedMessageKeyboard = InlineKeyboardMarkup
         			.builder()
         			.keyboard(createInlineKeyboard(inlineButtons))

@@ -67,7 +67,7 @@ public class UserState {
         currentUserState = UserStatus.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
-        currentLobbyId = null;
+        currentLobbyId = "";
     }
 
     /**
@@ -81,7 +81,7 @@ public class UserState {
      * Установить новый идентификатор матча
      */
     public boolean setCurrentLobbyId(String newLobbyId) {
-        if (currentLobbyId == null) {
+        if (currentLobbyId.equals("")) {
             currentLobbyId = newLobbyId;
             return true;
         }
@@ -92,13 +92,13 @@ public class UserState {
      * Сбросить идентификатор матча
      */
     public void resetLobbyId() {
-        currentLobbyId = null;
+        currentLobbyId = "";
     }
 
     /**
      * Получить текущее состояние пользователя
      */
-    public UserStatus getUserState() {
+    public UserStatus getUserStatus() {
         return currentUserState;
     }
 

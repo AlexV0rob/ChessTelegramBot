@@ -13,14 +13,12 @@ public class LobbyStateTest {
 	@Test
 	public void secondIdTest() {
 		LobbyState lobbyState = 
-				new LobbyState(1, LobbyState.LobbyType.SINGLEPLAYER);
-		lobbyState.setSecondPlayerId(2);
+				new LobbyState(1, 2, true, LobbyState.LobbyType.SINGLEPLAYER);
 		Assertions.assertEquals(1, lobbyState.getFirstPlayerId());
 		Assertions.assertEquals(2, lobbyState.getSecondPlayerId());
+		Assertions.assertTrue(lobbyState.isFirstPlayerToMove());
 		Assertions.assertEquals(
 				LobbyState.LobbyType.SINGLEPLAYER, 
 				lobbyState.getLobbyType());
-		lobbyState.setSecondPlayerId(3);
-		Assertions.assertEquals(2, lobbyState.getSecondPlayerId());
 	}
 }

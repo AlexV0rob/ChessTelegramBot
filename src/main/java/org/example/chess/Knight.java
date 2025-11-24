@@ -84,7 +84,7 @@ public class Knight implements Chessmen {
         }
 
         if (startRow - FIRST_PART_OF_SHIFT >= minSideValue && startColumn + SECOND_PART_OF_SHIFT <= maxSideValue &&
-                (board[startRow - FIRST_PART_OF_SHIFT][startColumn - SECOND_PART_OF_SHIFT] == 0 ||
+                (board[startRow - FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT] == 0 ||
                         board[startRow - FIRST_PART_OF_SHIFT][startColumn + SECOND_PART_OF_SHIFT]
                                 * board[startRow][startColumn] < 0)) {
             possibleMoves.add(new PositionOnBoard(startRow - FIRST_PART_OF_SHIFT,
