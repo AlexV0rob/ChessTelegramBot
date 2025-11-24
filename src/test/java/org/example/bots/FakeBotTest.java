@@ -3,7 +3,6 @@ package org.example.bots;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -20,12 +19,10 @@ public class FakeBotTest {
 	 */
 	@Test
 	public void clearMessageTest() {
-		Iterator<String> messagesFirstIterator = 
-				List.of("message 1", "message 2").iterator();
-		Iterator<String> messagesSecondIterator = 
-				List.of("message 3").iterator();
-		fakeBot.sendMessages(1, messagesFirstIterator);
-		fakeBot.sendMessages(2, messagesSecondIterator);
+		List<String> messagesFirst = List.of("message 1", "message 2");
+		List<String> messagesSecond = List.of("message 3");
+		fakeBot.sendMessages(1, messagesFirst);
+		fakeBot.sendMessages(2, messagesSecond);
 		fakeBot.clearMessages();
 		Assertions.assertEquals(
 				null, 
@@ -41,12 +38,10 @@ public class FakeBotTest {
 	@Test
 	public void sendMessageTest() {
 		fakeBot.clearMessages();
-		Iterator<String> messagesFirstIterator = 
-				List.of("message 1", "message 2").iterator();
-		Iterator<String> messagesSecondIterator = 
-				List.of("message 3").iterator();
-		fakeBot.sendMessages(1, messagesFirstIterator);
-		fakeBot.sendMessages(2, messagesSecondIterator);
+		List<String> messagesFirst = List.of("message 1", "message 2");
+		List<String> messagesSecond = List.of("message 3");
+		fakeBot.sendMessages(1, messagesFirst);
+		fakeBot.sendMessages(2, messagesSecond);
 		Assertions.assertIterableEquals(
 				List.of("message 1", "message 2"), 
 				fakeBot.getAccumulatedMessages(1));
@@ -61,8 +56,8 @@ public class FakeBotTest {
 	@Test
 	public void editMessageTest() {
 		fakeBot.clearMessages();
-		Iterator<String> messagesIterator = List.of("message 1", "message 2").iterator();
-		fakeBot.sendMessages(1, messagesIterator);
+		List<String> messages = List.of("message 1", "message 2");
+		fakeBot.sendMessages(1, messages);
 		fakeBot.editMessage(1, 0, "message 3", false);
 		Assertions.assertEquals(
 				"message 3", 

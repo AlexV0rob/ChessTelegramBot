@@ -1,9 +1,5 @@
 package org.example.chess;
 
-import org.example.states.GameState;
-
-import java.util.List;
-
 /**
  * Класс обработки хода
  */
@@ -12,6 +8,10 @@ public class GameHandler {
      * Статус хода
      */
     public enum MoveProperty {
+    	/**
+    	 * Начало игры
+    	 */
+    	START,
         /**
          * Неправильный ход
          */
@@ -69,36 +69,27 @@ public class GameHandler {
     /**
      * Возвращает статус хода
      */
-    public MoveProperty processMove(int figureCode, PositionOnBoard start,
-                                    PositionOnBoard finish, GameState currentGameState) {
+    public MoveProperty processMove(int figureCode, PositionOnBoard start, 
+    		PositionOnBoard finish, byte[][] chessboard, boolean isWhiteToMove) {
         if ((start.row() < minSideValue || start.row() > maxSideValue) ||
                 (start.column() < minSideValue || start.column() > maxSideValue) ||
                 (finish.row() < minSideValue || finish.row() > maxSideValue) ||
                 (finish.column() < minSideValue || finish.column() > maxSideValue) ||
                 (figureCode < 0 || figureCode >= FIGURES_COUNT) ||
-                (currentGameState.getBoard()[start.row()][start.column()] < 0 !=
-                        currentGameState.isWhiteToMove())) {
+                (chessboard[start.row()][start.column()] < 0 != isWhiteToMove)) {
             return MoveProperty.INVALID;
         }
-        if (!FIGURES[figureCode].checkMove(start, finish, currentGameState.getBoard())) {
+        if (!FIGURES[figureCode].checkMove(start, finish, chessboard)) {
             return MoveProperty.IMPOSSIBLE;
         }
         MoveProperty move = MoveProperty.REGULAR;
-        if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
+        if (isCheckMove(figureCode, finish, chessboard)) {
             move = MoveProperty.CHECK;
         }
-        if (isMateMove(finish, currentGameState)) {
+        if (isMateMove(finish, chessboard)) {
             move = MoveProperty.MATE;
         }
         return move;
-    }
-
-    /**
-     * Получение всех доступных позиций для фигуры в конкретной клетке
-     */
-    public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
-                                                               GameState currentGameState) {
-        return FIGURES[figureCode].allPossibleMoves(start, currentGameState.getBoard());
     }
 
     /**
@@ -135,7 +126,7 @@ public class GameHandler {
     /**
      * проверка что ход на короля
      */
-    private boolean isMateMove(PositionOnBoard finish, GameState gameState) {
-        return Math.abs(gameState.getBoard()[finish.row()][finish.column()]) == 6;
+    private boolean isMateMove(PositionOnBoard finish, byte[][] chessboard) {
+        return Math.abs(chessboard[finish.row()][finish.column()]) == 6;
     }
 }

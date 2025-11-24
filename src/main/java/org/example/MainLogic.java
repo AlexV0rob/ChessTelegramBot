@@ -4,71 +4,46 @@ import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.Bot;
 import org.example.bots.TelegramBot;
-import org.example.chess.GameHandler;
-import org.example.chess.PositionOnBoard;
-import org.example.states.MoveState;
-import org.example.states.GameState;
-import org.example.states.LobbyState;
 import org.example.states.UserState;
-
+import org.example.statesHandlers.StatesHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * Главный логический модуль, получает идентификатор пользователя и
  * передаёт управление необходимому обработчику
  */
 public class MainLogic {
+	/**
+	 * Хранитель и обработчик состояний пользователей в памяти
+	 */
+	private final StatesHandler statesHandler;
+	
+	/**
+	 * Обработчик команд
+	 */
+	private final CommandHandler commandHandler;
+	
+	/**
+	 * Обработчик игрового ввода
+	 */
+	private final GameInputHandler gameInputHandler;
+	
     /**
      * Создатель кнопок
      */
     private final ButtonsCreator buttonsCreator = new ButtonsCreator();
     
     /**
-     * Переводчик игры для вывода текста пользователю
-     */
-    private final GameTranslator gameTranslator = new GameTranslator();
-    
-    /**
-     * Обработчик игры
-     */
-    private final GameHandler gameHandler = new GameHandler();
-    
-    /**
-     * Конвертер частей хода
-     */
-    private final MovePartsConverter movePartsConverter = new MovePartsConverter();
-    
-    /**
      * Конвертер текстов кнопок
      */
     private final MenuButtonsConverter menuButtonsConverter = new MenuButtonsConverter();
-    
-    /**
-     * Ассоциативный массив с соответствием идентификатора пользователя и
-     * его состояния
-     */
-    private Map<Long, UserState> users = new HashMap<Long, UserState>();
-
-    /**
-     * Ассоциативный массив с соответствием идентификатора матча и его
-     * состоянием. Если название зарезервировано, но сам матч ещё не
-     * начался, то вместо состояния будет null
-     */
-    private Map<String, LobbyState> games = new HashMap<String, LobbyState>();
-    
-    /**
-	 * Ассоциативный массив с соответствием идентификатора пользователя и 
-	 * идентификатором последнего отправленного ему сообщения
-	 */
-	private Map<Long, Long> messages = new HashMap<Long, Long>();
 
     /**
      * Экземпляр TelegramBot для отправки сообщений в Телеграм
@@ -91,7 +66,7 @@ public class MainLogic {
      * в виде callback запроса
      */
     private final static Pattern MOVE_PART_PATTERN =
-            Pattern.compile("^__((?:[prbnqkPRBNQK])|(?:[a-hA-H][1-8]))__$");
+            Pattern.compile("^__([prbnqkPRBNQK]|(?:[a-hA-H][1-8])|cancel)__$");
     
     /**
      * Скомпилированное регулярное выражение, соответствующее кнопке выбора матча
@@ -104,106 +79,79 @@ public class MainLogic {
      */
     private final static String START_MESSAGE = """
             Здравствуй, путник! Я бот о шахматах. Сейчас я умею:
-             - запускать игру на одном устройстве
+             - создавать матч на одном устройстве
+             - создавать онлайн матч
             
-            Пока что я могу только это, но список возможностей 
-            """ + """
-            будет пополняться с течением разработки. 
+            Пока что я могу только это, но список возможностей будет пополняться с течением разработки. 
             Отправь /help для большей информации.
             """;
+    
     /**
      * Сообщение команды /help
      */
     private final static String HELP_MESSAGE = """
             Сейчас я могу:
-             - запускать игру на одном устройстве
+             - создавать матч на одном устройстве
+             - создавать онлайн матч
             
             Доступные команды:
             /start - перезапускает бота
-            /help - позволяет это сообщение
-            /newsinglegame - начинает новую игру на одном устройстве
+            /help - показывает это сообщение
+            /new_local - начинает новую игру на одном устройстве
+            /create <argument> - переходит в режим создания матча или сразу создаёт с названием
+            /join <argument> - переходит в режим создания матча или присоединияется по названию
+            /quit - выходит в главное меню
             
             Скоро будет больше возможностей.
             """;
-    /**
-     * Ответ на неизветную команду
-     */
-    private final static String UNKNOWN_MESSAGE = "Неизвестная команда";
+    
     /**
      * Сообщение в меню
      */
     private final static String MENU_MESSAGE = "Чем займёмся?";
+    
     /**
      * Сообщение о начале игры
      */
     private final static String GAME_STARTED = "Игра началась";
-
-    /**
-	 * Пригласительное сообщение к ходу
-	 */
-	private final static String YOUR_MOVE = "Ваш ход: ";
-	
-	/**
-	 * Сообщение о ходе оппонента
-	 */
-	private final static String NOT_YOUR_MOVE = "Сейчас ходит противник.";
-
-    /**
-     * Сообщение о ходе противника
-     */
-    private final static String OPPONENTS_MOVE =
-            "Вы не можете сейчас ходить. Дождитесь хода противника.";
 	
 	/**
 	 * Сообщение о досрочном завершении матча
 	 */
 	private final static String SURRENDERED = "Ваш противник вышел. Матч завершён.";
-	
-	/**
-	 * Пригласительное сообщение к вводу названия матча
-	 */
-	private final static String MAKE_UP_NAME = 
-			"Придумайте название для матча (не более 16 символов):";
-	
-	/**
-	 * Сообщение о занятом названии матча
-	 */
-	private final static String OCCUPIED = 
-			"Извините, данное название уже занято. Придумайте другое:";
-	
-	/**
-	 * Сообщение о слишком длинном названии матча
-	 */
-	private final static String TOO_LONG = 
-			"Извините, название должно быть не более 16 символов. Придумайте другое:";
-	
+
 	/**
 	 * Сообщение об успешном создании матча
 	 */
-	private final static String GAME_CREATED = """
+	private final static String LOBBY_BOOKED = """
 			Матч %s создан и доступен для других игроков.
 			Ожидайте присоединения противника
 			""";
 	
-	/**
-	 * Сообщение со списком доступных матчей
-	 */
-	private final static String LOBBIES_LIST = """
-			Вот список доступных сейчас матчей.
-			Нажмите на название или введите его, чтобы присоединиться.
-			Введите /quit, чтобы выйти.
-			""";
-
-
     /**
-     * Сообщение о невозможности подключиться к матчу
+     * Сообщение о ходе противника
      */
-    private final static String JOIN_ERROR = "Этот матч уже начат, Вы не можете к нему подключиться";
-	
+    private final static String OPPONENTS_MOVE =
+            "Вы не можете сейчас ходить. Дождитесь хода противника.";
+    
     /**
-     * Сообщение об отсутствии матча
+     * Сообщение о неизвестном типе вводда в игре
      */
-    private final static String LOBBY_ERROR = "Матча с таким идентификатором не существует";
+    private final static String UNKNOWN_GAME_INPUT = "Неизвестный тип ввода";
+    
+    /**
+     * Ответ на неизвестную команду
+     */
+    private final static String UNKNOWN_COMMAND = "Неизвестная команда";
+    
+    /**
+     * Конструктор, требует хранителя состояний
+     */
+    public MainLogic(StatesHandler currentStatesHandler) {
+    	statesHandler = currentStatesHandler;
+    	commandHandler = new CommandHandler(currentStatesHandler);
+    	gameInputHandler = new GameInputHandler(currentStatesHandler);
+    }    
     
     /**
      * Обработать ввод в соответствии с режимом пользователя
@@ -212,114 +160,63 @@ public class MainLogic {
         if (bot instanceof TelegramBot && tgBot == null) {
             tgBot = (TelegramBot) bot;
         }
-        if (!users.containsKey(chatId)) {
+        if (!statesHandler.isUserExisting(chatId)) {
             UserState.MessengerType newUserMessenger = null;
             if (bot instanceof TelegramBot) {
                 newUserMessenger = UserState.MessengerType.TELEGRAM;
             }
-            users.put(chatId, new UserState(newUserMessenger));
-        }
-        UserState currentUserState = users.get(chatId);
-        long secondChatId = 0;
-        UserState secondUserState = null;
-        String lobbyId = currentUserState.getCurrentLobbyId();
-        LobbyState lobbyState = games.get(lobbyId);
-        if (lobbyState != null && lobbyState.getAnotherPlayerId(chatId) != 0) {
-        	secondChatId = lobbyState.getAnotherPlayerId(chatId);
-        	secondUserState = users.get(secondChatId);
-        }
-        List<String> responseMessagesFirst = new ArrayList<String>();
-        List<String> responseMessagesSecond = new ArrayList<String>();
+            statesHandler.addNewUser(chatId, newUserMessenger);
+        }        
         Matcher command = COMMAND_PATTERN.matcher(userInput);
+        ImmutablePair<List<String>, List<String>> responseMessages = null;
+    	long secondChatId = 0;
+    	String lobbyName = statesHandler.getUserLobbyName(chatId);
+    	if (!lobbyName.isEmpty()) {
+    		secondChatId = statesHandler.getLobbyAnotherUserId(lobbyName, chatId);
+    	}
         if (command.find()) {
-        	processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-        			lobbyId, command.group(1), command.group(2), 
-        			responseMessagesFirst, responseMessagesSecond);
-        } else {
-            switch (currentUserState.getUserState()) {
-                case UserState.UserStatus.MAINMENU -> {
-                	String commandEquivalent = menuButtonsConverter.getMenuCommand(userInput);
-                	processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-                			lobbyId, commandEquivalent, "", 
-                			responseMessagesFirst, responseMessagesSecond);
-                }
-                case UserState.UserStatus.AWAITING -> {
-                	String commandEquivalent = menuButtonsConverter.getMenuCommand(userInput);
-                	processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-                			lobbyId, commandEquivalent, "", 
-                			responseMessagesFirst, responseMessagesSecond);
-                }
-                case UserState.UserStatus.CREATING -> {
-                	processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-                			lobbyId, "creategame", userInput, 
-                			responseMessagesFirst, responseMessagesSecond);
-                }
-                case UserState.UserStatus.CHOOSING -> {
-                	Matcher callbackMatch = LOBBY_BUTTON_PATTERN.matcher(userInput);
-                	if (callbackMatch.find()) {
-                    	processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-                    			lobbyId, "joingame", callbackMatch.group(1), 
-                    			responseMessagesFirst, responseMessagesSecond);
-                	} else {
-                		processCommand(chatId, secondChatId, currentUserState, secondUserState, 
-                    			lobbyId, "joingame", userInput, 
-                    			responseMessagesFirst, responseMessagesSecond);
-            		}
-                }
-                case UserState.UserStatus.INGAME -> {
-                    if (lobbyState != null) {
-                    	processGame(chatId, secondChatId, currentUserState, 
-                    			secondUserState, lobbyState, lobbyId, userInput, 
-                    			responseMessagesFirst, responseMessagesSecond);
-                    }
-                }
-                default -> {
-                	processCommand(chatId, secondChatId, currentUserState, 
-                			secondUserState, lobbyId, "start", "", 
-                			responseMessagesFirst, responseMessagesSecond);
-                }
-            }
-        }
-        if (messages.get(chatId) != null && messages.get(chatId) >= 0) {
-            String messageToEdit = responseMessagesFirst.removeFirst();
-        	editMessageOf(chatId, messages.get(chatId), messageToEdit, 
-        			!responseMessagesFirst.isEmpty(), bot);
-        }
-        if (!responseMessagesFirst.isEmpty()) {
-        	sendMessagesTo(chatId, responseMessagesFirst.iterator(), bot);
-        }
-        long otherChatId = secondChatId;
-        if (otherChatId == 0 && games.containsKey(currentUserState.getCurrentLobbyId())) {
-        	otherChatId = games.get(currentUserState.getCurrentLobbyId()).getAnotherPlayerId(chatId);
-        }
-        if (otherChatId > 0 && otherChatId != chatId) {
-        	UserState.MessengerType otherUserMessenger = 
-        			users.get(otherChatId).getUserMessenger();
-        	if (otherUserMessenger != null) {
-        		switch (users.get(otherChatId).getUserMessenger()) {
-        		case UserState.MessengerType.TELEGRAM -> {
-        			sendMessagesTo(otherChatId, responseMessagesSecond.iterator(), tgBot);
-        		}
-        		} 
-        	} else {
-        		sendMessagesTo(otherChatId, responseMessagesSecond.iterator(), bot);
+        	String argument = command.group(2);
+        	if (argument == null) {
+        		argument = "";
         	}
+        	responseMessages = handleCommand(chatId, command.group(1), argument);
+        } else {
+        	responseMessages = handleByMode(chatId, userInput);
         }
+        lobbyName = statesHandler.getUserLobbyName(chatId);
+    	if (!lobbyName.isEmpty()) {
+    		secondChatId = statesHandler.getLobbyAnotherUserId(lobbyName, chatId);
+    	}
+		List<String> firstMessages = responseMessages.getKey();
+		List<String> secondMessages = responseMessages.getValue();
+    	if (!firstMessages.isEmpty()) {
+    		long messageId = statesHandler.getUserMessageId(chatId);
+    		if (messageId >= 0) {
+    			String messageText = firstMessages.removeFirst();
+    			editMessage(bot, chatId, messageId, messageText, !firstMessages.isEmpty());
+    		}
+    		if (!firstMessages.isEmpty()) {
+    			sendMessages(bot, chatId, firstMessages);
+    		}
+    	}
+    	if (!secondMessages.isEmpty() && secondChatId != 0 && secondChatId != chatId) {
+    		sendMessages(bot, secondChatId, secondMessages);    		
+    	}
     }
+        
     
     /**
      * Получить простые кнопки в соответствии с режимом пользователя
      */
     public List<SimpleButton> getCurrentSimpleButtons(Bot bot, long chatId) {
-        if (!users.containsKey(chatId)) {
+        if (!statesHandler.isUserExisting(chatId)) {
             UserState.MessengerType newUserMessenger = null;
             if (bot instanceof TelegramBot) {
                 newUserMessenger = UserState.MessengerType.TELEGRAM;
             }
-            users.put(chatId, new UserState(newUserMessenger));
+            statesHandler.addNewUser(chatId, newUserMessenger);
         }
-        UserState currentUserState = users.get(chatId);
-        switch (currentUserState.getUserState()) {
+        switch (statesHandler.getUserStatus(chatId)) {
             case UserState.UserStatus.AWAITING:
                 return buttonsCreator.getAwaitingButtons();
             case UserState.UserStatus.MAINMENU:
@@ -336,342 +233,177 @@ public class MainLogic {
      * Получить идентифицированные кнопки в соответствии с режимом пользователя
      */
     public List<IdentifiedButton> getCurrentIdentifiedButtons(Bot bot, long chatId) {
-        if (!users.containsKey(chatId)) {
+        if (!statesHandler.isUserExisting(chatId)) {
             UserState.MessengerType newUserMessenger = null;
             if (bot instanceof TelegramBot) {
                 newUserMessenger = UserState.MessengerType.TELEGRAM;
             }
-            users.put(chatId, new UserState(newUserMessenger));
+            statesHandler.addNewUser(chatId, newUserMessenger);
         }
-        UserState currentUserState = users.get(chatId);
-        switch (currentUserState.getUserState()) {
+        switch (statesHandler.getUserStatus(chatId)) {
             case UserState.UserStatus.MAINMENU:
             case UserState.UserStatus.AWAITING:
             case UserState.UserStatus.CREATING:
                 return List.of();
             case UserState.UserStatus.INGAME:
-                String lobbyId = currentUserState.getCurrentLobbyId();
-                LobbyState lobbyState = games.get(lobbyId);
-                if (lobbyState != null) {
-                	if ((chatId == lobbyState.getFirstPlayerId() && 
-                    		lobbyState.isFirstPlayerToMove()) || 
-                    		(chatId == lobbyState.getSecondPlayerId() && 
-                    		!lobbyState.isFirstPlayerToMove())) {
+                String lobbyName = statesHandler.getUserLobbyName(chatId);
+                if (statesHandler.isLobbyExisting(lobbyName)) {
+                	if (userCanMove(chatId, lobbyName)) {
                     	return buttonsCreator.getGameButtons(
-                    			currentUserState.getMoveState(),
-                            	lobbyState.getGameState().getBoard(),
-                            	lobbyState.getGameState().isWhiteToMove());
+                    			statesHandler.getUserMovePartFigure(chatId),
+                    			statesHandler.getUserMovePartStart(chatId),
+                    			statesHandler.getUserMovePartFinish(chatId),
+                    			statesHandler.getGameChessboard(lobbyName),
+                    			statesHandler.isGameWhiteToMove(lobbyName));
                 	}
                 }
                 return List.of();
             case UserState.UserStatus.CHOOSING:
-                List<String> listOfLobbiesID = List.copyOf(games.keySet());
+                List<String> listOfLobbiesID = statesHandler.getBookedLobbies();
                 return buttonsCreator.getLobbyButtons(listOfLobbiesID);
         }
         return List.of();
     }
     
     /**
-     * Реализовать ход
-     */
-    private GameHandler.MoveProperty makeMove(String figure, String start, 
-    		String finish, GameState gameState) {
-    	int figureCode = movePartsConverter
-        		.getFigureCode(
-        				figure);
-        int startPositionRow = movePartsConverter
-        		.getPositionRowCode(
-        				start.charAt(1));
-        int startPositionColumn = movePartsConverter
-        		.getPositionColumnCode(
-        				start.charAt(0));
-        int finishPositionRow = movePartsConverter
-        		.getPositionRowCode(
-        				finish.charAt(1));
-        int finishPositionColumn = movePartsConverter
-        		.getPositionColumnCode(
-        				finish.charAt(0));
-        GameHandler.MoveProperty moveProperty =  gameHandler.processMove(
-        		figureCode - 1, 
-        		new PositionOnBoard(startPositionRow, startPositionColumn), 
-        		new PositionOnBoard(finishPositionRow, finishPositionColumn), 
-        		gameState);
-        if (!moveProperty.equals(GameHandler.MoveProperty.IMPOSSIBLE) && 
-        		!moveProperty.equals(GameHandler.MoveProperty.INVALID)) {
-        	gameState.moveFigure(
-					new PositionOnBoard(
-							startPositionRow, 
-							startPositionColumn), 
-					new PositionOnBoard(
-							finishPositionRow, 
-							finishPositionColumn));
-        	if (!moveProperty.equals(GameHandler.MoveProperty.MATE)) {
-        		gameState.changeSide();
-        	}
-        }
-        return moveProperty;
-    }
-    
-    /**
-     * Обработать команду
-     */
-    private void processCommand(long chatId, long secondChatId, 
-    		UserState currentUserState, UserState secondUserState, 
-    		String lobbyId, String command, String argument, 
-    		List<String> responseMessagesFirst, List<String> responseMessagesSecond) {
-    	switch (command) {
-        case "start", "quit" -> {
-            if (command.equals("start")) {
-            	responseMessagesFirst.add(START_MESSAGE);
-            }
-            responseMessagesFirst.add(MENU_MESSAGE);
-            currentUserState.setUserState(UserState.UserStatus.MAINMENU);
-            currentUserState.resetLobbyId();
-            currentUserState.getMoveState().clearMoveState();
-            if (secondChatId > 0 && secondChatId != chatId) {
-                secondUserState.setUserState(UserState.UserStatus.MAINMENU);
-                secondUserState.resetLobbyId();
-                secondUserState.getMoveState().clearMoveState();
-                responseMessagesSecond.add(SURRENDERED);
-                responseMessagesSecond.add(MENU_MESSAGE);
-            }
-            games.remove(lobbyId);
-        }
-        case "help" -> {
-        	responseMessagesFirst.add(HELP_MESSAGE);
-        }
-        case "newsinglegame" -> {
-        	LobbyState newLobbyState = new LobbyState(
-        			chatId, LobbyState.LobbyType.SINGLEPLAYER);
-        	newLobbyState.setSecondPlayerId(chatId);
-        	games.put(String.valueOf(chatId), newLobbyState);
-        	responseMessagesFirst.add(GAME_STARTED);
-        	responseMessagesFirst.add(
-        			gameTranslator.chessboardString(
-        					GameHandler.MoveProperty.REGULAR, 
-        					newLobbyState.getGameState().getBoard(), 
-        					true, true));
-        	responseMessagesFirst.add(YOUR_MOVE);
-            currentUserState.setUserState(UserState.UserStatus.INGAME);
-            currentUserState.resetLobbyId();
-            currentUserState.setCurrentLobbyId(String.valueOf(chatId));
-        }
-        case "creategame" -> {
-        	if (argument == null || argument.isEmpty()) {
-                currentUserState.setUserState(UserState.UserStatus.CREATING);
-        		responseMessagesFirst.add(MAKE_UP_NAME);
-        	} else {
-        		if (games.containsKey(argument)) {
-                    currentUserState.setUserState(UserState.UserStatus.CREATING);            			
-            		responseMessagesFirst.add(OCCUPIED);
-        		} else if (argument.length() > 16) {
-                    currentUserState.setUserState(UserState.UserStatus.CREATING);
-            		responseMessagesFirst.add(TOO_LONG);
-        		} else {
-            		responseMessagesFirst.add(GAME_CREATED.formatted(argument));
-            		LobbyState newLobbyState = new LobbyState(
-                			chatId, LobbyState.LobbyType.MULTIPLAYER);
-                	games.put(argument, newLobbyState);
-        			currentUserState.setUserState(UserState.UserStatus.AWAITING);
-                    currentUserState.resetLobbyId();
-                    currentUserState.setCurrentLobbyId(argument);
-        		}
-        	}
-        }
-        case "joingame" -> {
-        	if (argument == null || argument.isEmpty()) {
-                currentUserState.setUserState(UserState.UserStatus.CHOOSING);
-        		responseMessagesFirst.add(LOBBIES_LIST);
-        	} else {
-        		if (games.containsKey(argument) && 
-        				games.get(argument).getSecondPlayerId() == 0) {
-        			LobbyState otherLobbyState = games.get(argument);
-        			otherLobbyState.setSecondPlayerId(chatId);
-        			long otherChatId = otherLobbyState.getAnotherPlayerId(chatId);
-        			UserState otherUserState = users.get(otherChatId);
-        			currentUserState.setUserState(UserState.UserStatus.INGAME);
-        			otherUserState.setUserState(UserState.UserStatus.INGAME);
-                    currentUserState.resetLobbyId();
-                    currentUserState.setCurrentLobbyId(argument);
-                    responseMessagesFirst.add(GAME_STARTED);
-                    responseMessagesFirst.add(
-                    		gameTranslator.chessboardString(
-                    				GameHandler.MoveProperty.REGULAR, 
-                    				otherLobbyState.getGameState().getBoard(), 
-                    				true, 
-                    				!otherLobbyState.isFirstPlayerToMove()));
-                    if (otherLobbyState.isFirstPlayerToMove()) {
-                    	responseMessagesFirst.add(NOT_YOUR_MOVE);
-                    } else {
-                    	responseMessagesFirst.add(YOUR_MOVE);
-                    }
-                    responseMessagesSecond.add(GAME_STARTED);
-                    responseMessagesSecond.add(
-                    		gameTranslator.chessboardString(
-                    				GameHandler.MoveProperty.REGULAR, 
-                    				otherLobbyState.getGameState().getBoard(), 
-                    				true, 
-                    				otherLobbyState.isFirstPlayerToMove()));
-                    if (otherLobbyState.isFirstPlayerToMove()) {
-                    	responseMessagesSecond.add(YOUR_MOVE);
-                    } else {
-                    	responseMessagesSecond.add(NOT_YOUR_MOVE);
-                    }
-                    secondChatId = otherChatId;
-                    secondUserState = otherUserState;
-        		} else if (!games.containsKey(argument)) {
-                    currentUserState.setUserState(UserState.UserStatus.CHOOSING);
-            		responseMessagesFirst.add(LOBBY_ERROR);
-        		} else {
-        			currentUserState.setUserState(UserState.UserStatus.CHOOSING);
-            		responseMessagesFirst.add(JOIN_ERROR);
-        		}
-        	}
-        }
-        default -> {
-        	responseMessagesFirst.add(UNKNOWN_MESSAGE);
-        }
-    	}
-    }
-    
-    /**
-     * Обработать игру
-     */
-    private void processGame(long chatId, long secondChatId, 
-    		UserState currentUserState, UserState secondUserState, 
-    		LobbyState lobbyState, String lobbyId, String userInput, 
-    		List<String> responseMessagesFirst, List<String> responseMessagesSecond) {
-    	if ((chatId == lobbyState.getFirstPlayerId() && 
-        		lobbyState.isFirstPlayerToMove()) || 
-        		(chatId == lobbyState.getSecondPlayerId() && 
-        		!lobbyState.isFirstPlayerToMove())) {
-        	Matcher notationMatch = NOTATION_PATTERN.matcher(userInput);
-        	Matcher callbackMatch = MOVE_PART_PATTERN.matcher(userInput);
-        	MoveState currentMoveState = currentUserState.getMoveState();
-        	if (callbackMatch.find()) {
-        		String movePart = callbackMatch.group(1).toLowerCase();
-        		if (!movePart.isEmpty()) {
-        			currentMoveState.nextStatus(movePart);
-        		}
-        		String currentFigure = currentMoveState.getFigure();
-        		String currentStartPosition = currentMoveState.getStartPosition();
-        		String currentFinishPosition = currentMoveState.getFinishPosition();
-        		String moveMessage = YOUR_MOVE;
-        		if (!currentFigure.isEmpty()) {
-        			moveMessage += movePartsConverter.getFigureName(currentFigure);
-        		}
-        		if (!currentStartPosition.isEmpty()) {
-        			moveMessage += " " + currentStartPosition.toUpperCase();
-        		}
-        		if (!currentFinishPosition.isEmpty()) {
-        			moveMessage += " " + currentFinishPosition.toUpperCase();
-        		}
-        		responseMessagesFirst.add(moveMessage);
-        	}
-        	if (notationMatch.find() || currentMoveState.isMoveReady()) {
-        		boolean oldSide = lobbyState.getGameState().isWhiteToMove();
-        		GameHandler.MoveProperty moveProperty = null;
-        		if (currentMoveState.isMoveReady()) {
-        			moveProperty = makeMove(
-        					currentMoveState.getFigure(), 
-        					currentMoveState.getStartPosition(), 
-        					currentMoveState.getFinishPosition(), 
-        					lobbyState.getGameState());
-        		} else {
-        			moveProperty = makeMove(
-        					notationMatch.group(1).toLowerCase(), 
-        					notationMatch.group(2).toLowerCase(), 
-        					notationMatch.group(3).toLowerCase(), 
-        					lobbyState.getGameState());
-        		}
-        		currentMoveState.clearMoveState();
-        		switch (moveProperty) {
-        		case GameHandler.MoveProperty.IMPOSSIBLE,
-        		GameHandler.MoveProperty.INVALID -> {
-        			responseMessagesFirst.add(
-        					gameTranslator.chessboardString(
-        							moveProperty, 
-        							lobbyState.getGameState().getBoard(), 
-        							lobbyState.getGameState().isWhiteToMove(), 
-        							lobbyState.getGameState().isWhiteToMove()));
-        			responseMessagesFirst.add(YOUR_MOVE);
-        		}
-        		case GameHandler.MoveProperty.REGULAR, 
-        		GameHandler.MoveProperty.CHECK -> {
-        			lobbyState.changeMovingPlayer();
-        			if (lobbyState.getLobbyType().equals(
-        					LobbyState.LobbyType.SINGLEPLAYER)) {
-        				responseMessagesFirst.add(gameTranslator.chessboardString(
-        							moveProperty, 
-        							lobbyState.getGameState().getBoard(), 
-        							lobbyState.getGameState().isWhiteToMove(), 
-        							lobbyState.getGameState().isWhiteToMove()));
-        				responseMessagesFirst.add(YOUR_MOVE);
-        			} else if (lobbyState.getLobbyType().equals(
-        					LobbyState.LobbyType.MULTIPLAYER)) {
-        				responseMessagesFirst.add(gameTranslator
-        						.chessboardString(
-        								GameHandler.MoveProperty.REGULAR, 
-        								lobbyState.getGameState().getBoard(), 
-        								lobbyState.getGameState().isWhiteToMove(), 
-        								oldSide));
-        				responseMessagesFirst.add(NOT_YOUR_MOVE);
-        				responseMessagesSecond.add(gameTranslator
-        						.chessboardString(
-        								moveProperty, 
-        								lobbyState.getGameState().getBoard(), 
-        								lobbyState.getGameState().isWhiteToMove(), 
-        								!oldSide));
-        				responseMessagesSecond.add(YOUR_MOVE);
-        			}
-        		}
-        		case GameHandler.MoveProperty.MATE -> {
-        			responseMessagesFirst.add(gameTranslator.chessboardString(
-        						moveProperty, 
-        						lobbyState.getGameState().getBoard(), 
-        						lobbyState.getGameState().isWhiteToMove(), 
-        						lobbyState.getGameState().isWhiteToMove()));
-        			responseMessagesFirst.add(MENU_MESSAGE);
-                    currentUserState.setUserState(UserState.UserStatus.MAINMENU);
-                    currentUserState.resetLobbyId();
-                    currentUserState.getMoveState().clearMoveState();
-        			if (lobbyState.getLobbyType().equals(
-        					LobbyState.LobbyType.MULTIPLAYER)) {
-        				responseMessagesSecond.add(gameTranslator
-        						.chessboardString(
-        								moveProperty, 
-        								lobbyState.getGameState().getBoard(), 
-        								lobbyState.getGameState().isWhiteToMove(), 
-        								!lobbyState.getGameState().isWhiteToMove()));
-            			responseMessagesSecond.add(MENU_MESSAGE);
-                        secondUserState.setUserState(UserState.UserStatus.MAINMENU);
-                        secondUserState.resetLobbyId();
-                        secondUserState.getMoveState().clearMoveState();
-        			}
-                    games.remove(lobbyId);
-        		}
-        		}
-        	}
-        } else {
-            responseMessagesFirst.add(OPPONENTS_MOVE);
-        }
-    }
-    
-
+	 * Обработка введённой команды
+	 */
+	private ImmutablePair<List<String>, List<String>> handleCommand(
+			long chatId, String command, String argument) {
+		List<String> responseMessagesFirst = new ArrayList<String>();
+		List<String> responseMessagesSecond = new ArrayList<String>();
+		try {
+			switch (command) {
+			case "start" -> {
+				statesHandler.changeUserLastMessage(chatId, -1);
+				commandHandler.processQuitCommand(chatId);
+				responseMessagesFirst.add(START_MESSAGE);
+				responseMessagesFirst.add(MENU_MESSAGE);
+				responseMessagesSecond.add(SURRENDERED);
+				responseMessagesSecond.add(MENU_MESSAGE);
+			}
+			case "help" -> {
+				responseMessagesFirst.add(HELP_MESSAGE);
+			}
+			case "quit" -> {
+				statesHandler.changeUserLastMessage(chatId, -1);
+				commandHandler.processQuitCommand(chatId);
+				responseMessagesFirst.add(MENU_MESSAGE);
+			}
+			case "new_local" -> {
+				commandHandler.processQuitCommand(chatId);
+				commandHandler.processNewLocalCommand(chatId);
+				responseMessagesFirst.add(GAME_STARTED);
+				ImmutablePair<List<String>, List<String>> gameMessages = 
+						gameInputHandler.processMove(chatId, "", "", "");
+				responseMessagesFirst.addAll(gameMessages.getKey());
+			}
+			case "create" -> {
+				statesHandler.changeUserLastMessage(chatId, -1);
+				commandHandler.processCreateCommand(chatId, argument);
+				responseMessagesFirst.add(LOBBY_BOOKED.formatted(argument));
+			}
+			case "join" -> {
+				commandHandler.processQuitCommand(chatId);
+				boolean isFirstWhite = commandHandler.processJoinCommand(chatId, argument);
+				responseMessagesFirst.add(GAME_STARTED);
+				responseMessagesSecond.add(GAME_STARTED);
+				ImmutablePair<List<String>, List<String>> gameMessages = 
+						gameInputHandler.processMove(chatId, "", "", "");
+				if (isFirstWhite) {
+					responseMessagesFirst.addAll(gameMessages.getKey());
+					responseMessagesSecond.addAll(gameMessages.getValue());
+				} else {
+					responseMessagesFirst.addAll(gameMessages.getValue());
+					responseMessagesSecond.addAll(gameMessages.getKey());					
+				}
+			}
+			default -> {;
+				responseMessagesFirst.add(UNKNOWN_COMMAND);
+			}
+			}
+		} catch (CommandException e) {
+			responseMessagesFirst.add(e.getMessage());
+		}
+		return new ImmutablePair<>(responseMessagesFirst, responseMessagesSecond);
+	}
+	
 	/**
+	 * Обработать ввод в зависимости от режима пользователя
+	 */
+    private ImmutablePair<List<String>, List<String>> handleByMode(
+    		long chatId, String userInput) {
+    	switch (statesHandler.getUserStatus(chatId)) {
+    	case UserState.UserStatus.MAINMENU -> {
+    		String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
+    		return handleCommand(chatId, commandAnalog, "");
+    	}
+    	case UserState.UserStatus.INGAME -> {
+    		if (userCanMove(chatId, statesHandler.getUserLobbyName(chatId))) {
+    			Matcher notationMatch = NOTATION_PATTERN.matcher(userInput);
+        		Matcher callbackMatch = MOVE_PART_PATTERN.matcher(userInput);
+        		if (callbackMatch.find()) {
+            		return gameInputHandler.processMovePart(
+            				chatId, callbackMatch.group(1));
+            	} else if (notationMatch.find()) {
+            		return gameInputHandler.processMove(
+            				chatId, 
+            				notationMatch.group(1).toLowerCase(), 
+            				notationMatch.group(2).toLowerCase(), 
+            				notationMatch.group(3).toLowerCase());
+            	} else {
+            		List<String> messages = new ArrayList<String>();
+            		messages.add(UNKNOWN_GAME_INPUT);
+            		return new ImmutablePair<>(messages, List.of());
+        		}
+    		} else {
+        		List<String> messages = new ArrayList<String>();
+        		messages.add(OPPONENTS_MOVE);
+    			return new ImmutablePair<>(messages, List.of());
+    		}
+    	}
+    	case UserState.UserStatus.AWAITING -> {
+    		String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
+    		return handleCommand(chatId, commandAnalog, "");    		
+    	}
+    	case UserState.UserStatus.CREATING -> {
+    		return handleCommand(chatId, "create", userInput);	
+    	}
+    	case UserState.UserStatus.CHOOSING -> {
+        	Matcher callbackMatch = LOBBY_BUTTON_PATTERN.matcher(userInput);
+        	if (callbackMatch.find()) {
+        		return handleCommand(chatId, "join", callbackMatch.group(1));
+        	} else {
+        		return handleCommand(chatId, "join", userInput);
+        	}
+    	}
+    	}
+    	return new ImmutablePair<>(List.of(), List.of());
+	}
+    
+    /**
 	 * Отправить сообщения пользователю
 	 */
-	private void sendMessagesTo(long chatId, 
-			Iterator<String> messagesTextsIterator, Bot bot) {
-		long lastMessageId = bot.sendMessages(chatId, messagesTextsIterator);
-		messages.put(chatId, lastMessageId);
+	private void sendMessages(Bot bot, long chatId, List<String> messagesTexts) {
+		long lastMessageId = bot.sendMessages(chatId, messagesTexts);
+		statesHandler.changeUserLastMessage(chatId, lastMessageId);
 	}
 
 	/**
 	 * Изменить сообщение
 	 */
-	private void editMessageOf(long chatId, long messageId, 
-			String editedMessageText, boolean moreMessages, Bot bot) {
+	private void editMessage(Bot bot, long chatId, 
+			long messageId, String editedMessageText, boolean moreMessages) {
 		bot.editMessage(chatId, messageId, editedMessageText, moreMessages);
+	}
+	
+	/**
+     * Проверить, что пользователь может сделать ход
+     */
+    private boolean userCanMove(long chatId, String lobbyName) {
+    	return (chatId == statesHandler.getLobbyFirstPlayer(lobbyName) 
+    			&& statesHandler.isLobbyFirstPlayerToMove(lobbyName)) 
+    			|| (chatId == statesHandler.getLobbySecondPlayer(lobbyName) 
+    			&& !statesHandler.isLobbyFirstPlayerToMove(lobbyName));
 	}
 }

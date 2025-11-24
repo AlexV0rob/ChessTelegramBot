@@ -31,7 +31,7 @@ public class LobbyState {
 	/**
 	 * Идентификатор второго пользователя
 	 */
-	private long secondId = 0;
+	private final long secondId;
 	
 	/**
 	 * Сторона первого пользователя
@@ -46,19 +46,12 @@ public class LobbyState {
 	/**
 	 * Конструктор
 	 */
-	public LobbyState(long firstPlayerId, LobbyType thisLobbyType) {
+	public LobbyState(long firstPlayerId, long secondPlayerId, 
+			boolean isFirstWhite, LobbyType thisLobbyType) {
 		firstId = firstPlayerId;
-		isFirstMove = true;
+		secondId = secondPlayerId;
+		isFirstMove = isFirstWhite;
 		type = thisLobbyType;
-	}
-	
-	/**
-	 * Установить идентификатор фторого пользователя
-	 */
-	public void setSecondPlayerId(long playerId) {
-		if (secondId == 0) {
-			secondId = playerId;
-		}
 	}
 
 	/**

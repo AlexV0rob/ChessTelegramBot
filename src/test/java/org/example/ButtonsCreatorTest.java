@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
-import org.example.states.MoveState;
 
 import java.util.List;
 
@@ -16,11 +15,6 @@ public class ButtonsCreatorTest {
      * Создатель кнопок
      */
     private final ButtonsCreator buttonsCreator = new ButtonsCreator();
-
-    /**
-     * Состояние готовности хода
-     */
-    private final MoveState moveState = new MoveState();
 
     /**
      * Доска, на которой идёт проверка
@@ -42,9 +36,9 @@ public class ButtonsCreatorTest {
     @Test
     public void menuButtonsTest() {
         Assertions.assertIterableEquals(
-                List.of(new SimpleButton("Начать игру на этом устройстве"),
-                		new SimpleButton("Создать собственное лобби"), 
-                		new SimpleButton("Присоединится к чужому лобби")),
+                List.of(new SimpleButton("Начать новую одиночную игру"),
+                		new SimpleButton("Создать многопользовательский матч"), 
+                		new SimpleButton("Присоединится к существующему матчу")),
                 buttonsCreator.getMenuButtons());
     }
 
@@ -54,7 +48,7 @@ public class ButtonsCreatorTest {
     @Test
     public void awaitButtonsTest() {
         Assertions.assertIterableEquals(
-                List.of(new SimpleButton("Отменить поиск матча и удалить лобби")),
+                List.of(new SimpleButton("Отменить поиск соперника и удалить матч")),
                 buttonsCreator.getAwaitingButtons());
     }
     
@@ -77,22 +71,19 @@ public class ButtonsCreatorTest {
                 new IdentifiedButton("__d6__", "D6"),
                 new IdentifiedButton("__d5__", "D5"));
         List<IdentifiedButton> currentButtons;
-        currentButtons = buttonsCreator.getGameButtons(moveState, BOARD, true);
+        currentButtons = buttonsCreator.getGameButtons("", "", "", BOARD, true);
         Assertions.assertTrue(whiteFigures.containsAll(currentButtons));
         Assertions.assertEquals(whiteFigures.size(), currentButtons.size());
-        currentButtons = buttonsCreator.getGameButtons(moveState, BOARD, false);
+        currentButtons = buttonsCreator.getGameButtons("", "", "", BOARD, false);
         Assertions.assertTrue(blackFigures.containsAll(currentButtons));
         Assertions.assertEquals(blackFigures.size(), currentButtons.size());
-        moveState.nextStatus("p");
-        currentButtons = buttonsCreator.getGameButtons(moveState, BOARD, false);
+        currentButtons = buttonsCreator.getGameButtons("p", "", "", BOARD, false);
         Assertions.assertTrue(pawnsPositions.containsAll(currentButtons));
         Assertions.assertEquals(pawnsPositions.size(), currentButtons.size());
-        moveState.nextStatus("d7");
-        currentButtons = buttonsCreator.getGameButtons(moveState, BOARD, false);
+        currentButtons = buttonsCreator.getGameButtons("p", "d7", "", BOARD, false);
         Assertions.assertTrue(pawnMoves.containsAll(currentButtons));
         Assertions.assertEquals(pawnMoves.size(), currentButtons.size());
-        moveState.nextStatus("d5");
-        currentButtons = buttonsCreator.getGameButtons(moveState, BOARD, false);
+        currentButtons = buttonsCreator.getGameButtons("p", "d7", "d5", BOARD, false);
         Assertions.assertIterableEquals(List.of(), currentButtons);
     }
 }

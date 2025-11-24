@@ -11,8 +11,6 @@ import org.example.chess.PositionOnBoard;
 import org.example.chess.Queen;
 import org.example.chess.Rook;
 
-import org.example.states.MoveState;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,9 +54,9 @@ public class ButtonsCreator {
      */
     public List<SimpleButton> getMenuButtons() {
         return List.of(
-        		new SimpleButton(menuButtonsConverter.getCommandText("newsinglegame")),
-                new SimpleButton(menuButtonsConverter.getCommandText("creategame")),
-                new SimpleButton(menuButtonsConverter.getCommandText("joingame")));
+        		new SimpleButton(menuButtonsConverter.getCommandText("new_local")),
+                new SimpleButton(menuButtonsConverter.getCommandText("create")),
+                new SimpleButton(menuButtonsConverter.getCommandText("join")));
     }
 
     /**
@@ -82,25 +80,27 @@ public class ButtonsCreator {
     /**
      * Получить список кнопок игры
      */
-    public List<IdentifiedButton> getGameButtons(MoveState currentMoveState,
-                                                 byte[][] chessboard, boolean isWhiteToMove) {
-        String currentFigure = currentMoveState.getFigure();
-        String currentStartPosition = currentMoveState.getStartPosition();
-        String currentFinishPosition = currentMoveState.getFinishPosition();
-        if (!currentFinishPosition.isEmpty()) {
+    public List<IdentifiedButton> getGameButtons(String figure, String start, 
+    		String finish, byte[][] chessboard, boolean isWhiteToMove) {
+        if (!finish.isEmpty()) {
             return List.of();
         }
-        if (!currentStartPosition.isEmpty()) {
-            int figureCode = movePartsConverter.getFigureCode(currentFigure);
+        if (!start.isEmpty()) {
+            int figureCode = movePartsConverter.getFigureCode(figure);
             int startPositionRow = movePartsConverter
-                    .getPositionRowCode(currentStartPosition.charAt(1));
+                    .getPositionRowCode(start.charAt(1));
             int startPositionColumn = movePartsConverter
-                    .getPositionColumnCode(currentStartPosition.charAt(0));
-            return findPossibleFigureMoves(chessboard, figureCode,
+                    .getPositionColumnCode(start.charAt(0));
+            List<IdentifiedButton> moves = findPossibleFigureMoves(chessboard, figureCode,
                     new PositionOnBoard(startPositionRow, startPositionColumn));
+            if (moves.isEmpty()) {
+            	return List.of(new IdentifiedButton("__cancel__", "Сбросить"));
+            } else {
+            	return moves;
+            }
         }
-        if (!currentFigure.isEmpty()) {
-            int figureCode = movePartsConverter.getFigureCode(currentFigure);
+        if (!figure.isEmpty()) {
+            int figureCode = movePartsConverter.getFigureCode(figure);
             return findFigurePositions(chessboard, figureCode, isWhiteToMove);
         }
         return findAvailableFigures(chessboard, isWhiteToMove);
@@ -164,8 +164,8 @@ public class ButtonsCreator {
     /**
      * Список кнопок со всеми возможными ходами для фигуры из стартовой позиции
      */
-    private List<IdentifiedButton> findPossibleFigureMoves(byte[][] chessboard,
-                                                           int figureCode, PositionOnBoard startPosition) {
+    private List<IdentifiedButton> findPossibleFigureMoves(
+    		byte[][] chessboard, int figureCode, PositionOnBoard startPosition) {
         List<PositionOnBoard> possiblePositions =
                 FIGURES[figureCode - 1].allPossibleMoves(startPosition, chessboard);
         List<IdentifiedButton> possibleMoves = new ArrayList<IdentifiedButton>();

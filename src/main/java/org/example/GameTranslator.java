@@ -69,7 +69,8 @@ public class GameTranslator {
             side = MOVING_SIDES[1];
         }
         additional = switch (moveProperty) {
-            case GameHandler.MoveProperty.REGULAR -> "";
+            case GameHandler.MoveProperty.REGULAR,
+            GameHandler.MoveProperty.START -> "";
             case GameHandler.MoveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
             case GameHandler.MoveProperty.INVALID -> "\n" + INVALID_MOVE;
             case GameHandler.MoveProperty.CHECK -> "\n" + CHECK_MOVE;
