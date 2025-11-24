@@ -44,6 +44,11 @@
   	  <artifactId>telegrambots-client</artifactId>
   	  <version>${telegram.elements.version}</version>
 	</dependency>
+	<dependency>
+  	  <groupId>org.telegram</groupId>
+  	  <artifactId>telegrambots-meta</artifactId>
+  	  <version>${telegram.elements.version}</version>
+	</dependency>
 	  
 	<dependency>
        <groupId>org.junit.jupiter</groupId>
