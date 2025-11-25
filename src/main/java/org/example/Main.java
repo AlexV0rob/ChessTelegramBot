@@ -26,18 +26,10 @@ public class Main {
             botsApplication.registerBot(botToken, new TelegramBot(botToken));
             System.out.println("Телеграмм бот запущен");
             String token = System.getenv("discord_bot_token");
-            DiscordClient client = DiscordClient.create(token);
-            GatewayDiscordClient gateway = client.login().block();
+            DiscordBot discordBot = new DiscordBot(token);
+            discordBot.consume();
+            System.out.println("Дискорд бот запущен");
 
-            gateway.on(MessageCreateEvent.class).subscribe(event -> {
-                Message message = event.getMessage();
-                if ("!ping".equals(message.getContent())) {
-                    MessageChannel channel = message.getChannel().block();
-                    channel.createMessage("Pong!").block();
-                }
-            });
-            gateway.onDisconnect().block();
-            Thread.currentThread().join();
         } catch (Exception e) {
             e.printStackTrace();
         }

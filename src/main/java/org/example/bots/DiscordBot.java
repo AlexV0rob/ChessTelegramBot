@@ -2,13 +2,11 @@ package org.example.bots;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
-import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.MessageCreateSpec;
-import org.example.Main;
 import org.example.MainLogic;
 import reactor.core.publisher.Mono;
 
@@ -21,15 +19,25 @@ public class DiscordBot implements Bot {
     private MainLogic mainLogic = new MainLogic();
 
     /**
-     * Экземпляр класса GatewayDiscordClient
+     * Экземпляр класса DiscordClient
      */
-    private final GatewayDiscordClient discordClient;
+    private final DiscordClient discordClient;
 
     /**
      * Конструктор класса
      */
     public DiscordBot(String botToken) {
-        discordClient = DiscordClient.create(botToken).login().block();
+        discordClient = DiscordClient.create(botToken);
+    }
+
+    public void consume() {
+        Mono<Void> login = discordClient.withGateway((GatewayDiscordClient gateway) ->
+                gateway.on(MessageCreateEvent.class, event -> {
+                    Message message = event.getMessage();
+                    processTextMessage(message.getContent(), message.getChannelId().asLong());
+                    return Mono.empty();
+                }));
+        login.block();
     }
 
     /**
@@ -37,13 +45,6 @@ public class DiscordBot implements Bot {
      */
     private void processTextMessage(String incomingMessage, long chatId) {
         mainLogic.processInput(this, incomingMessage, chatId);
-    }
-
-    public void consume() {
-        discordClient.on(MessageCreateEvent.class).subscribe(event -> {
-            Message message = event.getMessage();
-            processTextMessage(message.getContent(), message.getChannelId().asLong());
-        });
     }
 
     /**
@@ -54,13 +55,10 @@ public class DiscordBot implements Bot {
             return -1;
         }
         Snowflake channelSnowflake = Snowflake.of(chatId);
-        MessageChannel channel = discordClient.getChannelById(channelSnowflake)
-                .ofType(MessageChannel.class).block();
-
+        MessageChannel channel = discordClient.login().ofType(MessageChannel.class).block();
         if (channel == null) {
             return -1;
         }
-
         while (messagesTextsIterator.hasNext()) {
             String messageText = messagesTextsIterator.next();
             if (messageText != null) {
