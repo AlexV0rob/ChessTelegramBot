@@ -33,9 +33,10 @@ public class Knight implements Chessmen {
     }
 
     @Override
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, 
+    		boolean isWhite, byte[][] board) {
         if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
+                (board[finish.row()][finish.column()] < 0 != isWhite)) {
             if ((Math.abs(finish.row() - start.row()) == 2 &&
                     Math.abs(finish.column() - start.column()) == 1) ||
                     (Math.abs(finish.row() - start.row()) == 1 &&

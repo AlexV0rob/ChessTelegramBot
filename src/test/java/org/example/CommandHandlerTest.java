@@ -27,12 +27,12 @@ public class CommandHandlerTest {
 	@Test
 	public void quitCommandSingleUserTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.INGAME);
-		states.createNewLobby("game", 1, 1, true, LobbyState.LobbyType.SINGLEPLAYER);
-		states.setUserLobbyName(1, "game");
-		commandHandler.processQuitCommand(1);
-		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(1));
-		Assertions.assertEquals("", states.getUserLobbyName(1));
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
+		states.createNewLobby("game", userId, userId, true, LobbyState.LobbyType.SINGLEPLAYER);
+		states.setUserLobbyName(userId, "game");
+		commandHandler.processQuitCommand(userId);
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
+		Assertions.assertEquals("", states.getUserLobbyName(userId));
 		Assertions.assertFalse(states.isLobbyExisting("game"));
 	}
 	
@@ -42,16 +42,16 @@ public class CommandHandlerTest {
 	@Test
 	public void quitCommandTwoUsersTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.INGAME);
-		states.addNewUserWithStatus(2, UserState.UserStatus.INGAME);
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
-		states.setUserLobbyName(1, "game");
-		states.setUserLobbyName(2, "game");
-		commandHandler.processQuitCommand(1);
-		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(1));
-		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(2));
-		Assertions.assertEquals("", states.getUserLobbyName(1));
-		Assertions.assertEquals("", states.getUserLobbyName(2));
+		long userId1 = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
+		long userId2 = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
+		states.createNewLobby("game", userId1, userId2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.setUserLobbyName(userId1, "game");
+		states.setUserLobbyName(userId2, "game");
+		commandHandler.processQuitCommand(userId1);
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId1));
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId2));
+		Assertions.assertEquals("", states.getUserLobbyName(userId1));
+		Assertions.assertEquals("", states.getUserLobbyName(userId2));
 		Assertions.assertFalse(states.isLobbyExisting("game"));
 	}
 	
@@ -61,15 +61,15 @@ public class CommandHandlerTest {
 	@Test
 	public void newLocalCommandSingleUserTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
-		commandHandler.processNewLocalCommand(1);
-		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(1));
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+		commandHandler.processNewLocalCommand(userId);
+		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(userId));
 		Assertions.assertTrue(states.isLobbyExisting("1"));
 		Assertions.assertFalse(states.isLobbyAvailable("1"));
 		Assertions.assertEquals(LobbyState.LobbyType.SINGLEPLAYER, states.getLobbyType("1"));
-		Assertions.assertEquals("1", states.getUserLobbyName(1));
-		Assertions.assertEquals(1, states.getLobbyFirstPlayer("1"));
-		Assertions.assertEquals(1, states.getLobbySecondPlayer("1"));
+		Assertions.assertEquals("1", states.getUserLobbyName(userId));
+		Assertions.assertEquals(userId, states.getLobbyFirstPlayer("1"));
+		Assertions.assertEquals(userId, states.getLobbySecondPlayer("1"));
 	}
 	
 	/**
@@ -78,14 +78,14 @@ public class CommandHandlerTest {
 	@Test
 	public void createValidLobbyNameTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		try {
-			commandHandler.processCreateCommand(1, "game");
+			commandHandler.processCreateCommand(userId, "game");
 		} catch (CommandException e) {
 			Assertions.assertFalse(true);
 		}
-		Assertions.assertEquals(UserState.UserStatus.AWAITING, states.getUserStatus(1));
-		Assertions.assertEquals("game", states.getUserLobbyName(1));
+		Assertions.assertEquals(UserState.UserStatus.AWAITING, states.getUserStatus(userId));
+		Assertions.assertEquals("game", states.getUserLobbyName(userId));
 		Assertions.assertTrue(states.isLobbyExisting("game"));
 		Assertions.assertTrue(states.isLobbyAvailable("game"));
 	}
@@ -96,14 +96,14 @@ public class CommandHandlerTest {
 	@Test
 	public void createNoLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processCreateCommand(1, ""));
+				commandHandler.processCreateCommand(userId, ""));
 		Assertions.assertEquals(
 				"Придумайте название для матча (не более 16 символов):", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(userId));
 	}
 	
 	/**
@@ -112,14 +112,14 @@ public class CommandHandlerTest {
 	@Test
 	public void createTooLongLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processCreateCommand(1, "abcdefghijklmnopqrstuvwxyz"));
+				commandHandler.processCreateCommand(userId, "abcdefghijklmnopqrstuvwxyz"));
 		Assertions.assertEquals(
 				"Извините, название должно быть не более 16 символов. Придумайте другое:", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(userId));
 	}
 	
 	/**
@@ -128,20 +128,20 @@ public class CommandHandlerTest {
 	@Test
 	public void createExistingLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
-		states.addNewUserWithStatus(2, UserState.UserStatus.MAINMENU);
+		long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+		long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		try {
-			commandHandler.processCreateCommand(2, "game");
+			commandHandler.processCreateCommand(userId2, "game");
 		} catch (CommandException e) {
 			Assertions.assertFalse(true);
 		}
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processCreateCommand(1, "game"));
+				commandHandler.processCreateCommand(userId1, "game"));
 		Assertions.assertEquals(
 				"Извините, данное название уже занято. Придумайте другое:", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CREATING, states.getUserStatus(userId1));
 	}
 	
 	/**
@@ -150,23 +150,23 @@ public class CommandHandlerTest {
 	@Test
 	public void joinValidLobbyNameTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
-		states.addNewUserWithStatus(2, UserState.UserStatus.MAINMENU);
+		long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+		long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		try {
-			commandHandler.processCreateCommand(1, "game");
-			commandHandler.processJoinCommand(2, "game");
+			commandHandler.processCreateCommand(userId1, "game");
+			commandHandler.processJoinCommand(userId2, "game");
 		} catch (CommandException e) {
 			Assertions.assertFalse(true);
 		}
-		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(1));
-		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(2));
-		Assertions.assertEquals("game", states.getUserLobbyName(1));
-		Assertions.assertEquals("game", states.getUserLobbyName(2));
+		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(userId1));
+		Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(userId2));
+		Assertions.assertEquals("game", states.getUserLobbyName(userId1));
+		Assertions.assertEquals("game", states.getUserLobbyName(userId2));
 		Assertions.assertTrue(states.isLobbyExisting("game"));
 		Assertions.assertFalse(states.isLobbyAvailable("game"));
 		Assertions.assertEquals(LobbyState.LobbyType.MULTIPLAYER, states.getLobbyType("game"));
-		Assertions.assertEquals(1, states.getLobbyFirstPlayer("game"));
-		Assertions.assertEquals(2, states.getLobbySecondPlayer("game"));
+		Assertions.assertEquals(userId1, states.getLobbyFirstPlayer("game"));
+		Assertions.assertEquals(userId2, states.getLobbySecondPlayer("game"));
 	}
 	
 	/**
@@ -175,10 +175,10 @@ public class CommandHandlerTest {
 	@Test
 	public void joinNoLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processJoinCommand(1, ""));
+				commandHandler.processJoinCommand(userId, ""));
 		Assertions.assertEquals(
 				"""
 				Вот список доступных сейчас матчей.
@@ -186,7 +186,7 @@ public class CommandHandlerTest {
 				Введите /quit, чтобы выйти.
 				""", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(userId));
 	}
 	
 	/**
@@ -195,14 +195,14 @@ public class CommandHandlerTest {
 	@Test
 	public void joinNotExistingLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
+		long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processJoinCommand(1, "game"));
+				commandHandler.processJoinCommand(userId, "game"));
 		Assertions.assertEquals(
 				"Матча с таким идентификатором не существует", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(userId));
 	}
 	
 	/**
@@ -211,21 +211,21 @@ public class CommandHandlerTest {
 	@Test
 	public void joinNotAvailableLobbyNameExceptionTest() {
 		states.resetAll();
-		states.addNewUserWithStatus(1, UserState.UserStatus.MAINMENU);
-		states.addNewUserWithStatus(2, UserState.UserStatus.MAINMENU);
-		states.addNewUserWithStatus(3, UserState.UserStatus.MAINMENU);
+		long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+		long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+		long userId3 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
 		try {
-			commandHandler.processCreateCommand(2, "game");
-			commandHandler.processJoinCommand(3, "game");
+			commandHandler.processCreateCommand(userId2, "game");
+			commandHandler.processJoinCommand(userId3, "game");
 		} catch (CommandException e) {
 			Assertions.assertFalse(true);
 		}
 		CommandException exception = Assertions.assertThrows(
 				CommandException.class, () ->
-				commandHandler.processJoinCommand(1, "game"));
+				commandHandler.processJoinCommand(userId1, "game"));
 		Assertions.assertEquals(
 				"Этот матч уже начат, Вы не можете к нему подключиться", 
 				exception.getMessage());
-		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(1));
+		Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(userId1));
 	}
 }

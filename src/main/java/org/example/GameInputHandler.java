@@ -153,10 +153,9 @@ public class GameInputHandler {
 			responseMessagesSecond.add(MENU_MESSAGE);
 		}
 		}
-		if (isSingle 
-				&&	!moveProperty.equals(GameHandler.MoveProperty.START)
-				&&	!moveProperty.equals(GameHandler.MoveProperty.IMPOSSIBLE)
-				&&	!moveProperty.equals(GameHandler.MoveProperty.INVALID)) {
+		boolean isSuccessfulMove = moveProperty.equals(GameHandler.MoveProperty.REGULAR)
+				|| moveProperty.equals(GameHandler.MoveProperty.CHECK);
+		if (isSingle && isSuccessfulMove ) {
 			return new ImmutablePair<>(responseMessagesSecond, responseMessagesFirst);
 		} else {
 			return new ImmutablePair<>(responseMessagesFirst, responseMessagesSecond);

@@ -43,9 +43,10 @@ public class Rook implements Chessmen {
     }
 
     @Override
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, 
+    		boolean isWhite, byte[][] board) {
         if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
+                (board[finish.row()][finish.column()] < 0 != isWhite)) {
             if ((Math.abs(start.row() - finish.row()) == 0 ^
                     Math.abs(start.column() - finish.column()) == 0) &&
                     isWayFree(start, finish, board)) {

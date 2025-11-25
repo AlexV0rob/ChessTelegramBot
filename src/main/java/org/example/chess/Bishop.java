@@ -44,7 +44,8 @@ public class Bishop implements Chessmen {
     }
 
     @Override
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, 
+    		boolean isWhite, byte[][] board) {
         /*
          * Проверяем правильность хода в два этапа:
          * 1) Смотрим что интересующая насклетка нас не занята или там находится
@@ -52,7 +53,7 @@ public class Bishop implements Chessmen {
          * 2) Проверяем что слон может так сходить
          */
         if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
+                (board[finish.row()][finish.column()] < 0 != isWhite)) {
             if (Math.abs(start.row() - finish.row()) ==
                     Math.abs(start.column() - finish.column()) &&
                     isWayFree(start, finish, board)) {

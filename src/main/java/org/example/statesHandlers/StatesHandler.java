@@ -134,14 +134,9 @@ public interface StatesHandler {
 	public void changeGameMovingSide(String lobbyName);
 
 	/**
-	 * Проверить, что пользователь есть в системе
-	 */
-	public boolean isUserExisting(long userId);
-
-	/**
 	 * Добавить нового пользователя
 	 */
-	public void addNewUser(long userId, MessengerType newUserMessenger);
+	public long addNewUser(MessengerType newUserMessenger);
 
 	/**
 	 * Получить статус состояния пользователя
@@ -182,4 +177,42 @@ public interface StatesHandler {
 	 * Сбросить накопленное состояние хода пользователя
 	 */
 	public void resetUserMoveState(long userId);
+
+	/**
+	 * Получить текущий мессенджер пользователя
+	 */
+	public MessengerType getUserMessenger(long userId);
+
+	/**
+	 * Получить идентификатор пользователя в данном мессенджере
+	 */
+	public long getUserMessengerId(long userId, MessengerType userMessenger);
+
+	/**
+	 * Получить идентификатор пользователя во внутренней системе 
+	 * из идентификатора неизвестного мессенджера
+	 */
+	public long getUserIdFromUnknownId(long chatId);
+	
+	/**
+	 * Получить идентификатор пользователя во внутренней системе 
+	 * из идентификатора Telegram
+	 */
+	public long getUserIdFromTelegramId(long chatId);
+	
+	/**
+	 * Получить идентификатор пользователя во внутренней системе 
+	 * из идентификатора Discord
+	 */
+	public long getUserIdFromDiscordId(long chatId);
+
+	/**
+	 * Добавить новый идентификатор мессенджера
+	 */
+	public void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId);
+
+	/**
+	 * Проверить, что в таком мессенджере такой идентификатор числится
+	 */
+	public boolean isMessengerIdExisting(MessengerType messenger, long chatId);
 }

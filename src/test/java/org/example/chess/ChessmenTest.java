@@ -26,13 +26,13 @@ public class ChessmenTest {
         Chessmen pawn = new Pawn(0, 7);
         PositionOnBoard startPosition = new PositionOnBoard(1, 0);
         PositionOnBoard finishPosition = new PositionOnBoard(1, 0);
-        Assertions.assertFalse(pawn.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(pawn.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(0, 0);
-        Assertions.assertFalse(pawn.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(pawn.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(2, 0);
-        Assertions.assertTrue(pawn.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(pawn.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(3, 0);
-        Assertions.assertTrue(pawn.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(pawn.checkMove(startPosition, finishPosition, true, board));
     }
 
     /**
@@ -53,14 +53,14 @@ public class ChessmenTest {
         Chessmen rook = new Rook(0, 7);
         PositionOnBoard startPosition = new PositionOnBoard(0, 0);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 0);
-        Assertions.assertFalse(rook.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(rook.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 1);
-        Assertions.assertFalse(rook.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(rook.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(2, 0);
-        Assertions.assertTrue(rook.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(rook.checkMove(startPosition, finishPosition, true, board));
         startPosition = new PositionOnBoard(3, 7);
         finishPosition = new PositionOnBoard(3, 0);
-        Assertions.assertTrue(rook.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(rook.checkMove(startPosition, finishPosition, true, board));
     }
 
     /**
@@ -82,13 +82,13 @@ public class ChessmenTest {
         Chessmen bishop = new Bishop(0, 7);
         PositionOnBoard startPosition = new PositionOnBoard(0, 2);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 2);
-        Assertions.assertFalse(bishop.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(bishop.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 2);
-        Assertions.assertFalse(bishop.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(bishop.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 1);
-        Assertions.assertTrue(bishop.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(bishop.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 3);
-        Assertions.assertTrue(bishop.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(bishop.checkMove(startPosition, finishPosition, true, board));
     }
 
     /**
@@ -110,13 +110,13 @@ public class ChessmenTest {
         PositionOnBoard startPosition = new PositionOnBoard(0, 4);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 4);
 
-        Assertions.assertFalse(king.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(king.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 7);
-        Assertions.assertFalse(king.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(king.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 4);
-        Assertions.assertTrue(king.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(king.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 5);
-        Assertions.assertTrue(king.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(king.checkMove(startPosition, finishPosition, true, board));
     }
 
     /**
@@ -137,13 +137,13 @@ public class ChessmenTest {
         Chessmen knight = new Knight(0, 7);
         PositionOnBoard startPosition = new PositionOnBoard(0, 1);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 1);
-        Assertions.assertFalse(knight.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(knight.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(2, 1);
-        Assertions.assertFalse(knight.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(knight.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 3);
-        Assertions.assertTrue(knight.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(knight.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(2, 2);
-        Assertions.assertTrue(knight.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(knight.checkMove(startPosition, finishPosition, true, board));
     }
 
     /**
@@ -165,12 +165,12 @@ public class ChessmenTest {
         Chessmen queen = new Queen(0, 7);
         PositionOnBoard startPosition = new PositionOnBoard(0, 3);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 3);
-        Assertions.assertFalse(queen.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(queen.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(0, 0);
-        Assertions.assertFalse(queen.checkMove(startPosition, finishPosition, board));
+        Assertions.assertFalse(queen.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 3);
-        Assertions.assertTrue(queen.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(queen.checkMove(startPosition, finishPosition, true, board));
         finishPosition = new PositionOnBoard(1, 4);
-        Assertions.assertTrue(queen.checkMove(startPosition, finishPosition, board));
+        Assertions.assertTrue(queen.checkMove(startPosition, finishPosition, true, board));
     }
 }
