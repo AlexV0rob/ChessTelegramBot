@@ -56,27 +56,26 @@ public class Pawn implements Chessmen {
     }
 
     @Override
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, 
+    		boolean isWhite, byte[][] board) {
         if (board[finish.row()][finish.column()] == 0 &&
                 isWayFree(start, finish, board) &&
-                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
+                finish.row() - start.row() == 1 * (isWhite ? 1 : -1) &&
                 finish.column() == start.column()) {
             return true;
         }
         if (board[finish.row()][finish.column()] == 0 &&
                 isWayFree(start, finish, board) &&
                 ((WHITE_PAWN_START_ROW == start.row() &&
-                        finish.row() - start.row() == 2 &&
-                        board[start.row()][start.column()] < 0) ||
+                        finish.row() - start.row() == 2 && isWhite) ||
                         (BLACK_PAWN_START_ROW == start.row() &&
-                                finish.row() - start.row() == -2 &&
-                                board[start.row()][start.column()] > 0))) {
+                                finish.row() - start.row() == -2 && !isWhite))) {
             return true;
         }
         if (board[finish.row()][finish.column()] != 0 &&
-        		(board[finish.row()][finish.column()] < 0) != (board[start.row()][start.column()] < 0) &&
+        		(board[finish.row()][finish.column()] < 0) != isWhite &&
                 isWayFree(start, finish, board) &&
-                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
+                finish.row() - start.row() == 1 * (isWhite ? 1 : -1) &&
                 Math.abs(finish.column() - start.column()) == 1) {
             return true;
         }

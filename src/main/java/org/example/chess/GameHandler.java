@@ -79,11 +79,11 @@ public class GameHandler {
                 (chessboard[start.row()][start.column()] < 0 != isWhiteToMove)) {
             return MoveProperty.INVALID;
         }
-        if (!FIGURES[figureCode].checkMove(start, finish, chessboard)) {
+        if (!FIGURES[figureCode].checkMove(start, finish, isWhiteToMove, chessboard)) {
             return MoveProperty.IMPOSSIBLE;
         }
         MoveProperty move = MoveProperty.REGULAR;
-        if (isCheckMove(figureCode, finish, chessboard)) {
+        if (isCheckMove(figureCode, finish, isWhiteToMove, chessboard)) {
             move = MoveProperty.CHECK;
         }
         if (isMateMove(finish, chessboard)) {
@@ -95,9 +95,10 @@ public class GameHandler {
     /**
      * проверка на шах
      */
-    private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
+    private boolean isCheckMove(int figureCode, PositionOnBoard currentPosition, 
+    		boolean isWhite, byte[][] board) {
         int kingRow = -1, kingColumn = -1;
-        if (board[curentPosition.row()][curentPosition.column()] < 0) {
+        if (isWhite) {
             for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
                 for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
                     if (board[i][j] == BLACK_KING) {
@@ -120,7 +121,7 @@ public class GameHandler {
             return false;
         }
         return FIGURES[figureCode].checkMove(
-                curentPosition, new PositionOnBoard(kingRow, kingColumn), board);
+                currentPosition, new PositionOnBoard(kingRow, kingColumn), isWhite, board);
     }
 
     /**

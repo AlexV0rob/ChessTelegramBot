@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.FakeBot;
-import org.example.statesHandlers.MemoryStatesHandler;
+import org.example.statesHandlers.FakeStatesHandler;
 
 import java.util.List;
 
@@ -20,15 +20,21 @@ public class MainLogicTest {
 	private final FakeBot fakeBot = new FakeBot();
 	
 	/**
+	 * Хранитель состояний
+	 */
+	private final FakeStatesHandler states = new FakeStatesHandler();
+	
+	/**
 	 * Главный логический модуль
 	 */
-	private final MainLogic mainLogic = new MainLogic(new MemoryStatesHandler());
+	private final MainLogic mainLogic = new MainLogic(states);
 	
 	/**
 	 * Проверить работу меню
 	 */
 	@Test
 	public void menuInputTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/quit", 1);
 		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
@@ -47,6 +53,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void createValidLobbyTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/create game", 1);
 		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
@@ -69,6 +76,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void createInvalidLobbyTest() {
+		states.resetAll();
 		mainLogic.processInput(fakeBot, "/create game", 1);
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/create очевиднослишкомдлинноеимя", 1);
@@ -85,6 +93,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void createSinglegameTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/new_local", 1);
 		List<String> responseReal = fakeBot.getAccumulatedMessages(1);
@@ -112,6 +121,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void makeMoveTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/new_local", 1);
 		fakeBot.clearMessages();
@@ -140,6 +150,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void makeMoveByPartsTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/new_local", 1);
 		fakeBot.clearMessages();
@@ -173,6 +184,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void impossibleMoveTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/new_local", 1);
 		fakeBot.clearMessages();
@@ -186,6 +198,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void joinLobbyTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/create game", 1);
 		fakeBot.clearMessages();
@@ -233,6 +246,7 @@ public class MainLogicTest {
 	 */
 	@Test
 	public void multiplayerMoveTest() {
+		states.resetAll();
 		fakeBot.clearMessages();
 		mainLogic.processInput(fakeBot, "/create game", 1);
 		mainLogic.processInput(fakeBot, "/join game", 2);

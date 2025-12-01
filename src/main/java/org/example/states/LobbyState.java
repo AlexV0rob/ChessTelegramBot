@@ -21,7 +21,7 @@ public class LobbyState {
 	/**
 	 * Состояние игры
 	 */
-	private final GameState gameState = new GameState();
+	private final GameState gameState;
 	
 	/**
 	 * Идентификатор первого пользователя
@@ -52,8 +52,22 @@ public class LobbyState {
 		secondId = secondPlayerId;
 		isFirstMove = isFirstWhite;
 		type = thisLobbyType;
+		gameState = new GameState();
 	}
 
+	/**
+	 * Конструктор с установкой значения доски
+	 */
+	public LobbyState(long firstPlayerId, long secondPlayerId, 
+			boolean isFirstWhite, LobbyType thisLobbyType, 
+			byte[][] chessboard, int boardSideLength, boolean isWhiteToMove) {
+		firstId = firstPlayerId;
+		secondId = secondPlayerId;
+		isFirstMove = isFirstWhite;
+		type = thisLobbyType;
+		gameState = new GameState(chessboard, boardSideLength, isWhiteToMove);
+	}
+	
 	/**
 	 * Поменять ходящего игрока
 	 */

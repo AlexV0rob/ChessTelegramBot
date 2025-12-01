@@ -8,10 +8,18 @@ public class UserState {
      * Вид мессенджера
      */
     public enum MessengerType {
+    	/**
+    	 * Неизвестный мессенджер
+    	 */
+    	UNKNOWN,
         /**
          * Telegram
          */
-        TELEGRAM
+        TELEGRAM,
+        /**
+         * Discord
+         */
+        DISCORD
     }
 
     /**
@@ -37,7 +45,15 @@ public class UserState {
         /**
          * Создаёт матч
          */
-        CREATING
+        CREATING,
+        /**
+         * Выбирает мессенджер для привязки
+         */
+        MESSENGER_CHOOSING,
+        /**
+         * Вводит идентификатор мессенджера
+         */
+        ID_ENTERING
     }
 
     /**

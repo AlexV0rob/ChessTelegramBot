@@ -28,8 +28,7 @@ import java.util.List;
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
 	/**
-	 * Экземпляр класса TelegramClient 
-
+	 * Экземпляр класса TelegramClient
 	 */
 	private final TelegramClient telegramClient;
 	

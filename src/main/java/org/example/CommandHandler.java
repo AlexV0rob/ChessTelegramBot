@@ -56,6 +56,21 @@ public class CommandHandler {
      * Сообщение об отсутствии матча
      */
     private final static String LOBBY_ERROR = "Матча с таким идентификатором не существует";
+    
+    /**
+     * Сообщение о выборе привязываемого мессенджера
+     */
+    private final static String MESSENGER_CHOOSE = "Какой мессенджер привязываем?";
+    
+    /**
+     * Сообщение о вводе идентификатора мессенджера
+     */
+    private final static String MESSENGER_ID = "Введи ID мессенджера";
+    
+    /**
+     * Сообщение об ошибке привязки мессенджера
+     */
+    private final static String LINK_ERROR = "Этот ID уже используется, введи другой";
 	
 
 	/**
@@ -138,6 +153,28 @@ public class CommandHandler {
 				states.setNewUserStatus(creatorId, UserState.UserStatus.INGAME);
 				states.setUserLobbyName(creatorId, argument);
 				return isFirstWhite;
+			}
+		}
+	}
+	
+	/**
+	 * Обработать команду /link[ argument]
+	 */
+	public String processLinkCommand(long userId, String argument, 
+			UserState.MessengerType messenger, long chatId) throws CommandException{
+		states.setNewUserStatus(userId, UserState.UserStatus.MESSENGER_CHOOSING);
+		if (argument.isBlank()) {
+			throw new CommandException(MESSENGER_CHOOSE);
+		} else {
+			if (chatId == 0) {
+				throw new CommandException(MESSENGER_ID);
+			} else if (states.isMessengerIdExisting(messenger, chatId)) {
+				states.setNewUserStatus(userId, UserState.UserStatus.ID_ENTERING);
+				throw new CommandException(LINK_ERROR);
+			} else {
+	            states.addNewMessengerId(userId, messenger, chatId);
+				states.setNewUserStatus(userId, UserState.UserStatus.MAINMENU);
+				return "Мессенджер привязан";
 			}
 		}
 	}

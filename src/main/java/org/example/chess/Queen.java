@@ -25,9 +25,10 @@ public class Queen implements Chessmen {
     }
 
     @Override
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        boolean result = rook.checkMove(start, finish, board)
-                || bishop.checkMove(start, finish, board);
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish,
+    		boolean isWhite, byte[][] board) {
+        boolean result = rook.checkMove(start, finish, isWhite, board)
+                || bishop.checkMove(start, finish, isWhite, board);
         return result;
     }
 

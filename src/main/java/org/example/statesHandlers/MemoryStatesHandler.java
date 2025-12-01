@@ -16,6 +16,36 @@ import org.example.states.UserState.UserStatus;
  */
 public class MemoryStatesHandler implements StatesHandler {
 	/**
+	 * Наибольший идентификатор во внутренней системе
+	 */
+	protected long highestId = 1;
+	
+	/**
+	 * Ассоциативный массив с соответствием идентификатора неизвестного и 
+	 * мессенджера идентификатора пользователя внутренней системы
+	 */
+	protected Map<Long, Long> unknownIds = new HashMap<Long, Long>();
+	
+	/**
+	 * Ассоциативный массив с соответствием идентификатора Telegram и 
+	 * идентификатора пользователя внутренней системы
+	 */
+	protected Map<Long, Long> telegramIds = new HashMap<Long, Long>();
+
+	/**
+	 * Ассоциативный массив с соответствием идентификатора Discord и 
+	 * идентификатора пользователя внутренней системы
+	 */
+	protected Map<Long, Long> discordIds = new HashMap<Long, Long>();
+	
+	/**
+	 * Ассоциативный массив с соответствием идентификатора внутренней 
+	 * системы и ассоциативным массивом с идентификаторами мессенджеров
+	 */
+	protected Map<Long, Map<UserState.MessengerType, Long>> messengersIds = 
+			new HashMap<Long, Map<UserState.MessengerType, Long>>();
+	
+	/**
 	 * Ассоциативный массив с соответствием идентификатора пользователя и 
 	 * его состояния
 	 */
@@ -199,13 +229,13 @@ public class MemoryStatesHandler implements StatesHandler {
 	}
 
 	@Override
-	public boolean isUserExisting(long userId) {
-		return users.containsKey(userId);
-	}
-
-	@Override
-	public void addNewUser(long userId, MessengerType newUserMessenger) {
+	public long addNewUser(MessengerType newUserMessenger) {
+		long userId = highestId++;
 		users.put(userId, new UserState(newUserMessenger));
+		Map<UserState.MessengerType, Long> messengers = 
+				new HashMap<UserState.MessengerType, Long>();
+		messengersIds.put(userId, messengers);
+		return userId;
 	}
 
 	@Override
@@ -260,5 +290,80 @@ public class MemoryStatesHandler implements StatesHandler {
 		if (users.containsKey(userId)) {
 			users.get(userId).getMoveState().clearMoveState();
 		}
+	}
+
+	@Override
+	public MessengerType getUserMessenger(long userId) {
+		if (users.containsKey(userId)) {
+			return users.get(userId).getUserMessenger();
+		}
+		return null;
+	}
+
+	@Override
+	public long getUserMessengerId(long userId, MessengerType userMessenger) {
+		if (messengersIds.containsKey(userId) && 
+				messengersIds.get(userId).containsKey(userMessenger)) {
+			return messengersIds.get(userId).get(userMessenger);
+		}
+		return userId;
+	}
+
+	@Override
+	public long getUserIdFromUnknownId(long chatId) {
+		if (unknownIds.containsKey(chatId)) {
+			return unknownIds.get(chatId);
+		}
+		return 0;
+	}
+	
+	@Override
+	public long getUserIdFromTelegramId(long chatId) {
+		if (telegramIds.containsKey(chatId)) {
+			return telegramIds.get(chatId);
+		}
+		return 0;
+	}
+
+	@Override
+	public long getUserIdFromDiscordId(long chatId) {
+		if (discordIds.containsKey(chatId)) {
+			return discordIds.get(chatId);
+		}
+		return 0;
+	}
+	
+	@Override
+	public void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId) {
+		if (messengersIds.containsKey(userId)) {
+			messengersIds.get(userId).put(newUserMessenger, chatId);
+			switch (newUserMessenger) {
+			case UserState.MessengerType.UNKNOWN -> {
+				unknownIds.put(chatId, userId);
+			}
+			case UserState.MessengerType.TELEGRAM -> {
+				telegramIds.put(chatId, userId);				
+			}
+			case UserState.MessengerType.DISCORD -> {
+				discordIds.put(chatId, userId);				
+			}
+			}
+		}
+	}
+
+	@Override
+	public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
+		switch (messenger) {
+		case UserState.MessengerType.UNKNOWN -> {
+			return unknownIds.containsKey(chatId);
+		}
+		case UserState.MessengerType.TELEGRAM -> {
+			return telegramIds.containsKey(chatId);		
+		}
+		case UserState.MessengerType.DISCORD -> {
+			return discordIds.containsKey(chatId);	
+		}
+		}
+		return false;
 	}	
 }

@@ -9,8 +9,8 @@ public interface Chessmen {
     /**
      * Проверить ход на правильность
      */
-    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish,
-                             byte[][] board);
+    public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, 
+    		boolean isWhite, byte[][] board);
 
     /**
      * Создание списка всех доступных ходов для данной фигуры

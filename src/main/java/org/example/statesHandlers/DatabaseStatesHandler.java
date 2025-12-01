@@ -40,14 +40,16 @@ public class DatabaseStatesHandler implements StatesHandler {
 	/**
 	 * Конструктор
 	 */
-	public DatabaseStatesHandler(String databaseURL) throws SQLException {
+	public DatabaseStatesHandler(String databaseURL) throws DatabaseException {
 		url = databaseURL;
 		try (Connection connection = DriverManager.getConnection(url);
 		          Statement statement = connection.createStatement();) {
             String usersDB = """
             		CREATE TABLE IF NOT EXISTS users (
-            			prime_id BIGINT AUTO_INCREMENT,
-        				user_id BIGINT NOT NULL,
+            			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            			unknown_id BIGINT,
+        				telegram_id BIGINT,
+        				discord_id BIGINT,
             			status TINYINT NOT NULL,
             			figure CHAR(1),
             			start CHAR(2),
@@ -55,42 +57,39 @@ public class DatabaseStatesHandler implements StatesHandler {
             			parts_count TINYINT,
             			messenger TINYINT,
             			lobby_name VARCHAR(16),
-            			lobby_id INT,
-            			message_id BIGINT NOT NULL,
-            			PRIMARY KEY(prime_id)
+            			lobby_id INTEGER,
+            			message_id BIGINT NOT NULL
             		)
             		""";
             
             String gamesDB = """
             		CREATE TABLE IF NOT EXISTS games (
-            			prime_id INTEGER AUTO_INCREMENT,
+            			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
             			name VARCHAR(16) NOT NULL,
         				first_user_id BIGINT NOT NULL,
         				second_user_id BIGINT NOT NULL,
             			type TINYINT NOT NULL,
             			first_to_move BIT NOT NULL,
             			chessboard BLOB NOT NULL,
-            			white_to_move BIT NOT NULL,
-            			PRIMARY KEY(prime_id)
+            			white_to_move BIT NOT NULL
             		)
             		""";
             
             String namesDB = """
             		CREATE TABLE IF NOT EXISTS names (
-            			prime_id INTEGER AUTO_INCREMENT,
+            			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
             			name VARCHAR(16) NOT NULL,
-            			creator_id BIGINT NOT NULL,
-            			PRIMARY KEY(prime_id)
+            			creator_id BIGINT NOT NULL
             		)
             		""";
-
+            
             statement.execute(usersDB);
             statement.execute(gamesDB);
             statement.execute(namesDB);
             statement.close();
             connection.close();
         } catch (SQLException e) {
-			throw new SQLException("Couldn't connect to database", e);
+			throw new DatabaseException("Couldn't connect to database", e);
         }
 	}
 
@@ -99,7 +98,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String updateQuery = """
 				UPDATE users 
 				SET status = ?
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
@@ -119,7 +118,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT lobby_name 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -133,7 +132,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 			System.out.println("Error with database");
 			e.printStackTrace();
 		}
-		return "";
+		return null;
 	}
 
 	@Override
@@ -141,7 +140,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String updateQuery = """
 				UPDATE users 
 				SET lobby_name = "" 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
@@ -322,7 +321,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String updateQuery = """
 				UPDATE users 
 				SET lobby_name = ?
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
@@ -395,7 +394,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT parts_count 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -407,22 +406,22 @@ public class DatabaseStatesHandler implements StatesHandler {
 				case 0 -> """
 						UPDATE users 
 						SET figure = ?, parts_count = 1
-						WHERE user_id = ?
+						WHERE prime_id = ?
 						""";
 				case 1 -> """
 						UPDATE users 
 						SET start = ?, parts_count = 2
-						WHERE user_id = ?
+						WHERE prime_id = ?
 						""";
 				case 2 -> """
 						UPDATE users 
 						SET finish = ?, parts_count = 3
-						WHERE user_id = ?
+						WHERE prime_id = ?
 						""";
 				case 3 -> """
 						UPDATE users 
 						SET figure = "", start = "", finish = "", parts_count = 0 
-						WHERE user_id = ?
+						WHERE prime_id = ?
 						""";
 				default -> "";
 				};
@@ -445,7 +444,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT figure 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -467,7 +466,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT start 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -489,7 +488,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT finish 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -511,7 +510,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT parts_count 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -672,45 +671,28 @@ public class DatabaseStatesHandler implements StatesHandler {
 	}
 
 	@Override
-	public boolean isUserExisting(long userId) {
-		String selectQuery = """
-				SELECT * 
-				FROM users 
-				WHERE user_id = ?
-				""";
-		try (Connection connection = DriverManager.getConnection(url); 
-				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-			preparedStatement.setLong(1, userId);
-			ResultSet result = preparedStatement.executeQuery();
-			boolean isExisting = result.next();
-			preparedStatement.close();
-			connection.close();
-			return isExisting;
-		} catch (SQLException e) {
-			System.out.println("Error with database");
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	@Override
-	public void addNewUser(long userId, MessengerType newUserMessenger) {
+	public long addNewUser(MessengerType newUserMessenger) {
 		String insertQuery = """
 				INSERT INTO users 
-				(user_id, status, figure, start, finish, parts_count, messenger, lobby_name, lobby_id, message_id)
-				VALUES (?, 0, "", "", "", 0, ?, "", -1, -1)
+				(unknown_id, telegram_id, discord_id, status, figure, start, 
+					finish, parts_count, messenger, lobby_name, lobby_id, message_id)
+				VALUES (0, 0, 0, 0, "", "", "", 0, ?, "", -1, -1)
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
-				PreparedStatement preparedStatementFirst = connection.prepareStatement(insertQuery);) {
-			preparedStatementFirst.setLong(1, userId);
-			preparedStatementFirst.setByte(2, getUserMessengerCode(newUserMessenger));
-			preparedStatementFirst.executeUpdate();
-			preparedStatementFirst.close();
+				PreparedStatement preparedStatement = 
+						connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);) {
+			preparedStatement.setByte(1, getUserMessengerCode(newUserMessenger));
+			preparedStatement.executeUpdate();
+			ResultSet result = preparedStatement.getGeneratedKeys();
+			long userId = result.getLong(1);
+			preparedStatement.close();
 			connection.close();
+			return userId;
 		} catch (SQLException e) {
 			System.out.println("Error with database");
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	@Override
@@ -718,7 +700,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT status 
 				FROM users 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -830,7 +812,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String updateQuery = """
 				UPDATE users 
 				SET message_id = ? 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
@@ -850,7 +832,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String selectQuery = """
 				SELECT message_id 
 				FROM users  
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -872,7 +854,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 		String updateQuery = """
 				UPDATE users 
 				SET figure = "", start = "", finish = "", parts_count = 0 
-				WHERE user_id = ?
+				WHERE prime_id = ?
 				""";
 		try (Connection connection = DriverManager.getConnection(url); 
 				PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
@@ -886,6 +868,174 @@ public class DatabaseStatesHandler implements StatesHandler {
 		}
 	}
 
+	@Override
+	public MessengerType getUserMessenger(long userId) {
+		String selectQuery = """
+				SELECT messenger 
+				FROM users 
+				WHERE prime_id = ?
+				""";
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, userId);
+			ResultSet result = preparedStatement.executeQuery();
+			UserState.MessengerType messenger = 
+					result.next() ? getUserMessengerByCode(result.getByte(1)) : null;
+			preparedStatement.close();
+			connection.close();
+			return messenger;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public long getUserMessengerId(long userId, MessengerType userMessenger) {
+		String messengerField = switch(userMessenger) {
+		case UserState.MessengerType.UNKNOWN -> "unknown_id";
+		case UserState.MessengerType.TELEGRAM -> "telegram_id";
+		case UserState.MessengerType.DISCORD -> "discord_id";
+		};
+		String selectQuery = """
+				SELECT %s 
+				FROM users 
+				WHERE prime_id = ?
+				""".formatted(messengerField);
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, userId);
+			ResultSet result = preparedStatement.executeQuery();
+			long messengerId = result.next() ? result.getLong(1) : 0;
+			preparedStatement.close();
+			connection.close();
+			return messengerId;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	@Override
+	public long getUserIdFromUnknownId(long chatId) {
+		String selectQuery = """
+				SELECT prime_id 
+				FROM users 
+				WHERE unknown_id = ?
+				""";
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, chatId);
+			ResultSet result = preparedStatement.executeQuery();
+			long messengerId = result.next() ? result.getLong(1) : 0;
+			preparedStatement.close();
+			connection.close();
+			return messengerId;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public long getUserIdFromTelegramId(long chatId) {
+		String selectQuery = """
+				SELECT prime_id 
+				FROM users 
+				WHERE telegram_id = ?
+				""";
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, chatId);
+			ResultSet result = preparedStatement.executeQuery();
+			long messengerId = result.next() ? result.getLong(1) : 0;
+			preparedStatement.close();
+			connection.close();
+			return messengerId;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	@Override
+	public long getUserIdFromDiscordId(long chatId) {
+		String selectQuery = """
+				SELECT prime_id 
+				FROM users 
+				WHERE discord_id = ?
+				""";
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, chatId);
+			ResultSet result = preparedStatement.executeQuery();
+			long messengerId = result.next() ? result.getLong(1) : 0;
+			preparedStatement.close();
+			connection.close();
+			return messengerId;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId) {
+		String messengerField = switch(newUserMessenger) {
+		case UserState.MessengerType.UNKNOWN -> "unknown_id";
+		case UserState.MessengerType.TELEGRAM -> "telegram_id";
+		case UserState.MessengerType.DISCORD -> "discord_id";
+		};
+		String selectQuery = """
+				UPDATE users 
+				SET %s = ?
+				WHERE prime_id = ?
+				""".formatted(messengerField);
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, chatId);
+			preparedStatement.setLong(2, userId);
+			preparedStatement.executeUpdate();
+			preparedStatement.close();
+			connection.close();
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
+		String messengerField = switch(messenger) {
+		case UserState.MessengerType.UNKNOWN -> "unknown_id";
+		case UserState.MessengerType.TELEGRAM -> "telegram_id";
+		case UserState.MessengerType.DISCORD -> "discord_id";
+		};
+		String selectQuery = """
+				SELECT FROM users 
+				WHERE %s = ?
+				""".formatted(messengerField);
+		try (Connection connection = DriverManager.getConnection(url); 
+				PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+			preparedStatement.setLong(1, chatId);
+			ResultSet result = preparedStatement.executeQuery();
+			boolean isExisting = result.next();
+			preparedStatement.close();
+			connection.close();
+			return isExisting;
+		} catch (SQLException e) {
+			System.out.println("Error with database");
+			e.printStackTrace();
+		}
+		
+		return true;
+	}
+
 	/**
 	 * Получить состояние пользователя по его коду
 	 */
@@ -896,6 +1046,8 @@ public class DatabaseStatesHandler implements StatesHandler {
 		case 2 -> UserState.UserStatus.CREATING;
 		case 3 -> UserState.UserStatus.CHOOSING;
 		case 4 -> UserState.UserStatus.AWAITING;
+		case 5 -> UserState.UserStatus.MESSENGER_CHOOSING;
+		case 6 -> UserState.UserStatus.ID_ENTERING;
 		default -> UserState.UserStatus.MAINMENU;
 		};
 	}
@@ -910,6 +1062,8 @@ public class DatabaseStatesHandler implements StatesHandler {
 		case UserState.UserStatus.CREATING -> 2;
 		case UserState.UserStatus.CHOOSING -> 3;
 		case UserState.UserStatus.AWAITING -> 4;
+		case UserState.UserStatus.MESSENGER_CHOOSING -> 5;
+		case UserState.UserStatus.ID_ENTERING -> 6;
 		};
 	}
 	
@@ -939,7 +1093,9 @@ public class DatabaseStatesHandler implements StatesHandler {
 	 */
 	private UserState.MessengerType getUserMessengerByCode(byte code) {
 		return switch (code) {
-		case 0 -> UserState.MessengerType.TELEGRAM;
+		case 0 -> UserState.MessengerType.UNKNOWN;
+		case 1 -> UserState.MessengerType.TELEGRAM;
+		case 2 -> UserState.MessengerType.DISCORD;
 		default -> null;
 		};
 	}
@@ -949,7 +1105,9 @@ public class DatabaseStatesHandler implements StatesHandler {
 	 */
 	private byte getUserMessengerCode(UserState.MessengerType messenger) {
 		return switch (messenger) {
-		case UserState.MessengerType.TELEGRAM -> 0;
+		case UserState.MessengerType.UNKNOWN -> 0;
+		case UserState.MessengerType.TELEGRAM -> 1;
+		case UserState.MessengerType.DISCORD -> 2;
 		};
 	}
 	
