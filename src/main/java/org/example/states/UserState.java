@@ -8,10 +8,10 @@ public class UserState {
      * Вид мессенджера
      */
     public enum MessengerType {
-    	/**
-    	 * Неизвестный мессенджер
-    	 */
-    	UNKNOWN,
+        /**
+         * Неизвестный мессенджер
+         */
+        UNKNOWN,
         /**
          * Telegram
          */
@@ -80,7 +80,7 @@ public class UserState {
      * Конструктор класса
      */
     public UserState(MessengerType userMessenger) {
-        currentUserState = UserStatus.MAINMENU;
+        currentUserState = UserStatus.MESSENGER_CHOOSING;
         currentMoveState = new MoveState();
         messenger = userMessenger;
         currentLobbyId = "";
@@ -129,7 +129,7 @@ public class UserState {
      * Получить тип мессенджера пользователя
      */
     public MessengerType getUserMessenger() {
-    	return messenger;
+        return messenger;
     }
 
     /**
