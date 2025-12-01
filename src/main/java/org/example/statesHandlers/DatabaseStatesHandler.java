@@ -40,7 +40,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 	/**
 	 * Конструктор
 	 */
-	public DatabaseStatesHandler(String databaseURL) throws SQLException {
+	public DatabaseStatesHandler(String databaseURL) throws DatabaseException {
 		url = databaseURL;
 		try (Connection connection = DriverManager.getConnection(url);
 		          Statement statement = connection.createStatement();) {
@@ -89,7 +89,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             statement.close();
             connection.close();
         } catch (SQLException e) {
-			throw new SQLException("Couldn't connect to database", e);
+			throw new DatabaseException("Couldn't connect to database", e);
         }
 	}
 

@@ -3,6 +3,7 @@ package org.example;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.Bot;
+import org.example.bots.DiscordBot;
 import org.example.bots.TelegramBot;
 import org.example.states.UserState;
 import org.example.statesHandlers.StatesHandler;
@@ -49,6 +50,11 @@ public class MainLogic {
      * Экземпляр TelegramBot для отправки сообщений в Телеграм
      */
     private TelegramBot tgBot = null;
+    
+    /**
+     * Экземпляр DiscordBot для отправки сообщений в Дискорд
+     */
+    private DiscordBot dsBot = null;
 
     /**
      * Скомпилированное регулярное выражение команды
@@ -191,7 +197,12 @@ public class MainLogic {
     		}
     	}
     	if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
-    		sendMessages(bot, secondUserId, secondMessages);    		
+    		Bot botToSend = switch (statesHandler.getUserMessenger(secondUserId)) {
+    		case UserState.MessengerType.TELEGRAM -> tgBot;
+    		case UserState.MessengerType.DISCORD -> dsBot;
+    		default -> bot;
+    		};
+    		sendMessages(botToSend, secondUserId, secondMessages);    		
     	}
     }
         
@@ -251,9 +262,14 @@ public class MainLogic {
     	if (bot instanceof TelegramBot && tgBot == null) {
             tgBot = (TelegramBot) bot;
         }
+    	if (bot instanceof DiscordBot && dsBot == null) {
+            dsBot = (DiscordBot) bot;
+        }
         long userId = 0;
         if (bot instanceof TelegramBot) {
         	userId = statesHandler.getUserIdFromTelegramId(chatId);
+        } else if (bot instanceof DiscordBot) {
+        	userId = statesHandler.getUserIdFromDiscordId(chatId);
         } else {
         	userId = statesHandler.getUserIdFromUnknownId(chatId);
         }
@@ -261,6 +277,9 @@ public class MainLogic {
             UserState.MessengerType newUserMessenger = UserState.MessengerType.UNKNOWN;
             if (bot instanceof TelegramBot) {
                 newUserMessenger = UserState.MessengerType.TELEGRAM;
+            }
+            if (bot instanceof DiscordBot) {
+                newUserMessenger = UserState.MessengerType.DISCORD;
             }
             userId = statesHandler.addNewUser(newUserMessenger);
             statesHandler.addNewMessengerId(userId, newUserMessenger, chatId);
