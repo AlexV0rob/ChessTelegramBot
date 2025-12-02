@@ -167,20 +167,34 @@ public class MainLogic {
         Matcher command = COMMAND_PATTERN.matcher(userInput);
         ImmutablePair<List<String>, List<String>> responseMessages = null;
         long secondUserId = 0;
-        String lobbyName = statesHandler.getUserLobbyName(userId);
-        if (!lobbyName.isEmpty()) {
-            secondUserId = statesHandler.getLobbyAnotherUserId(lobbyName, userId);
+        UserState.MessengerType currentMessenger = UserState.MessengerType.UNKNOWN;
+        if (bot instanceof TelegramBot) {
+            currentMessenger = UserState.MessengerType.TELEGRAM;
+        } else if (bot instanceof TelegramBot) {
+            currentMessenger = UserState.MessengerType.DISCORD;
         }
         if (command.find()) {
             String argument = command.group(2);
             if (argument == null) {
                 argument = "";
             }
-            responseMessages = handleCommand(userId, command.group(1), argument);
+
+            responseMessages = handleCommand(currentMessenger, userId, command.group(1), argument);
         } else {
-            responseMessages = handleByMode(userId, userInput);
+            responseMessages = handleByMode(currentMessenger, userId, userInput);
         }
+        String lobbyName = statesHandler.getUserLobbyName(userId);
+        if (lobbyName == null) {
+            lobbyName = "";
+        }
+        if (!lobbyName.isEmpty()) {
+            secondUserId = statesHandler.getLobbyAnotherUserId(lobbyName, userId);
+        }
+
         lobbyName = statesHandler.getUserLobbyName(userId);
+        if (lobbyName == null) {
+            lobbyName = "";
+        }
         if (!lobbyName.isEmpty()) {
             secondUserId = statesHandler.getLobbyAnotherUserId(lobbyName, userId);
         }
@@ -262,16 +276,11 @@ public class MainLogic {
         long userId = 0;
         if (bot instanceof TelegramBot) {
             userId = statesHandler.getUserIdFromTelegramId(chatId);
-        } else {
-            userId = statesHandler.getUserIdFromUnknownId(chatId);
+        } else if (bot instanceof TelegramBot) {
+            userId = statesHandler.getUserIdFromDiscordId(chatId);
         }
         if (userId == 0) {
-            UserState.MessengerType newUserMessenger = UserState.MessengerType.UNKNOWN;
-            if (bot instanceof TelegramBot) {
-                newUserMessenger = UserState.MessengerType.TELEGRAM;
-            }
-            userId = statesHandler.addNewUser(newUserMessenger);
-            statesHandler.addNewMessengerId(userId, newUserMessenger, chatId);
+            userId = chatId;
         }
         return userId;
     }
@@ -279,8 +288,8 @@ public class MainLogic {
     /**
      * Обработка введённой команды
      */
-    private ImmutablePair<List<String>, List<String>> handleCommand(
-            long userId, String command, String argument) {
+    private ImmutablePair<List<String>, List<String>> handleCommand(UserState.MessengerType messengerType,
+                                                                    long userId, String command, String argument) {
         List<String> responseMessagesFirst = new ArrayList<String>();
         List<String> responseMessagesSecond = new ArrayList<String>();
         try {
@@ -314,12 +323,14 @@ public class MainLogic {
                     commandHandler.processCreateCommand(userId, argument);
                     responseMessagesFirst.add(LOBBY_BOOKED.formatted(argument));
                 }
-                case "link", "new_messenger" -> {
-                    statesHandler.setNewUserStatus(userId, UserState.UserStatus.MAINMENU);
+                case "link" -> {
                     statesHandler.changeUserLastMessage(userId, -1);
                     commandHandler.processLinkCommand(userId, argument,
-                            statesHandler.getUserMessenger(userId), 0);
+                            messengerType, 0);
                     responseMessagesFirst.add(MENU_MESSAGE);
+                }
+                case "new_messenger" -> {
+
                 }
                 case "join" -> {
                     commandHandler.processQuitCommand(userId);
@@ -350,12 +361,12 @@ public class MainLogic {
     /**
      * Обработать ввод в зависимости от режима пользователя
      */
-    private ImmutablePair<List<String>, List<String>> handleByMode(
-            long userId, String userInput) {
+    private ImmutablePair<List<String>, List<String>> handleByMode(UserState.MessengerType messengerType,
+                                                                   long userId, String userInput) {
         switch (statesHandler.getUserStatus(userId)) {
             case UserState.UserStatus.MAINMENU -> {
                 String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
-                return handleCommand(userId, commandAnalog, "");
+                return handleCommand(messengerType, userId, commandAnalog, "");
             }
             case UserState.UserStatus.INGAME -> {
                 if (userCanMove(userId, statesHandler.getUserLobbyName(userId))) {
@@ -383,17 +394,17 @@ public class MainLogic {
             }
             case UserState.UserStatus.AWAITING -> {
                 String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
-                return handleCommand(userId, commandAnalog, "");
+                return handleCommand(messengerType, userId, commandAnalog, "");
             }
             case UserState.UserStatus.CREATING -> {
-                return handleCommand(userId, "create", userInput);
+                return handleCommand(messengerType, userId, "create", userInput);
             }
             case UserState.UserStatus.CHOOSING -> {
                 Matcher callbackMatch = LOBBY_BUTTON_PATTERN.matcher(userInput);
                 if (callbackMatch.find()) {
-                    return handleCommand(userId, "join", callbackMatch.group(1));
+                    return handleCommand(messengerType, userId, "join", callbackMatch.group(1));
                 } else {
-                    return handleCommand(userId, "join", userInput);
+                    return handleCommand(messengerType, userId, "join", userInput);
                 }
             }
             case UserState.UserStatus.MESSENGER_CHOOSING -> {
@@ -409,13 +420,17 @@ public class MainLogic {
             case UserState.UserStatus.ID_ENTERING -> {
                 List<String> messages = new ArrayList<String>();
                 try {
-                    long potentialChatId = 0;
-                    Matcher id = LETTER_PATTERN.matcher(userInput);
-                    if (!id.find()) {
-                        potentialChatId = Long.parseLong(userInput);
+                    String nameOfMessenger = "";
+                    long otherUserId = 0;
+                    if (userInput.contains("\\s+")) {
+                        String[] commandSplit = userInput.split("\\s+");
+                        nameOfMessenger = commandSplit[0];
+                        if (!commandSplit[1].contains("\\D")) {
+                            otherUserId = Long.parseLong(commandSplit[2]);
+                        }
                     }
-                    messages.add(commandHandler.processLinkCommand(userId, userInput,
-                            UserState.MessengerType.TELEGRAM, potentialChatId));
+                    messages.add(commandHandler.processLinkCommand(userId, nameOfMessenger,
+                            UserState.MessengerType.TELEGRAM, otherUserId));
 
                 } catch (CommandException e) {
                     messages.add(e.getMessage());
@@ -430,7 +445,13 @@ public class MainLogic {
      * Отправить сообщения пользователю
      */
     private void sendMessages(Bot bot, long userId, List<String> messagesTexts) {
-        UserState.MessengerType userMessenger = statesHandler.getUserMessenger(userId);
+        //UserState.MessengerType userMessenger = statesHandler.getUserMessenger(userId);
+        UserState.MessengerType userMessenger = UserState.MessengerType.UNKNOWN;
+        if (bot instanceof TelegramBot) {
+            userMessenger = UserState.MessengerType.TELEGRAM;
+        } else if (bot instanceof TelegramBot) {
+            userMessenger = UserState.MessengerType.DISCORD;
+        }
         long chatId = statesHandler.getUserMessengerId(userId, userMessenger);
         if (chatId != 0) {
             Bot botToSend = switch (userMessenger) {
