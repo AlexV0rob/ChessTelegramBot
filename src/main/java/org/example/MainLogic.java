@@ -3,6 +3,7 @@ package org.example;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.Bot;
+import org.example.bots.DiscordBot;
 import org.example.bots.TelegramBot;
 import org.example.states.UserState;
 import org.example.statesHandlers.StatesHandler;
@@ -50,6 +51,11 @@ public class MainLogic {
      * Экземпляр TelegramBot для отправки сообщений в Телеграм
      */
     private TelegramBot tgBot = null;
+    
+    /**
+     * Экземпляр DiscordBot для отправки сообщений в Дискорд
+     */
+    private DiscordBot dsBot = null;
 
     /**
      * Скомпилированное регулярное выражение команды
@@ -270,6 +276,30 @@ public class MainLogic {
             sendMessages(bot, secondUserId, statesHandler.getUserMessengerId(secondUserId, currentMessenger),
                     currentMessenger, secondMessages);
         }
+        lobbyName = statesHandler.getUserLobbyName(userId);
+    	if (!lobbyName.isEmpty()) {
+    		secondUserId = statesHandler.getLobbyAnotherUserId(lobbyName, userId);
+    	}
+		List<String> firstMessages = responseMessages.getKey();
+		List<String> secondMessages = responseMessages.getValue();
+    	if (!firstMessages.isEmpty()) {
+    		long messageId = statesHandler.getUserMessageId(userId);
+    		if (messageId >= 0) {
+    			String messageText = firstMessages.removeFirst();
+    			editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
+    		}
+    		if (!firstMessages.isEmpty()) {
+    			sendMessages(bot, userId, firstMessages);
+    		}
+    	}
+    	if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
+    		Bot botToSend = switch (statesHandler.getUserMessenger(secondUserId)) {
+    		case UserState.MessengerType.TELEGRAM -> tgBot;
+    		case UserState.MessengerType.DISCORD -> dsBot;
+    		default -> bot;
+    		};
+    		sendMessages(botToSend, secondUserId, secondMessages);    		
+    	}
     }
 
 
@@ -334,11 +364,17 @@ public class MainLogic {
         if (bot instanceof TelegramBot && tgBot == null) {
             tgBot = (TelegramBot) bot;
         }
+    	if (bot instanceof DiscordBot && dsBot == null) {
+            dsBot = (DiscordBot) bot;
+        }
         long userId = 0;
         if (bot instanceof TelegramBot) {
+
             userId = statesHandler.getUserIdFromTelegramId(chatId);
-        } else if (bot instanceof TelegramBot) {
-            userId = statesHandler.getUserIdFromDiscordId(chatId);
+        } else if (bot instanceof DiscordBot) {
+        	userId = statesHandler.getUserIdFromDiscordId(chatId);
+        } else {
+        	userId = statesHandler.getUserIdFromUnknownId(chatId);
         }
         return userId;
     }
