@@ -49,12 +49,13 @@ public class ButtonsCreator {
             new King(MIN_SIDE_VALUE, MAX_SIDE_VALUE)
     };
 
+
     /**
      * Получить список кнопок главного меню
      */
     public List<SimpleButton> getMenuButtons() {
         return List.of(
-        		new SimpleButton(menuButtonsConverter.getCommandText("new_local")),
+                new SimpleButton(menuButtonsConverter.getCommandText("new_local")),
                 new SimpleButton(menuButtonsConverter.getCommandText("create")),
                 new SimpleButton(menuButtonsConverter.getCommandText("join")));
     }
@@ -64,6 +65,17 @@ public class ButtonsCreator {
      */
     public List<SimpleButton> getAwaitingButtons() {
         return List.of(new SimpleButton(menuButtonsConverter.getCommandText("quit")));
+    }
+
+    /**
+     * Получить список кнопок доступных лобби
+     */
+    public List<SimpleButton> getLinkButtonns() {
+
+        return List.of(
+                new SimpleButton(menuButtonsConverter.getCommandText("link")),
+                new SimpleButton(menuButtonsConverter.getCommandText("new_messenger")));
+
     }
 
     /**
@@ -80,8 +92,8 @@ public class ButtonsCreator {
     /**
      * Получить список кнопок игры
      */
-    public List<IdentifiedButton> getGameButtons(String figure, String start, 
-    		String finish, byte[][] chessboard, boolean isWhiteToMove) {
+    public List<IdentifiedButton> getGameButtons(String figure, String start,
+                                                 String finish, byte[][] chessboard, boolean isWhiteToMove) {
         if (!finish.isEmpty()) {
             return List.of();
         }
@@ -94,9 +106,9 @@ public class ButtonsCreator {
             List<IdentifiedButton> moves = findPossibleFigureMoves(chessboard, figureCode,
                     new PositionOnBoard(startPositionRow, startPositionColumn));
             if (moves.isEmpty()) {
-            	return List.of(new IdentifiedButton("__cancel__", "Сбросить"));
+                return List.of(new IdentifiedButton("__cancel__", "Сбросить"));
             } else {
-            	return moves;
+                return moves;
             }
         }
         if (!figure.isEmpty()) {
@@ -165,7 +177,7 @@ public class ButtonsCreator {
      * Список кнопок со всеми возможными ходами для фигуры из стартовой позиции
      */
     private List<IdentifiedButton> findPossibleFigureMoves(
-    		byte[][] chessboard, int figureCode, PositionOnBoard startPosition) {
+            byte[][] chessboard, int figureCode, PositionOnBoard startPosition) {
         List<PositionOnBoard> possiblePositions =
                 FIGURES[figureCode - 1].allPossibleMoves(startPosition, chessboard);
         List<IdentifiedButton> possibleMoves = new ArrayList<IdentifiedButton>();

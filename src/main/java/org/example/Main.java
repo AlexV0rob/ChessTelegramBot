@@ -32,13 +32,13 @@ public class Main {
 			statesHandler = new MemoryStatesHandler();
             System.out.println("Соединение с базой данных не установлено");
 		}
-		MainLogic mainLogic = new MainLogic(statesHandler);
+        MainLogic mainLogic = new MainLogic(statesHandler);
         try {
-        	TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
+            TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
             botsApplication.registerBot(botToken, new TelegramBot(botToken, mainLogic));
             System.out.println("Телеграм бот запущен");
         } catch (Exception e) {
-        	System.out.println("Couldn't connect to telegram");
+            System.out.println("Couldn't connect to telegram");
             e.printStackTrace();
         }
         try {
