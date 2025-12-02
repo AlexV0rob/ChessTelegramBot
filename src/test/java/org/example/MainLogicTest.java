@@ -260,4 +260,29 @@ public class MainLogicTest {
         Assertions.assertEquals("Сейчас ходит противник.",
                 responseRealSecond.get(1));
     }
+    
+    /**
+     * Проверить добавление нового пользователя
+     */
+    @Test
+    public void newUserTest() {
+    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
+    	mainLogic.processInput(fakeBot, "/start", 3);
+    	mainLogic.processInput(fakeBot, "new", 3);
+    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
+    }
+    
+    /**
+     * Проверить привязку старого пользователя
+     */
+    @Test
+    public void oldUserTest() {
+    	states.addNewUser(UserState.MessengerType.TELEGRAM);
+    	states.addNewMessengerId(3, UserState.MessengerType.TELEGRAM, 1);
+    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
+    	mainLogic.processInput(fakeBot, "/start", 3);
+    	mainLogic.processInput(fakeBot, "old", 3);
+    	mainLogic.processInput(fakeBot, "Telegram 1", 3);
+    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
+    }
 }
