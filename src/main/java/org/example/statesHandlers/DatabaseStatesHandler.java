@@ -40,7 +40,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Конструктор
      */
-    public DatabaseStatesHandler(String databaseURL) throws SQLException {
+    public DatabaseStatesHandler(String databaseURL) throws DatabaseException {
         url = databaseURL;
         try (Connection connection = DriverManager.getConnection(url);
              Statement statement = connection.createStatement();) {
@@ -1017,7 +1017,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             case UserState.MessengerType.DISCORD -> "discord_id";
         };
         String selectQuery = """
-                SELECT FROM users 
+                SELECT prime_id FROM users 
                 WHERE %s = ?
                 """.formatted(messengerField);
         try (Connection connection = DriverManager.getConnection(url);
@@ -1047,7 +1047,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             case 3 -> UserState.UserStatus.CHOOSING;
             case 4 -> UserState.UserStatus.AWAITING;
             case 5 -> UserState.UserStatus.MESSENGER_CHOOSING;
-            case 6 -> UserState.UserStatus.ID_ENTERING;
             default -> UserState.UserStatus.MAINMENU;
         };
     }
@@ -1063,8 +1062,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             case UserState.UserStatus.CHOOSING -> 3;
             case UserState.UserStatus.AWAITING -> 4;
             case UserState.UserStatus.MESSENGER_CHOOSING -> 5;
-            case UserState.UserStatus.ID_ENTERING -> 6;
-            case UserStatus.LINK_NEW_USER -> 7;
         };
     }
 

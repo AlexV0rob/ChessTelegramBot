@@ -49,15 +49,7 @@ public class UserState {
         /**
          * Выбирает мессенджер для привязки
          */
-        MESSENGER_CHOOSING,
-        /**
-         * Вводит идентификатор мессенджера
-         */
-        ID_ENTERING,
-        /**
-         * Привязывает новый аккаунт
-         */
-        LINK_NEW_USER
+        MESSENGER_CHOOSING
     }
 
     /**
