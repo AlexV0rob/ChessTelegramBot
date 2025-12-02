@@ -162,10 +162,10 @@ public class CommandHandler {
     /**
      * Обработать команду /link[ argument]
      */
-    public String processLinkCommand(long userId, String argument,
-                                     UserState.MessengerType messenger, long chatId) throws CommandException {
-        states.setNewUserStatus(userId, UserState.UserStatus.ID_ENTERING);
-        if (argument.isBlank()) {
+    public String processLinkCommand(long userId, long chatId,
+                                     UserState.MessengerType messenger) throws CommandException {
+        states.setNewUserStatus(userId, UserState.UserStatus.MESSENGER_CHOOSING);
+        if (chatId == 0 && messenger.equals(UserState.MessengerType.UNKNOWN)) {
             throw new CommandException(MESSENGER_CHOOSE);
         } else {
             if (chatId == 0) {

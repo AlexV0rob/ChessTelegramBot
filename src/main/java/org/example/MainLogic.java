@@ -8,7 +8,6 @@ import org.example.bots.TelegramBot;
 import org.example.states.UserState;
 import org.example.statesHandlers.StatesHandler;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +50,12 @@ public class MainLogic {
      * Экземпляр TelegramBot для отправки сообщений в Телеграм
      */
     private TelegramBot tgBot = null;
-    
+
     /**
      * Экземпляр DiscordBot для отправки сообщений в Дискорд
      */
     private DiscordBot dsBot = null;
-
+    
     /**
      * Скомпилированное регулярное выражение команды
      */
@@ -75,7 +74,6 @@ public class MainLogic {
     private final static Pattern MOVE_PART_PATTERN =
             Pattern.compile("^__([prbnqkPRBNQK]|(?:[a-hA-H][1-8])|cancel)__$");
 
-    private final static Pattern LETTER_PATTERN = Pattern.compile("\\D");
     /**
      * Скомпилированное регулярное выражение, соответствующее кнопке выбора матча
      */
@@ -85,23 +83,15 @@ public class MainLogic {
     /**
      * Сообщение команды /start
      */
-    private final static String OLD_START_MESSAGE = """
-            Здравствуй, путник! Я бот о шахматах.
-            Введи пожалуйста мессенджер и свой Id в нём.
-            """;
-    /**
-     * Сообщение команды /start
-     */
-    private final static String NEW_START_MESSAGE = """
-            Здравствуй, путник! Я бот о шахматах.
-            Хочешь зайти как новый - введи new.
-            Если хочешь подключить старый аккаунт, напиши old.
-            """;
-    /**
-     * Скомпилированное регулярное выражение команды
-     */
-    private final static Pattern LINK_PATTERN =
-            Pattern.compile("^(Telegram|Discord) (\\d*)?");
+    private final static String START_MESSAGE = """
+            Здравствуй, путник! Я бот о шахматах. Сейчас я умею:
+            - создавать матч на одном устройстве
+            - создавать онлайн матч
+           
+           Пока что я могу только это, но список возможностей будет пополняться с течением разработки. 
+           Отправь /help для большей информации.
+           """;
+
 
     /**
      * Сообщение команды /help
@@ -125,15 +115,7 @@ public class MainLogic {
     /**
      * Сообщение в меню
      */
-    private final static String MENU_MESSAGE = """
-            Чем займёмся?
-            Сейчас я умею:
-             - создавать матч на одном устройстве
-             - создавать онлайн матч
-            
-            Пока что я могу только это, но список возможностей будет пополняться с течением разработки.\s
-            Отправь /help для большей информации.            
-            """;
+    private final static String MENU_MESSAGE = "Чем займёмся?";
 
     /**
      * Сообщение о начале игры
@@ -144,6 +126,7 @@ public class MainLogic {
      * Сообщение о досрочном завершении матча
      */
     private final static String SURRENDERED = "Ваш противник вышел. Матч завершён.";
+
 
     /**
      * Сообщение об успешном создании матча
@@ -168,10 +151,26 @@ public class MainLogic {
      * Ответ на неизвестную команду
      */
     private final static String UNKNOWN_COMMAND = "Неизвестная команда";
+    
     /**
-     * Ответ на неизвестную команду
+     * Сообщение команды /start
      */
-    private final static String NEW_USER = "Вы успешно зарегистрировались как новый пользователь";
+    private final static String OLD_START_MESSAGE = """
+           Введи пожалуйста мессенджер и свой Id в нём.
+           """;
+    /**
+     * Сообщение команды /start
+     */
+    private final static String NEW_START_MESSAGE = """
+           Здравствуй, путник! Я бот о шахматах.
+           Хочешь зайти как новый - введи new.
+           Если хочешь подключить старый аккаунт, напиши old.
+           """;
+    /**
+     * Скомпилированное регулярное выражение команды
+     */
+    private final static Pattern LINK_PATTERN =
+           Pattern.compile("^(Telegram|Discord) (\\d*)?");
 
     /**
      * Конструктор, требует хранителя состояний
@@ -183,36 +182,35 @@ public class MainLogic {
     }
 
     /**
-     * "
      * Обработать ввод в соответствии с режимом пользователя
      */
     public void processInput(Bot bot, String userInput, long chatId) {
-        long userId = getSystemId(bot, chatId);
+    	long userId = getSystemId(bot, chatId);
         long secondUserId = 0;
         List<String> firstMessages = new ArrayList<String>();
-        List<String> secondMessages = new ArrayList<>();
+        List<String> secondMessages = new ArrayList<String>();
         UserState.MessengerType currentMessenger = UserState.MessengerType.UNKNOWN;
         Matcher command = COMMAND_PATTERN.matcher(userInput);
         if (bot instanceof TelegramBot) {
             currentMessenger = UserState.MessengerType.TELEGRAM;
-        } else if (bot instanceof TelegramBot) {
+        } else if (bot instanceof DiscordBot) {
             currentMessenger = UserState.MessengerType.DISCORD;
         }
-        ImmutablePair<List<String>, List<String>> responseMessages = null;
+        String lobbyName = "";
         if (userId != 0) {
-
+        	ImmutablePair<List<String>, List<String>> responseMessages = null;
             if (command.find()) {
                 String argument = command.group(2);
                 if (argument == null) {
                     argument = "";
                 }
-                responseMessages = handleCommand(currentMessenger, userId, command.group(1), argument);
+                responseMessages = handleCommand(userId, command.group(1), argument);
             } else {
                 responseMessages = handleByMode(currentMessenger, userId, userInput);
             }
             firstMessages = responseMessages.getKey();
             secondMessages = responseMessages.getValue();
-            String lobbyName = statesHandler.getUserLobbyName(userId);
+            lobbyName = statesHandler.getUserLobbyName(userId);
             if (lobbyName == null) {
                 lobbyName = "";
             }
@@ -233,8 +231,7 @@ public class MainLogic {
             } else if (userInput.equals("new")) {
                 userId = statesHandler.addNewUser(currentMessenger);
                 statesHandler.addNewMessengerId(userId, currentMessenger, chatId);
-                firstMessages = handleCommand(currentMessenger, userId, "start", "").getKey();
-
+                firstMessages = handleCommand(userId, "start", "").getKey();
             } else if (userInput.equals("old")) {
                 firstMessages.add(OLD_START_MESSAGE);
             } else if (linkMatch.find()) {
@@ -248,8 +245,9 @@ public class MainLogic {
                         otherUserId = statesHandler.getUserIdFromDiscordId(otherChatId);
                     }
                     if (otherUserId != 0) {
-                        try {
-                            commandHandler.processLinkCommand(userId, userInput, currentMessenger, chatId);
+                        try {                        	
+                            firstMessages.add(commandHandler
+                            		.processLinkCommand(otherUserId, chatId, currentMessenger));
                         } catch (CommandException e) {
                             firstMessages.add(e.getMessage());
                         }
@@ -261,45 +259,21 @@ public class MainLogic {
                 }
             }
         }
+      if (!firstMessages.isEmpty()) {
+        long messageId = statesHandler.getUserMessageId(userId);
+        if (messageId >= 0) {
+          String messageText = firstMessages.removeFirst();
+          editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
+        }
         if (!firstMessages.isEmpty()) {
-            long messageId = statesHandler.getUserMessageId(userId);
-            if (messageId >= 0) {
-                String messageText = firstMessages.removeFirst();
-                editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
-            }
-            if (!firstMessages.isEmpty()) {
-                sendMessages(bot, userId, chatId, currentMessenger, firstMessages);
-            }
+          sendMessages(bot, userId, chatId, currentMessenger, firstMessages);
         }
-        if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
-            currentMessenger = statesHandler.getUserMessenger(secondUserId);
-            sendMessages(bot, secondUserId, statesHandler.getUserMessengerId(secondUserId, currentMessenger),
-                    currentMessenger, secondMessages);
-        }
-        lobbyName = statesHandler.getUserLobbyName(userId);
-    	if (!lobbyName.isEmpty()) {
-    		secondUserId = statesHandler.getLobbyAnotherUserId(lobbyName, userId);
-    	}
-		List<String> firstMessages = responseMessages.getKey();
-		List<String> secondMessages = responseMessages.getValue();
-    	if (!firstMessages.isEmpty()) {
-    		long messageId = statesHandler.getUserMessageId(userId);
-    		if (messageId >= 0) {
-    			String messageText = firstMessages.removeFirst();
-    			editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
-    		}
-    		if (!firstMessages.isEmpty()) {
-    			sendMessages(bot, userId, firstMessages);
-    		}
-    	}
-    	if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
-    		Bot botToSend = switch (statesHandler.getUserMessenger(secondUserId)) {
-    		case UserState.MessengerType.TELEGRAM -> tgBot;
-    		case UserState.MessengerType.DISCORD -> dsBot;
-    		default -> bot;
-    		};
-    		sendMessages(botToSend, secondUserId, secondMessages);    		
-    	}
+      }
+      if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
+    	  UserState.MessengerType secondMessenger = statesHandler.getUserMessenger(secondUserId);
+    	  long secondChatId = statesHandler.getUserMessengerId(secondUserId, secondMessenger);
+        sendMessages(bot, secondUserId, secondChatId, secondMessenger, secondMessages);        
+      }
     }
 
 
@@ -309,18 +283,18 @@ public class MainLogic {
     public List<SimpleButton> getCurrentSimpleButtons(Bot bot, long chatId) {
         long userId = getSystemId(bot, chatId);
         if (userId != 0) {
-            switch (statesHandler.getUserStatus(userId)) {
-                case UserState.UserStatus.AWAITING:
-                    return buttonsCreator.getAwaitingButtons();
-                case UserState.UserStatus.LINK_NEW_USER:
-                    return buttonsCreator.getLinkButtonns();
-                case UserState.UserStatus.MAINMENU:
-                    return buttonsCreator.getMenuButtons();
-                case UserState.UserStatus.CREATING:
-                case UserState.UserStatus.CHOOSING:
-                case UserState.UserStatus.INGAME:
-                    return List.of();
-            }
+        switch (statesHandler.getUserStatus(userId)) {
+            case UserState.UserStatus.AWAITING:
+                return buttonsCreator.getAwaitingButtons();
+            case UserState.UserStatus.MESSENGER_CHOOSING:
+                return buttonsCreator.getLinkButtonns();
+            case UserState.UserStatus.MAINMENU:
+                return buttonsCreator.getMenuButtons();
+            case UserState.UserStatus.CREATING:
+            case UserState.UserStatus.CHOOSING:
+            case UserState.UserStatus.INGAME:
+                return List.of();
+        }
         }
         return List.of();
     }
@@ -331,28 +305,28 @@ public class MainLogic {
     public List<IdentifiedButton> getCurrentIdentifiedButtons(Bot bot, long chatId) {
         long userId = getSystemId(bot, chatId);
         if (userId != 0) {
-            switch (statesHandler.getUserStatus(userId)) {
-                case UserState.UserStatus.MAINMENU:
-                case UserState.UserStatus.AWAITING:
-                case UserState.UserStatus.CREATING:
-                    return List.of();
-                case UserState.UserStatus.INGAME:
-                    String lobbyName = statesHandler.getUserLobbyName(userId);
-                    if (statesHandler.isLobbyExisting(lobbyName)) {
-                        if (userCanMove(userId, lobbyName)) {
-                            return buttonsCreator.getGameButtons(
-                                    statesHandler.getUserMovePartFigure(userId),
-                                    statesHandler.getUserMovePartStart(userId),
-                                    statesHandler.getUserMovePartFinish(userId),
-                                    statesHandler.getGameChessboard(lobbyName),
-                                    statesHandler.isGameWhiteToMove(lobbyName));
-                        }
+        switch (statesHandler.getUserStatus(userId)) {
+            case UserState.UserStatus.MAINMENU:
+            case UserState.UserStatus.AWAITING:
+            case UserState.UserStatus.CREATING:
+                return List.of();
+            case UserState.UserStatus.INGAME:
+                String lobbyName = statesHandler.getUserLobbyName(userId);
+                if (statesHandler.isLobbyExisting(lobbyName)) {
+                    if (userCanMove(userId, lobbyName)) {
+                        return buttonsCreator.getGameButtons(
+                                statesHandler.getUserMovePartFigure(userId),
+                                statesHandler.getUserMovePartStart(userId),
+                                statesHandler.getUserMovePartFinish(userId),
+                                statesHandler.getGameChessboard(lobbyName),
+                                statesHandler.isGameWhiteToMove(lobbyName));
                     }
-                    return List.of();
-                case UserState.UserStatus.CHOOSING:
-                    List<String> listOfLobbiesID = statesHandler.getBookedLobbies();
-                    return buttonsCreator.getLobbyButtons(listOfLobbiesID);
-            }
+                }
+                return List.of();
+            case UserState.UserStatus.CHOOSING:
+                List<String> listOfLobbiesID = statesHandler.getBookedLobbies();
+                return buttonsCreator.getLobbyButtons(listOfLobbiesID);
+        }
         }
         return List.of();
     }
@@ -364,13 +338,12 @@ public class MainLogic {
         if (bot instanceof TelegramBot && tgBot == null) {
             tgBot = (TelegramBot) bot;
         }
-    	if (bot instanceof DiscordBot && dsBot == null) {
+        if (bot instanceof DiscordBot && dsBot == null) {
             dsBot = (DiscordBot) bot;
         }
         long userId = 0;
         if (bot instanceof TelegramBot) {
-
-            userId = statesHandler.getUserIdFromTelegramId(chatId);
+        	userId = statesHandler.getUserIdFromTelegramId(chatId);
         } else if (bot instanceof DiscordBot) {
         	userId = statesHandler.getUserIdFromDiscordId(chatId);
         } else {
@@ -379,27 +352,23 @@ public class MainLogic {
         return userId;
     }
 
+
     /**
      * Обработка введённой команды
      */
-    private ImmutablePair<List<String>, List<String>> handleCommand(UserState.MessengerType messengerType,
-                                                                    long userId, String command, String argument) {
+    private ImmutablePair<List<String>, List<String>> handleCommand(
+    		long userId, String command, String argument) {
         List<String> responseMessagesFirst = new ArrayList<String>();
         List<String> responseMessagesSecond = new ArrayList<String>();
         try {
             switch (command) {
                 case "start" -> {
-                    statesHandler.changeUserLastMessage(userId, -1);
-                    if (statesHandler.getUserStatus(userId) != UserState.UserStatus.MESSENGER_CHOOSING &&
-                            statesHandler.getUserStatus(userId) != UserState.UserStatus.LINK_NEW_USER) {
-                        commandHandler.processQuitCommand(userId);
-                    }
-                    if (statesHandler.getUserStatus(userId) == UserState.UserStatus.LINK_NEW_USER) {
-                        responseMessagesFirst.add(OLD_START_MESSAGE);
-                    } else {
-                        responseMessagesFirst.add(MENU_MESSAGE);
-                    }
-                    responseMessagesSecond.add(SURRENDERED);
+    				statesHandler.changeUserLastMessage(userId, -1);
+    				commandHandler.processQuitCommand(userId);
+    				responseMessagesFirst.add(START_MESSAGE);
+    				responseMessagesFirst.add(MENU_MESSAGE);
+    				responseMessagesSecond.add(SURRENDERED);
+    				responseMessagesSecond.add(MENU_MESSAGE);
                 }
                 case "help" -> {
                     responseMessagesFirst.add(HELP_MESSAGE);
@@ -422,6 +391,22 @@ public class MainLogic {
                     commandHandler.processCreateCommand(userId, argument);
                     responseMessagesFirst.add(LOBBY_BOOKED.formatted(argument));
                 }
+                case "link" -> {
+                    Matcher linkMatch = LINK_PATTERN.matcher(argument);
+                    long otherChatId = 0;
+            		UserState.MessengerType messenger = UserState.MessengerType.UNKNOWN;
+                    if (linkMatch.find()) {
+                    	String otherMessenger = linkMatch.group(1);
+                    	otherChatId = Long.parseLong(linkMatch.group(2));
+                		if (otherMessenger.equals("Telegram")) {
+                        	messenger = UserState.MessengerType.TELEGRAM;
+                    	} else if (otherMessenger.equals("Discord")) {
+                    		messenger = UserState.MessengerType.DISCORD;
+                    	}
+                    	statesHandler.changeUserLastMessage(userId, -1);
+                    }
+                	responseMessagesFirst.add(commandHandler.processLinkCommand(userId, otherChatId, messenger));
+                }
                 case "join" -> {
                     commandHandler.processQuitCommand(userId);
                     boolean isFirstWhite = commandHandler.processJoinCommand(userId, argument);
@@ -438,7 +423,6 @@ public class MainLogic {
                     }
                 }
                 default -> {
-                    ;
                     responseMessagesFirst.add(UNKNOWN_COMMAND);
                 }
             }
@@ -448,6 +432,7 @@ public class MainLogic {
         return new ImmutablePair<>(responseMessagesFirst, responseMessagesSecond);
     }
 
+
     /**
      * Обработать ввод в зависимости от режима пользователя
      */
@@ -456,7 +441,7 @@ public class MainLogic {
         switch (statesHandler.getUserStatus(userId)) {
             case UserState.UserStatus.MAINMENU -> {
                 String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
-                return handleCommand(messengerType, userId, commandAnalog, "");
+                return handleCommand(userId, commandAnalog, "");
             }
             case UserState.UserStatus.INGAME -> {
                 if (userCanMove(userId, statesHandler.getUserLobbyName(userId))) {
@@ -484,52 +469,21 @@ public class MainLogic {
             }
             case UserState.UserStatus.AWAITING -> {
                 String commandAnalog = menuButtonsConverter.getMenuCommand(userInput);
-                return handleCommand(messengerType, userId, commandAnalog, "");
+                return handleCommand(userId, commandAnalog, "");
             }
             case UserState.UserStatus.CREATING -> {
-                return handleCommand(messengerType, userId, "create", userInput);
+                return handleCommand(userId, "create", userInput);
             }
             case UserState.UserStatus.CHOOSING -> {
                 Matcher callbackMatch = LOBBY_BUTTON_PATTERN.matcher(userInput);
                 if (callbackMatch.find()) {
-                    return handleCommand(messengerType, userId, "join", callbackMatch.group(1));
+                    return handleCommand(userId, "join", callbackMatch.group(1));
                 } else {
-                    return handleCommand(messengerType, userId, "join", userInput);
+                    return handleCommand(userId, "join", userInput);
                 }
             }
             case UserState.UserStatus.MESSENGER_CHOOSING -> {
-                List<String> messages = new ArrayList<String>();
-                try {
-                    messages.add(commandHandler.processLinkCommand(userId, "",
-                            statesHandler.getUserMessenger(userId), 0));
-                } catch (CommandException e) {
-                    messages.add(e.getMessage());
-                }
-                return new ImmutablePair<>(messages, List.of());
-            }
-            case UserState.UserStatus.ID_ENTERING -> {
-                List<String> messages = new ArrayList<String>();
-                try {
-                    String nameOfMessenger = "";
-                    long otherUserId = 0;
-                    if (userInput.contains("\s")) {
-                        String[] commandSplit = userInput.split("\s");
-                        nameOfMessenger = commandSplit[0];
-                        if (!commandSplit[1].contains("\\D")) {
-                            otherUserId = Long.parseLong(commandSplit[1]);
-                        }
-                    }
-                    messages.add(commandHandler.processLinkCommand(userId, nameOfMessenger,
-                            UserState.MessengerType.TELEGRAM, otherUserId));
-
-                } catch (CommandException e) {
-                    messages.add(e.getMessage());
-                }
-                return new ImmutablePair<>(messages, List.of());
-            }
-            case UserState.UserStatus.LINK_NEW_USER -> {
-                return handleCommand(messengerType, userId, "new_messenger", "");
-
+                return handleCommand(userId, "link", userInput);
             }
         }
         return new ImmutablePair<>(List.of(), List.of());
@@ -540,12 +494,11 @@ public class MainLogic {
      */
     private void sendMessages(Bot bot, long userId, long chatId, UserState.MessengerType userMessenger,
                               List<String> messagesTexts) {
-        //UserState.MessengerType userMessenger = statesHandler.getUserMessenger(userId);
         if (chatId != 0) {
             Bot botToSend = switch (userMessenger) {
                 case UserState.MessengerType.UNKNOWN -> bot;
                 case UserState.MessengerType.TELEGRAM -> tgBot;
-                case UserState.MessengerType.DISCORD -> bot;
+                case UserState.MessengerType.DISCORD -> dsBot;
             };
             long lastMessageId = botToSend.sendMessages(chatId, messagesTexts);
             if (userId != 0) {
@@ -565,7 +518,7 @@ public class MainLogic {
             Bot botToSend = switch (userMessenger) {
                 case UserState.MessengerType.UNKNOWN -> bot;
                 case UserState.MessengerType.TELEGRAM -> tgBot;
-                case UserState.MessengerType.DISCORD -> bot;
+                case UserState.MessengerType.DISCORD -> dsBot;
             };
             botToSend.editMessage(chatId, messageId, editedMessageText, moreMessages);
         }
