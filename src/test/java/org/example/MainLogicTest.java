@@ -2,10 +2,11 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.FakeBot;
+import org.example.states.UserState;
 import org.example.statesHandlers.FakeStatesHandler;
 
 import java.util.List;
@@ -30,12 +31,23 @@ public class MainLogicTest {
     private final MainLogic mainLogic = new MainLogic(states);
 
     /**
+     * Сброс состояний
+     */
+    @BeforeEach
+    public void resetStates() {
+    	states.resetAll();
+    	states.addNewUser(UserState.MessengerType.UNKNOWN);
+    	states.addNewMessengerId(1, UserState.MessengerType.UNKNOWN, 1);
+    	states.addNewUser(UserState.MessengerType.UNKNOWN);
+    	states.addNewMessengerId(2, UserState.MessengerType.UNKNOWN, 2);
+    	fakeBot.clearMessages();
+    }
+    
+    /**
      * Проверить работу меню
      */
     @Test
     public void menuInputTest() throws CommandException {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/quit", 1);
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of("Чем займёмся?"), responseReal);
@@ -53,8 +65,6 @@ public class MainLogicTest {
      */
     @Test
     public void createValidLobbyTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/create game", 1);
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(
@@ -76,7 +86,6 @@ public class MainLogicTest {
      */
     @Test
     public void createInvalidLobbyTest() {
-        states.resetAll();
         mainLogic.processInput(fakeBot, "/create game", 1);
         fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/create очевиднослишкомдлинноеимя", 1);
@@ -93,8 +102,6 @@ public class MainLogicTest {
      */
     @Test
     public void createSinglegameTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/new_local", 1);
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of(
@@ -121,8 +128,6 @@ public class MainLogicTest {
      */
     @Test
     public void makeMoveTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/new_local", 1);
         fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "e2e4", 1);
@@ -150,8 +155,6 @@ public class MainLogicTest {
      */
     @Test
     public void makeMoveByPartsTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/new_local", 1);
         fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "__p__", 1);
@@ -184,8 +187,6 @@ public class MainLogicTest {
      */
     @Test
     public void impossibleMoveTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/new_local", 1);
         fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "e2e8", 1);
@@ -198,8 +199,6 @@ public class MainLogicTest {
      */
     @Test
     public void joinLobbyTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/create game", 1);
         fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/join game", 2);
@@ -246,8 +245,6 @@ public class MainLogicTest {
      */
     @Test
     public void multiplayerMoveTest() {
-        states.resetAll();
-        fakeBot.clearMessages();
         mainLogic.processInput(fakeBot, "/create game", 1);
         mainLogic.processInput(fakeBot, "/join game", 2);
         fakeBot.clearMessages();
@@ -262,5 +259,30 @@ public class MainLogicTest {
                 responseRealFirst.get(2));
         Assertions.assertEquals("Сейчас ходит противник.",
                 responseRealSecond.get(1));
+    }
+    
+    /**
+     * Проверить добавление нового пользователя
+     */
+    @Test
+    public void newUserTest() {
+    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
+    	mainLogic.processInput(fakeBot, "/start", 3);
+    	mainLogic.processInput(fakeBot, "new", 3);
+    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
+    }
+    
+    /**
+     * Проверить привязку старого пользователя
+     */
+    @Test
+    public void oldUserTest() {
+    	states.addNewUser(UserState.MessengerType.TELEGRAM);
+    	states.addNewMessengerId(3, UserState.MessengerType.TELEGRAM, 1);
+    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
+    	mainLogic.processInput(fakeBot, "/start", 3);
+    	mainLogic.processInput(fakeBot, "old", 3);
+    	mainLogic.processInput(fakeBot, "Telegram 1", 3);
+    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
     }
 }
