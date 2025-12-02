@@ -60,7 +60,9 @@ public class CommandHandler {
     /**
      * Сообщение о выборе привязываемого мессенджера
      */
-    private final static String MESSENGER_CHOOSE = "Какой мессенджер привязываем?";
+    private final static String MESSENGER_CHOOSE = """
+            Какой мессенджер привязываем? Напиши полное название мессенджера и свой ID в нём
+            """;
 
     /**
      * Сообщение о вводе идентификатора мессенджера
@@ -168,13 +170,12 @@ public class CommandHandler {
         } else {
             if (chatId == 0) {
                 throw new CommandException(MESSENGER_ID);
-            } else if (states.isMessengerIdExisting(messenger, chatId)) {
-                states.setNewUserStatus(userId, UserState.UserStatus.ID_ENTERING);
-                throw new CommandException(LINK_ERROR);
             } else {
-                states.addNewMessengerId(userId, messenger, chatId);
-                states.setNewUserStatus(userId, UserState.UserStatus.MAINMENU);
-                return "Мессенджер привязан";
+                if (!states.isMessengerIdExisting(messenger, chatId)) {
+                    states.addNewMessengerId(userId, messenger, chatId);
+                    states.setNewUserStatus(userId, UserState.UserStatus.MAINMENU);
+                }
+                return "Мессенджер привязан. Для взаимодействия со мной повторно напишите /start";
             }
         }
     }

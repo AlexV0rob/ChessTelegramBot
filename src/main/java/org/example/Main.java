@@ -4,7 +4,6 @@ import java.sql.SQLException;
 
 import api.longpoll.bots.exceptions.VkApiException;
 import org.example.bots.TelegramBot;
-import org.example.bots.VKBot;
 import org.example.statesHandlers.DatabaseStatesHandler;
 import org.example.statesHandlers.MemoryStatesHandler;
 import org.example.statesHandlers.StatesHandler;
@@ -33,8 +32,6 @@ public class Main {
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
             botsApplication.registerBot(botToken, new TelegramBot(botToken, mainLogic));
             System.out.println("Телеграм бот запущен");
-            System.out.println("ВК бот запущен");
-            new VKBot(mainLogic).startPolling();
             Thread.currentThread().join();
         } catch (Exception e) {
             System.out.println("Couldn't connect to telegram");

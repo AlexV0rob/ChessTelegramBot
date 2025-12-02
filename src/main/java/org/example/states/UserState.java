@@ -53,7 +53,11 @@ public class UserState {
         /**
          * Вводит идентификатор мессенджера
          */
-        ID_ENTERING
+        ID_ENTERING,
+        /**
+         * Привязывает новый аккаунт
+         */
+        LINK_NEW_USER
     }
 
     /**
@@ -80,7 +84,7 @@ public class UserState {
      * Конструктор класса
      */
     public UserState(MessengerType userMessenger) {
-        currentUserState = UserStatus.MESSENGER_CHOOSING;
+        currentUserState = UserStatus.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
         currentLobbyId = "";
