@@ -1,6 +1,7 @@
 package org.example.bots;
 
 import org.junit.jupiter.api.Test;
+import org.example.states.UserState;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public class FakeBotTest {
 	/**
 	 * Фальшивый бот
 	 */
-	private final FakeBot fakeBot = new FakeBot();
+	private final FakeBot fakeBot = new FakeBot(UserState.MessengerType.TELEGRAM);
 	
 	/**
 	 * Проверить очистку сообщений

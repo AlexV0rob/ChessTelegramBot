@@ -2,6 +2,8 @@ package org.example.bots;
 
 import java.util.List;
 
+import org.example.states.UserState;
+
 /**
  * Интерфейс бота
  */
@@ -9,12 +11,17 @@ public interface Bot {
 	/**
 	 * Отправить список сообщений
 	 */
-	public long sendMessages(long chatId, List<String> messagesTexts);
+	long sendMessages(long chatId, List<String> messagesTexts);
 	
 	/**
 	 * Редактировать сообщение по идентификатору или отправить новое, если 
 	 * невозможно изменить
 	 */
-	public void editMessage(long chatId, long messageId, 
+	void editMessage(long chatId, long messageId, 
 			String editedMessageText, boolean moreMessages);
+	
+	/**
+	 * Получить тип мессенджера бота
+	 */
+	UserState.MessengerType getBotMessengerType();
 }

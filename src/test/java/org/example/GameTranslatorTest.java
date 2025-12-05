@@ -28,6 +28,11 @@ public class GameTranslatorTest {
 	};
 	
 	/**
+	 * Длина стороны доски
+	 */
+	private final static int SIDE_LENGTH = 8;
+	
+	/**
 	 * Строка с доской с белой стороны
 	 */
 	private final static String BOARD_STRING_WHITE = """
@@ -66,10 +71,10 @@ public class GameTranslatorTest {
 	@Test
 	public void sideTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.REGULAR, BOARD, true, true);
+				GameHandler.MoveProperty.REGULAR, BOARD, SIDE_LENGTH, true, true);
 		Assertions.assertEquals(BOARD_STRING_WHITE, boardString);
 		boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.REGULAR, BOARD, false, false);
+				GameHandler.MoveProperty.REGULAR, BOARD, SIDE_LENGTH, false, false);
 		Assertions.assertEquals(BOARD_STRING_BLACK, boardString);
 	}
 	
@@ -79,7 +84,7 @@ public class GameTranslatorTest {
 	@Test
 	public void impossibleMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.IMPOSSIBLE, BOARD, true, true);
+				GameHandler.MoveProperty.IMPOSSIBLE, BOARD, SIDE_LENGTH, true, true);
 		Assertions.assertEquals("""
 				%sНевозможный ход! Попробуйте снова.
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -91,7 +96,7 @@ public class GameTranslatorTest {
 	@Test
 	public void invalidMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.INVALID, BOARD, true, true);
+				GameHandler.MoveProperty.INVALID, BOARD, SIDE_LENGTH, true, true);
 		Assertions.assertEquals("""
 				%sНеверная запись хода! Попробуйте снова.
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -103,7 +108,7 @@ public class GameTranslatorTest {
 	@Test
 	public void checkMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.CHECK, BOARD, true, true);
+				GameHandler.MoveProperty.CHECK, BOARD, SIDE_LENGTH, true, true);
 		Assertions.assertEquals("""
 				%sШах! Ваш король под угрозой!
 				""".formatted(BOARD_STRING_WHITE), boardString);
@@ -115,12 +120,12 @@ public class GameTranslatorTest {
 	@Test
 	public void mateMoveTest() {
 		String boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.MATE, BOARD, false, false);
+				GameHandler.MoveProperty.MATE, BOARD, SIDE_LENGTH, false, false);
 		Assertions.assertEquals("""
 				%sШах и мат! Партия окончена. Победили чёрные.
 				""".formatted(BOARD_STRING_BLACK), boardString);
 		boardString = gameTranslator.chessboardString(
-				GameHandler.MoveProperty.MATE, BOARD, true, true);
+				GameHandler.MoveProperty.MATE, BOARD, SIDE_LENGTH, true, true);
 		Assertions.assertEquals("""
 				%sШах и мат! Партия окончена. Победили белые.
 				""".formatted(BOARD_STRING_WHITE), boardString);

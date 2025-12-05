@@ -1,11 +1,13 @@
 package org.example;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.example.states.LobbyState;
 import org.example.states.UserState;
-import org.example.statesHandlers.FakeStatesHandler;
+import org.example.statesHandlers.StatesHandler;
+import org.example.statesHandlers.MemoryStatesHandler;
 
 /**
  * Проверка обработчика команд
@@ -14,21 +16,40 @@ public class CommandHandlerTest {
     /**
      * Хранитель состояний для проверки их изменения
      */
-    private final FakeStatesHandler states = new FakeStatesHandler();
+    private StatesHandler states;
 
     /**
      * Обработчик команд
      */
-    private final CommandHandler commandHandler = new CommandHandler(states);
+    private CommandHandler commandHandler;
+    
+    /**
+     * Сбросить состояние
+     */
+    @BeforeEach
+    public void resetStates() {
+    	states = new MemoryStatesHandler();
+    	commandHandler = new CommandHandler(states);
+    }
+    
+    /**
+     * Создать пользователя с заранее заданным статусом
+     */
+    private long newUserWithStatus(UserState.UserStatus status) {
+    	long userId = states.addNewUser(UserState.MessengerType.TELEGRAM);
+    	states.setNewUserStatus(userId, status);
+    	return userId;
+    }
 
     /**
      * Проверить работу команды /quit на одном пользователе
      */
     @Test
     public void quitCommandSingleUserTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
-        states.createNewLobby("game", userId, userId, true, LobbyState.LobbyType.SINGLEPLAYER);
+        long userId = newUserWithStatus(UserState.UserStatus.INGAME);
+        states.createNewLobby("game", userId, userId, 
+        		true, LobbyState.LobbyType.SINGLEPLAYER, 
+        		new byte[0][0], 0, true);
         states.setUserLobbyName(userId, "game");
         commandHandler.processQuitCommand(userId);
         Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
@@ -41,10 +62,11 @@ public class CommandHandlerTest {
      */
     @Test
     public void quitCommandTwoUsersTest() {
-        states.resetAll();
-        long userId1 = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
-        long userId2 = states.addNewUserWithStatus(UserState.UserStatus.INGAME);
-        states.createNewLobby("game", userId1, userId2, true, LobbyState.LobbyType.MULTIPLAYER);
+        long userId1 = newUserWithStatus(UserState.UserStatus.INGAME);
+        long userId2 = newUserWithStatus(UserState.UserStatus.INGAME);
+        states.createNewLobby("game", userId1, userId2, 
+        		true, LobbyState.LobbyType.MULTIPLAYER, 
+        		new byte[0][0], 0, true);
         states.setUserLobbyName(userId1, "game");
         states.setUserLobbyName(userId2, "game");
         commandHandler.processQuitCommand(userId1);
@@ -60,8 +82,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void newLocalCommandSingleUserTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         commandHandler.processNewLocalCommand(userId);
         Assertions.assertEquals(UserState.UserStatus.INGAME, states.getUserStatus(userId));
         Assertions.assertTrue(states.isLobbyExisting("1"));
@@ -77,8 +98,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void createValidLobbyNameTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         try {
             commandHandler.processCreateCommand(userId, "game");
         } catch (CommandException e) {
@@ -95,8 +115,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void createNoLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         CommandException exception = Assertions.assertThrows(
                 CommandException.class, () ->
                         commandHandler.processCreateCommand(userId, ""));
@@ -111,8 +130,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void createTooLongLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         CommandException exception = Assertions.assertThrows(
                 CommandException.class, () ->
                         commandHandler.processCreateCommand(userId, "abcdefghijklmnopqrstuvwxyz"));
@@ -127,9 +145,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void createExistingLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
-        long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId1 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId2 = newUserWithStatus(UserState.UserStatus.MAINMENU);
         try {
             commandHandler.processCreateCommand(userId2, "game");
         } catch (CommandException e) {
@@ -149,9 +166,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void joinValidLobbyNameTest() {
-        states.resetAll();
-        long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
-        long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId1 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId2 = newUserWithStatus(UserState.UserStatus.MAINMENU);
         try {
             commandHandler.processCreateCommand(userId1, "game");
             commandHandler.processJoinCommand(userId2, "game");
@@ -174,8 +190,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void joinNoLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         CommandException exception = Assertions.assertThrows(
                 CommandException.class, () ->
                         commandHandler.processJoinCommand(userId, ""));
@@ -194,9 +209,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void commandLinkTest() {
-        states.resetAll();
         Assertions.assertFalse(states.isMessengerIdExisting(UserState.MessengerType.TELEGRAM, 1));
-        long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId1 = newUserWithStatus(UserState.UserStatus.MAINMENU);
         try {
             commandHandler.processLinkCommand(userId1, 1, UserState.MessengerType.TELEGRAM);
         } catch (CommandException e) {
@@ -213,8 +227,7 @@ public class CommandHandlerTest {
      */
     @Test
     public void joinNotExistingLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId = newUserWithStatus(UserState.UserStatus.MAINMENU);
         CommandException exception = Assertions.assertThrows(
                 CommandException.class, () ->
                         commandHandler.processJoinCommand(userId, "game"));
@@ -229,10 +242,9 @@ public class CommandHandlerTest {
      */
     @Test
     public void joinNotAvailableLobbyNameExceptionTest() {
-        states.resetAll();
-        long userId1 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
-        long userId2 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
-        long userId3 = states.addNewUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId1 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId2 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId3 = newUserWithStatus(UserState.UserStatus.MAINMENU);
         try {
             commandHandler.processCreateCommand(userId2, "game");
             commandHandler.processJoinCommand(userId3, "game");
