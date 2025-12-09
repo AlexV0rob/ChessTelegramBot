@@ -66,7 +66,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputCommandTest() {
 		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.MAINMENU);
+		userStateExpected.setUserState(UserState.userStatus.MAIN_MENU);
 		List<String> responseReal = mainLogic.processInput("/newsinglegame", 0);
 		List<String> responseExpected = 
 				commandHandler.processCommand("newsinglegame", "", userStateExpected);
@@ -79,7 +79,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputInGameTest() {
 		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.INGAME);
+		userStateExpected.setUserState(UserState.userStatus.IN_GAME);
 		mainLogic.processInput("/newsinglegame", 0);
 		List<String> responseReal = mainLogic.processInput("something", 0);
 		List<String> responseExpected = 
@@ -93,7 +93,7 @@ public class MainLogicTest {
 	@Test
 	public void userInputInMenuTest() {
 		UserState userStateExpected = new UserState();
-		userStateExpected.setUserState(UserState.USER_STATE.MAINMENU);
+		userStateExpected.setUserState(UserState.userStatus.MAIN_MENU);
 		mainLogic.processInput("/quit", 0);
 		List<String> responseReal = mainLogic.processInput("something", 0);
 		List<String> responseExpected = 

@@ -43,9 +43,9 @@ public class MoveHandlerTest {
 	public void normalInputPartsTest() {
 		GameState gameStateReal = new GameState(START_BOARD, 8, true);
 		GameState gameStateExpected = new GameState(START_BOARD, 8, true);
-		GameHandler.moveProperty moveReal = 
+		GameHandler.MoveProperty moveReal = 
 				moveHandler.processMove("", "e2", "e4", gameStateReal);
-		GameHandler.moveProperty moveExpected = gameHandler.processMove(
+		GameHandler.MoveProperty moveExpected = gameHandler.processMove(
 				0, new PositionOnBoard(1, 4), 
 				new PositionOnBoard(3, 4), gameStateExpected);
 		Assertions.assertArrayEquals(

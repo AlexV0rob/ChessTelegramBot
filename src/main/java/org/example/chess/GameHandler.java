@@ -11,7 +11,7 @@ public class GameHandler {
     /**
      * Статус хода
      */
-    public enum moveProperty {
+    public enum MoveProperty {
         /**
          * Неправильный ход
          */
@@ -37,11 +37,11 @@ public class GameHandler {
     /**
      * Минимальная размерность игрового поля
      */
-    private int minSideValue = 0;
+    private final static int MIN_SIDE_VALUE = 0;
     /**
      * Максимальная размерность игрового поля
      */
-    private int maxSideValue = 7;
+    private final static int MAX_SIDE_VALUE = 7;
     /**
      * Количество классов фигур
      */
@@ -49,14 +49,9 @@ public class GameHandler {
     /**
      * Список классов фигур
      */
-    private final Chessmen[] FIGURES = {
-            new Pawn(minSideValue, maxSideValue),
-            new Rook(minSideValue, maxSideValue),
-            new Knight(minSideValue, maxSideValue),
-            new Bishop(minSideValue, maxSideValue),
-            new Queen(minSideValue, maxSideValue),
-            new King(minSideValue, maxSideValue)
-    };
+    private final List<Chessmen> figures = List.of(
+            new Pawn(), new Rook(), new Knight(), new Bishop(), new Queen(), new King()
+    );
     /**
      * Обозначение чёрного короля в массиве доски
      */
@@ -69,26 +64,26 @@ public class GameHandler {
     /**
      * Возвращает статус хода
      */
-    public moveProperty processMove(int figureCode, PositionOnBoard start,
+    public MoveProperty processMove(int figureCode, PositionOnBoard start,
                                     PositionOnBoard finish, GameState currentGameState) {
-        if ((start.row() < minSideValue || start.row() > maxSideValue) ||
-                (start.column() < minSideValue || start.column() > maxSideValue) ||
-                (finish.row() < minSideValue || finish.row() > maxSideValue) ||
-                (finish.column() < minSideValue || finish.column() > maxSideValue) ||
+        if ((start.row() < MIN_SIDE_VALUE || start.row() > MAX_SIDE_VALUE) ||
+                (start.column() < MIN_SIDE_VALUE || start.column() > MAX_SIDE_VALUE) ||
+                (finish.row() < MIN_SIDE_VALUE || finish.row() > MAX_SIDE_VALUE) ||
+                (finish.column() < MIN_SIDE_VALUE || finish.column() > MAX_SIDE_VALUE) ||
                 (figureCode < 0 || figureCode >= FIGURES_COUNT) ||
                 (currentGameState.getBoard()[start.row()][start.column()] < 0 !=
                         currentGameState.isWhiteToMove())) {
-            return moveProperty.INVALID;
+            return MoveProperty.INVALID;
         }
-        if (!FIGURES[figureCode].checkMove(start, finish, currentGameState.getBoard())) {
-            return moveProperty.IMPOSSIBLE;
+        if (!figures.get(figureCode).checkMove(start, finish, currentGameState.getBoard())) {
+            return MoveProperty.IMPOSSIBLE;
         }
-        moveProperty move = moveProperty.REGULAR;
+        MoveProperty move = MoveProperty.REGULAR;
         if (isCheckMove(figureCode, finish, currentGameState.getBoard())) {
-            move = moveProperty.CHECK;
+            move = MoveProperty.CHECK;
         }
         if (isMateMove(finish, currentGameState)) {
-            move = moveProperty.MATE;
+            move = MoveProperty.MATE;
         }
         currentGameState.moveFigure(start, finish);
         currentGameState.changeSide();
@@ -96,21 +91,13 @@ public class GameHandler {
     }
 
     /**
-     * Получение всех доступных позиций для фигуры в конкретной клетке
-     */
-    public List<PositionOnBoard> allPossiblePositionsForFigure(int figureCode, PositionOnBoard start,
-                                                               GameState currentGameState) {
-        return FIGURES[figureCode].allPossibleMoves(start, currentGameState.getBoard());
-    }
-
-    /**
-     * проверка на шах
+     * Проверка на шах
      */
     private boolean isCheckMove(int figureCode, PositionOnBoard curentPosition, byte[][] board) {
         int kingRow = -1, kingColumn = -1;
         if (board[curentPosition.row()][curentPosition.column()] < 0) {
-            for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
-                for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+            for (int i = MIN_SIDE_VALUE; i <= MAX_SIDE_VALUE && kingRow < 0; ++i) {
+                for (int j = MIN_SIDE_VALUE; j <= MAX_SIDE_VALUE && kingColumn < 0; ++j) {
                     if (board[i][j] == BLACK_KING) {
                         kingRow = i;
                         kingColumn = j;
@@ -118,8 +105,8 @@ public class GameHandler {
                 }
             }
         } else {
-            for (int i = minSideValue; i <= maxSideValue && kingRow < 0; ++i) {
-                for (int j = minSideValue; j <= maxSideValue && kingColumn < 0; ++j) {
+            for (int i = MIN_SIDE_VALUE; i <= MAX_SIDE_VALUE && kingRow < 0; ++i) {
+                for (int j = MIN_SIDE_VALUE; j <= MAX_SIDE_VALUE && kingColumn < 0; ++j) {
                     if (board[i][j] == WHITE_KING) {
                         kingRow = i;
                         kingColumn = j;
@@ -130,12 +117,12 @@ public class GameHandler {
         if (kingRow < 0 || kingColumn < 0) {
             return false;
         }
-        return FIGURES[figureCode].checkMove(
+        return figures.get(figureCode).checkMove(
                 curentPosition, new PositionOnBoard(kingRow, kingColumn), board);
     }
 
     /**
-     * проверка что ход на короля
+     * Проверка, что ход на короля
      */
     private boolean isMateMove(PositionOnBoard finish, GameState gameState) {
         return Math.abs(gameState.getBoard()[finish.row()][finish.column()]) == 6;

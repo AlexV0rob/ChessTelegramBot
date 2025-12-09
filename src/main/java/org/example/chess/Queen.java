@@ -5,36 +5,31 @@ import java.util.List;
 
 /**
  * Класс для реализации логики перемещения Королевы
+ * Так как ходы Королевы являются комбинацией ходов Ладьи и Слона, хранит 
+ * внутри себя экземпляры этих фигур и все проверки делает через комбинирование 
+ * результатов этих проверок для Ладьи и Слона
  */
 public class Queen implements Chessmen {
     /**
-     * ладья для проверки вертикальных и горизонтальных ходов
+     * Ладья для проверки вертикальных и горизонтальных ходов
      */
-    private final Chessmen ROOK;
+    private final Chessmen rook = new Rook();
     /**
-     * слон для проверки диагональных ходов
+     * Слон для проверки диагональных ходов
      */
-    private final Chessmen BISHOP;
-
-    /**
-     * Конструктор класса
-     */
-    public Queen(int minSideValue, int maxSideValue) {
-        ROOK = new Rook(minSideValue, maxSideValue);
-        BISHOP = new Bishop(minSideValue, maxSideValue);
-    }
+    private final Chessmen bishop = new Bishop();
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        boolean result = ROOK.checkMove(start, finish, board)
-                || BISHOP.checkMove(start, finish, board);
+        boolean result = rook.checkMove(start, finish, board)
+                || bishop.checkMove(start, finish, board);
         return result;
     }
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
-        List<PositionOnBoard> possibleMoves = ROOK.allPossibleMoves(start, board);
-        possibleMoves.addAll(BISHOP.allPossibleMoves(start, board));
+        List<PositionOnBoard> possibleMoves = rook.allPossibleMoves(start, board);
+        possibleMoves.addAll(bishop.allPossibleMoves(start, board));
         return possibleMoves;
     }
 }

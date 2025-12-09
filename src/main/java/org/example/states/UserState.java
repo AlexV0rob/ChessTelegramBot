@@ -4,33 +4,82 @@ package org.example.states;
  * Хранитель состояния пользователя
  */
 public class UserState {
+	/**
+	 * Код пустого поля
+	 */
+	private final static byte EMPTY = 0;
+	
+	/**
+	 * Код пешки
+	 */
+	private final static byte PAWN = 1;
+	
+	/**
+	 * Код ладьи
+	 */
+	private final static byte ROOK = 2;
+	
+	/**
+	 * Код коня
+	 */
+	private final static byte KNIGHT = 3;
+	
+	/**
+	 * Код слона
+	 */
+	private final static byte BISHOP = 4;
+	
+	/**
+	 * Код ферзя
+	 */
+	private final static byte QUEEN = 5;
+	
+	/**
+	 * Код короля
+	 */
+	private final static byte KING = 6;
+
+	/**
+	 * Код белой стороны
+	 */
+	private final static byte WHITE = 1;
+
+	/**
+	 * Код чёрной стороны
+	 */
+	private final static byte BLACK = -1;
+	
     /**
      * Начальная доска
      */
     private final static byte[][] START_BOARD =
-            {
-                    {-2, -3, -4, -5, -6, -4, -3, -2},
-                    {-1, -1, -1, -1, -1, -1, -1, -1},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {2, 3, 4, 5, 6, 4, 3, 2}
+            {	
+            		{WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, 
+            			WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN},
+            		{WHITE * ROOK, WHITE * KNIGHT, WHITE * BISHOP, WHITE * QUEEN, 
+            				WHITE * KING, WHITE * BISHOP, WHITE * KNIGHT, WHITE * ROOK},
+                    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+                    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+                    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+                    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+                    {BLACK * ROOK, BLACK * KNIGHT, BLACK * BISHOP, BLACK * QUEEN, 
+                    	BLACK * KING, BLACK * BISHOP, BLACK * KNIGHT, BLACK * ROOK},
+                    {BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, 
+                    	BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN}
             };
 
     /**
      * Состояние пользователя
      */
-    public enum USER_STATE {
+    public enum userStatus {
         /**
          * Главное меню
          */
-        MAINMENU,
+        MAIN_MENU,
         /**
          * В игре
          */
-        INGAME
+        IN_GAME
     }
 
     /**
@@ -41,7 +90,7 @@ public class UserState {
     /**
      * Текущее состояние пользователя
      */
-    private USER_STATE currentUserState;
+    private userStatus currentUserState;
 
     /**
      * Состояние игры
@@ -58,14 +107,14 @@ public class UserState {
      */
     public UserState() {
         currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
-        currentUserState = USER_STATE.MAINMENU;
+        currentUserState = userStatus.MAIN_MENU;
         currentMoveState = new MoveState();
     }
 
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(USER_STATE newUserState) {
+    public void setUserState(userStatus newUserState) {
         currentUserState = newUserState;
     }
 
@@ -79,7 +128,7 @@ public class UserState {
     /**
      * Получить текущее состояние пользователя
      */
-    public USER_STATE getUserState() {
+    public userStatus getUserState() {
         return currentUserState;
     }
 

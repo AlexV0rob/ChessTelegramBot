@@ -43,7 +43,7 @@ public class InGameInputHandlerTest {
 	public void moveTest() {
 		UserState userStateReal = new UserState();
 		UserState userStateExpected = new UserState();
-		GameHandler.moveProperty moveExpected = 
+		GameHandler.MoveProperty moveExpected = 
 				moveHandler.processMove("", "e2", "e4", userStateExpected.getGameState());
 		List<String> textsExpected = List.of(
 				gameTranslator.chessboardString(

@@ -67,9 +67,9 @@ public class MainLogic {
         	return commandHandler.processCommand(commandText, commandArgument, currentUserState);
         }
         switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
+        case UserState.userStatus.MAIN_MENU:
         	return inMenuHandler.processInput(userInput, currentUserState);
-        case UserState.USER_STATE.INGAME:
+        case UserState.userStatus.IN_GAME:
         	return inGameHandler.processInput(userInput, currentUserState);
         }
         return commandHandler.processCommand("quit", "", currentUserState);
@@ -84,9 +84,9 @@ public class MainLogic {
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
+        case UserState.userStatus.MAIN_MENU:
         	return buttonsCreator.getMenuButtons();
-        case UserState.USER_STATE.INGAME:
+        case UserState.userStatus.IN_GAME:
         	return List.of();
         }
     	return List.of();
@@ -101,9 +101,9 @@ public class MainLogic {
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.USER_STATE.MAINMENU:
+        case UserState.userStatus.MAIN_MENU:
         	return List.of();
-        case UserState.USER_STATE.INGAME:
+        case UserState.userStatus.IN_GAME:
         	return buttonsCreator.getGameButtons(
         			currentUserState.getMoveState(), 
         			currentUserState.getGameState().getBoard(),

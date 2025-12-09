@@ -8,41 +8,34 @@ import java.util.List;
  */
 public class Pawn implements Chessmen {
     /**
-     * линия, с которой стартуют белые пешки
+     * Линия, с которой стартуют белые пешки
      */
     private final static int WHITE_PAWN_START_ROW = 1;
     /**
-     * линия, с которой стартуют чёрные пешки
+     * Линия, с которой стартуют чёрные пешки
      */
     private final static int BLACK_PAWN_START_ROW = 6;
     /**
-     * сдвиг для одинарного хода
+     * Сдвиг для одинарного хода
      */
     private final static int SINGLE_MOVE_SHIFT = 1;
     /**
-     * сдвиг для двойного хода
+     * Сдвиг для двойного хода
      */
     private final static int TWIN_MOVE_SHIFT = 2;
     /**
-     * сдвиг для рубки пешкой
+     * Сдвиг для рубки пешкой
      */
     private final static int HORIZONTAL_MOVE_SHIFT = 1;
-    /**
-     * Максимальная размерность игрового поля
-     */
-    private int minSideValue;
+
     /**
      * Минимальная размерность игрового поля
      */
-    private int maxSideValue;
-
+    private final static int MIN_SIDE_VALUE = 0;
     /**
-     * Конструктор класса
+     * Максимальная размерность игрового поля
      */
-    public Pawn(int minSideValue, int maxSideValue) {
-        this.minSideValue = minSideValue;
-        this.maxSideValue = maxSideValue;
-    }
+    private final static int MAX_SIDE_VALUE = 7;
 
     /**
      * Проверка отсутствия препятствий на пути из стартовой позиции в конечную
@@ -57,27 +50,24 @@ public class Pawn implements Chessmen {
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (board[finish.row()][finish.column()] == 0 &&
-                isWayFree(start, finish, board) &&
-                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
-                finish.column() == start.column()) {
+        if (isPositionEmpty(finish.row(), finish.column(), board) 
+                && isWayFree(start, finish, board) 
+                && isMoveCorrectForSide(start.row(), finish.row(), 1, board[start.row()][start.column()] < 0) 
+                && finish.column() == start.column()) {
             return true;
         }
-        if (board[finish.row()][finish.column()] == 0 &&
-                isWayFree(start, finish, board) &&
-                ((WHITE_PAWN_START_ROW == start.row() &&
-                        finish.row() - start.row() == 2 &&
-                        board[start.row()][start.column()] < 0) ||
-                        (BLACK_PAWN_START_ROW == start.row() &&
-                                finish.row() - start.row() == -2 &&
-                                board[start.row()][start.column()] > 0))) {
+        if (isPositionEmpty(finish.row(), finish.column(), board) && isWayFree(start, finish, board) && 
+        		((WHITE_PAWN_START_ROW == start.row() 
+        		&& isMoveCorrectForSide(start.row(), finish.row(), 2, true)) || 
+        				(BLACK_PAWN_START_ROW == start.row() 
+        				&& isMoveCorrectForSide(start.row(), finish.row(), 2, false)))) {
             return true;
         }
-        if (board[finish.row()][finish.column()] != 0 &&
-        		(board[finish.row()][finish.column()] < 0) != (board[start.row()][start.column()] < 0) &&
-                isWayFree(start, finish, board) &&
-                finish.row() - start.row() == 1 * (board[start.row()][start.column()] < 0 ? 1 : -1) &&
-                Math.abs(finish.column() - start.column()) == 1) {
+        if (!isPositionEmpty(finish.row(), finish.column(), board)
+        		&& isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board) 
+                && isWayFree(start, finish, board) 
+                && isMoveCorrectForSide(start.row(), finish.row(), 1, board[start.row()][start.column()] < 0) 
+                && Math.abs(finish.column() - start.column()) == 1) {
             return true;
         }
         return false;
@@ -89,37 +79,69 @@ public class Pawn implements Chessmen {
         int startRow = start.row();
         int startColumn = start.column();
         int isWhite = board[startRow][startColumn] < 0 ? 1 : -1;
-        if (startRow + SINGLE_MOVE_SHIFT * isWhite <= maxSideValue &&
-                startRow + SINGLE_MOVE_SHIFT * isWhite >= minSideValue &&
-                board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn] == 0) {
+        if (isInsideBorders(startRow + SINGLE_MOVE_SHIFT * isWhite) &&
+        		isPositionEmpty(startRow + SINGLE_MOVE_SHIFT * isWhite, startColumn, board)) {
             possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite, startColumn));
         }
-        if ((WHITE_PAWN_START_ROW == startRow ||
-                BLACK_PAWN_START_ROW == startRow) &&
-                startRow + TWIN_MOVE_SHIFT * isWhite <= maxSideValue &&
-                startRow + TWIN_MOVE_SHIFT * isWhite >= minSideValue &&
+        if ((WHITE_PAWN_START_ROW == startRow || BLACK_PAWN_START_ROW == startRow) &&
+        		isInsideBorders(startRow + TWIN_MOVE_SHIFT * isWhite) &&
                 isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn), board) &&
-                board[startRow + TWIN_MOVE_SHIFT * isWhite][startColumn] == 0) {
+                isPositionEmpty(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn, board)) {
             possibleMoves.add(new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn));
         }
 
-        if (startRow + SINGLE_MOVE_SHIFT * isWhite <= maxSideValue &&
-                startRow + SINGLE_MOVE_SHIFT * isWhite >= minSideValue &&
+        if (isInsideBorders(startRow + SINGLE_MOVE_SHIFT * isWhite) &&
                 isWayFree(start, new PositionOnBoard(startRow + TWIN_MOVE_SHIFT * isWhite, startColumn), board) &&
-                board[startRow + 1][startColumn] == 0) {
-            if (startColumn + HORIZONTAL_MOVE_SHIFT <= maxSideValue &&
-                    board[startRow][startColumn]
-                            * board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn + HORIZONTAL_MOVE_SHIFT] < 0) {
+                isPositionEmpty(startRow + 1, startColumn, board)) {
+            if (isInsideBorders(startColumn + HORIZONTAL_MOVE_SHIFT) &&
+            		isPositionEnemy(
+            				startRow, startColumn, 
+            				startRow + SINGLE_MOVE_SHIFT * isWhite, startColumn + HORIZONTAL_MOVE_SHIFT, 
+            				board)) 
+            {
                 possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite,
                         startColumn + HORIZONTAL_MOVE_SHIFT));
             }
-            if (startColumn - HORIZONTAL_MOVE_SHIFT >= minSideValue &&
-                    board[startRow][startColumn]
-                            * board[startRow + SINGLE_MOVE_SHIFT * isWhite][startColumn - HORIZONTAL_MOVE_SHIFT] < 0) {
+            if (isInsideBorders(startColumn - HORIZONTAL_MOVE_SHIFT) &&
+            		isPositionEnemy(
+            				startRow, startColumn, 
+            				startRow + SINGLE_MOVE_SHIFT * isWhite, startColumn - HORIZONTAL_MOVE_SHIFT, 
+            				board)) 
+            {
                 possibleMoves.add(new PositionOnBoard(startRow + SINGLE_MOVE_SHIFT * isWhite,
                         startColumn - HORIZONTAL_MOVE_SHIFT));
             }
         }
         return possibleMoves;
+    }
+    
+    /**
+     * Проверить, что в точке назначения пустое поле
+     */
+    private boolean isPositionEmpty(int row, int column, byte[][] board) {
+    	return board[row][column] == 0;
+    }
+    
+    /**
+     * Проверить, что в точке назначения фигура противника
+     */
+    private boolean isPositionEnemy(int startRow, int startColumn, 
+    		int finishRow, int finishColumn, byte[][] board) {
+    	return board[finishRow][finishColumn] * board[startRow][startColumn] < 0;
+    }
+    
+    /**
+     * Проверить, что координата находится в границах
+     */
+    private boolean isInsideBorders(int pos) {
+    	return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
+    }
+    
+    /**
+     * Проверить, что ход в нужную для цвета пешки сторону
+     */
+    private boolean isMoveCorrectForSide(int startRow, int finishRow, 
+    		int moveLength, boolean isPawnWhite) {
+    	return finishRow - startRow == moveLength * (isPawnWhite ? 1 : -1);
     }
 }
