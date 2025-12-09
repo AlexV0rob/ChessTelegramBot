@@ -7,6 +7,10 @@ import java.util.List;
  * Класс для реализации логики перемещения Короля
  */
 public class King implements Chessmen {
+	/**
+	 * Без сдвига
+	 */
+	private static final int NO_SHIFT = 0;
     /**
      * Сдвиг по вертикали
      */
@@ -15,28 +19,20 @@ public class King implements Chessmen {
      * Сдвиг по горизонтали
      */
     private static final int HORIZONTAL_SHIFT = 1;
-    /**
-     * Максимальная размерность игрового поля
-     */
-    private int minSideValue;
+
     /**
      * Минимальная размерность игрового поля
      */
-    private int maxSideValue;
-
+    private final static int MIN_SIDE_VALUE = 0;
     /**
-     * Конструктор
+     * Максимальная размерность игрового поля
      */
-    public King(int minSideValue, int maxSideValue) {
-        this.minSideValue = minSideValue;
-        this.maxSideValue = maxSideValue;
-    }
+    private final static int MAX_SIDE_VALUE = 7;
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0) !=
-                        (board[start.row()][finish.column()] < 0)) {
+        if (isPositionEmpty(finish.row(), finish.column(), board) ||
+                isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board)) {
             if (Math.abs(start.row() - finish.row()) <= 1 &&
                     Math.abs(start.column() - finish.column()) <= 1)
                 return true;
@@ -47,54 +43,96 @@ public class King implements Chessmen {
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
-        int startRow = start.row();
-        int startColumn = start.column();
-        if (startRow + VERTICAL_SHIFT <= maxSideValue) {
-            if (!(board[startRow + VERTICAL_SHIFT][startColumn] * board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow + VERTICAL_SHIFT, startColumn));
-            }
-            if (startColumn + HORIZONTAL_SHIFT <= maxSideValue &&
-                    !(board[startRow + VERTICAL_SHIFT][startColumn + HORIZONTAL_SHIFT] *
-                            board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow + VERTICAL_SHIFT,
-                        startColumn + HORIZONTAL_SHIFT));
-            }
-            if (startColumn - HORIZONTAL_SHIFT >= minSideValue &&
-                    !(board[startRow + VERTICAL_SHIFT][startColumn - HORIZONTAL_SHIFT]
-                            * board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow + VERTICAL_SHIFT,
-                        startColumn - HORIZONTAL_SHIFT));
-            }
+        if (isShiftAvailable(VERTICAL_SHIFT, NO_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() + VERTICAL_SHIFT, 
+        			start.column()
+        	));
         }
-        if (startRow - VERTICAL_SHIFT >= minSideValue) {
-            if (!(board[startRow - VERTICAL_SHIFT][startColumn] * board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow - VERTICAL_SHIFT, startColumn));
-            }
-            if (startColumn + HORIZONTAL_SHIFT <= maxSideValue &&
-                    !(board[startRow - VERTICAL_SHIFT][startColumn + HORIZONTAL_SHIFT] *
-                            board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow - VERTICAL_SHIFT,
-                        startColumn + HORIZONTAL_SHIFT));
-            }
-            if (startColumn - HORIZONTAL_SHIFT >= minSideValue &&
-                    !(board[startRow - VERTICAL_SHIFT][startColumn - HORIZONTAL_SHIFT]
-                            * board[startRow][startColumn] > 0)) {
-                possibleMoves.add(new PositionOnBoard(startRow - VERTICAL_SHIFT,
-                        startColumn - HORIZONTAL_SHIFT));
-            }
+        if (isShiftAvailable(-VERTICAL_SHIFT, NO_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() - VERTICAL_SHIFT, 
+        			start.column()
+        	));
         }
-        if (startColumn + HORIZONTAL_SHIFT <= maxSideValue &&
-                !(board[startRow][startColumn + HORIZONTAL_SHIFT] *
-                        board[startRow][startColumn] > 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow,
-                    startColumn + HORIZONTAL_SHIFT));
+        if (isShiftAvailable(NO_SHIFT, HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row(), 
+        			start.column() + HORIZONTAL_SHIFT
+        	));
         }
-        if (startColumn - HORIZONTAL_SHIFT >= minSideValue &&
-                !(board[startRow][startColumn - HORIZONTAL_SHIFT]
-                        * board[startRow][startColumn] > 0)) {
-            possibleMoves.add(new PositionOnBoard(startRow,
-                    startColumn - HORIZONTAL_SHIFT));
+        if (isShiftAvailable(NO_SHIFT, -HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row(), 
+        			start.column() - HORIZONTAL_SHIFT
+        	));
+        }
+        if (isShiftAvailable(VERTICAL_SHIFT, HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() + VERTICAL_SHIFT, 
+        			start.column() + HORIZONTAL_SHIFT
+        	));
+        }
+        if (isShiftAvailable(VERTICAL_SHIFT, -HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() + VERTICAL_SHIFT, 
+        			start.column() - HORIZONTAL_SHIFT
+        	));
+        }
+        if (isShiftAvailable(-VERTICAL_SHIFT, HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() - VERTICAL_SHIFT, 
+        			start.column() + HORIZONTAL_SHIFT
+        	));
+        }
+        if (isShiftAvailable(-VERTICAL_SHIFT, -HORIZONTAL_SHIFT, 
+        		start.row(), start.column(), board)) {
+        	possibleMoves.add(new PositionOnBoard(
+        			start.row() - VERTICAL_SHIFT, 
+        			start.column() - HORIZONTAL_SHIFT
+        	));
         }
         return possibleMoves;
     }
+    /**
+     * Проверить, что в точке назначения пустое поле
+     */
+    private boolean isPositionEmpty(int row, int column, byte[][] board) {
+    	return board[row][column] == 0;
+    }
+    
+    /**
+     * Проверить, что в точке назначения фигура противника
+     */
+    private boolean isPositionEnemy(int startRow, int startColumn, 
+    		int finishRow, int finishColumn, byte[][] board) {
+    	return board[finishRow][finishColumn] < 0 != board[startRow][startColumn] < 0;
+    }
+    
+    /**
+     * Проверить, что координата находится в границах
+     */
+    private boolean isInsideBorders(int pos) {
+    	return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
+    }
+    
+    /**
+     * Проверить, что сдвинуться можно
+     */
+    private boolean isShiftAvailable(int verticalShift, int horizontalShift, 
+    		int row, int column, byte[][] board) {
+    	if (isInsideBorders(row + verticalShift) && isInsideBorders(column + verticalShift) &&
+                (isPositionEnemy(row, column, row + verticalShift, column + horizontalShift, board))
+                || isPositionEmpty(row, column, board)) {
+            return true;
+        }
+    	return false;
+    }   
 }

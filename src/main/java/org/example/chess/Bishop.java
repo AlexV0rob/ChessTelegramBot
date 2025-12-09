@@ -10,7 +10,7 @@ public class Bishop implements Chessmen {
     /**
      * Расположение позиций друг относительно друга
      */
-    private enum positionRelatives {
+    private enum PositionRelatives {
         /**
          * Выше
          */
@@ -25,23 +25,15 @@ public class Bishop implements Chessmen {
         EQUAL
     }
 
-    /**
-     * Максимальная размерность игрового поля
-     */
-    private int minSideValue;
+
     /**
      * Минимальная размерность игрового поля
      */
-    private int maxSideValue;
-
-
+    private final static int MIN_SIDE_VALUE = 0;
     /**
-     * Конструктор класса
+     * Максимальная размерность игрового поля
      */
-    public Bishop(int minSideValue, int maxSideValue) {
-        this.minSideValue = minSideValue;
-        this.maxSideValue = maxSideValue;
-    }
+    private final static int MAX_SIDE_VALUE = 7;
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
@@ -51,11 +43,10 @@ public class Bishop implements Chessmen {
          * шахматная фигура оппонента
          * 2) Проверяем что слон может так сходить
          */
-        if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
-            if (Math.abs(start.row() - finish.row()) ==
-                    Math.abs(start.column() - finish.column()) &&
-                    isWayFree(start, finish, board)) {
+        if (isPositionEmpty(finish.row(), finish.column(), board) || 
+        		isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board)) {
+            if (Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column()) 
+            		&& isWayFree(start, finish, board)) {
                 return true;
             }
         }
@@ -66,44 +57,17 @@ public class Bishop implements Chessmen {
      * Проверка отсутствия препятствий на пути из стартовой позиции в конечную
      */
     private boolean isWayFree(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        positionRelatives verticalRelatives = positionRelatives.EQUAL;
-        positionRelatives horizontalRelatives = positionRelatives.EQUAL;
-        if (start.row() < finish.row()) {
-            verticalRelatives = positionRelatives.GREATER;
-        } else if (start.row() > finish.row()) {
-            verticalRelatives = positionRelatives.LESS;
-        }
-        if (start.column() < finish.column()) {
-            horizontalRelatives = positionRelatives.GREATER;
-        } else if (start.column() > finish.column()) {
-            horizontalRelatives = positionRelatives.LESS;
-        }
-        int currentRow = start.row();
-        int currentColumn = start.column();
-        if (verticalRelatives.equals(positionRelatives.GREATER)) {
-            ++currentRow;
-        } else if (verticalRelatives.equals(positionRelatives.LESS)) {
-            --currentRow;
-        }
-        if (horizontalRelatives.equals(positionRelatives.GREATER)) {
-            ++currentColumn;
-        } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
-            --currentColumn;
-        }
-        while ((currentRow >= minSideValue && currentRow <= maxSideValue) &&
-                (currentColumn >= minSideValue && currentColumn <= maxSideValue) &&
-                board[currentRow][currentColumn] == 0 &&
+        PositionRelatives verticalRelatives = 
+        		relativesBetweenStartAndFinish(start.row(), finish.row());
+        PositionRelatives horizontalRelatives = 
+        		relativesBetweenStartAndFinish(start.column(), finish.column());
+        int currentRow = nextPosition(start.row(), verticalRelatives);
+        int currentColumn = nextPosition(start.column(), horizontalRelatives);
+        while (isInsideBorders(currentRow) && isInsideBorders(currentColumn) &&
+                isPositionEmpty(currentRow, currentColumn, board) &&
                 (currentRow != finish.row() || currentColumn != finish.column())) {
-            if (verticalRelatives.equals(positionRelatives.GREATER)) {
-                ++currentRow;
-            } else if (verticalRelatives.equals(positionRelatives.LESS)) {
-                --currentRow;
-            }
-            if (horizontalRelatives.equals(positionRelatives.GREATER)) {
-                ++currentColumn;
-            } else if (horizontalRelatives.equals(positionRelatives.LESS)) {
-                --currentColumn;
-            }
+        	currentRow = nextPosition(currentRow, verticalRelatives);
+            currentColumn = nextPosition(currentColumn, horizontalRelatives);
         }
         return (currentRow == finish.row() && currentColumn == finish.column());
     }
@@ -111,81 +75,101 @@ public class Bishop implements Chessmen {
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
-        int startRow = start.row();
-        int startColumn = start.column();
-        int DiagonalShift = 1;
-        boolean isUpAndRightFree = true;
-        boolean isDownAndRightFree = true;
-        boolean isUpAndLeftFree = true;
-        boolean isDownAndLeftFree = true;
-        while (DiagonalShift <= maxSideValue && (isUpAndRightFree || isDownAndRightFree || isUpAndLeftFree
-                || isDownAndLeftFree)) {
-            if (isUpAndRightFree &&
-                    startRow + DiagonalShift <= maxSideValue &&
-                    startColumn + DiagonalShift <= maxSideValue &&
-                    board[startRow + DiagonalShift][startColumn + DiagonalShift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
-                        startColumn + DiagonalShift));
-            } else if (isUpAndRightFree && startRow + DiagonalShift <= maxSideValue &&
-                    startRow + DiagonalShift <= maxSideValue &&
-                    startColumn + DiagonalShift <= maxSideValue &&
-                    board[startRow + DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
-                        startColumn + DiagonalShift));
-                isUpAndRightFree = false;
-            } else {
-                isUpAndRightFree = false;
-            }
-            if (isDownAndRightFree &&
-                    startRow - DiagonalShift >= minSideValue &&
-                    startColumn - DiagonalShift >= minSideValue &&
-                    board[startRow - DiagonalShift][startColumn - DiagonalShift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
-                        startColumn - DiagonalShift));
-            } else if (isDownAndRightFree &&
-                    startRow - DiagonalShift >= minSideValue &&
-                    startColumn - DiagonalShift >= minSideValue &&
-                    board[startRow - DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
-                        startColumn - DiagonalShift));
-                isDownAndRightFree = false;
-            } else {
-                isDownAndRightFree = false;
-            }
-            if (isUpAndLeftFree &&
-                    startRow + DiagonalShift <= maxSideValue &&
-                    startColumn - DiagonalShift >= minSideValue &&
-                    board[startRow + DiagonalShift][startColumn - DiagonalShift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
-                        startColumn - DiagonalShift));
-            } else if (isUpAndLeftFree &&
-                    startRow + DiagonalShift <= maxSideValue &&
-                    startColumn - DiagonalShift >= minSideValue &&
-                    board[startRow + DiagonalShift][startColumn - DiagonalShift] * board[startRow][startColumn] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow + DiagonalShift,
-                        startColumn - DiagonalShift));
-                isUpAndLeftFree = false;
-            } else {
-                isUpAndLeftFree = false;
-            }
-            if (isDownAndLeftFree &&
-                    startRow - DiagonalShift >= minSideValue &&
-                    startColumn + DiagonalShift <= maxSideValue &&
-                    board[startRow - DiagonalShift][startColumn + DiagonalShift] == 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
-                        startColumn + DiagonalShift));
-            } else if (isDownAndLeftFree &&
-                    startRow - DiagonalShift >= minSideValue &&
-                    startColumn + DiagonalShift <= maxSideValue &&
-                    board[startRow - DiagonalShift][startColumn + DiagonalShift] * board[startRow][startColumn] < 0) {
-                possibleMoves.add(new PositionOnBoard(startRow - DiagonalShift,
-                        startColumn + DiagonalShift));
-                isDownAndLeftFree = false;
-            } else {
-                isDownAndLeftFree = false;
-            }
-            DiagonalShift++;
-        }
+        possibleMoves.addAll(directionAllMoves(start.row(), start.column(), 1, 1, board));
+        possibleMoves.addAll(directionAllMoves(start.row(), start.column(), 1, -1, board));
+        possibleMoves.addAll(directionAllMoves(start.row(), start.column(), -1, 1, board));
+        possibleMoves.addAll(directionAllMoves(start.row(), start.column(), -1, -1, board));
         return possibleMoves;
+    }
+    
+    /**
+     * Проверить, что в точке назначения пустое поле
+     */
+    private boolean isPositionEmpty(int row, int column, byte[][] board) {
+    	return board[row][column] == 0;
+    }
+    
+    /**
+     * Проверить, что в точке назначения фигура противника
+     */
+    private boolean isPositionEnemy(int startRow, int startColumn, 
+    		int finishRow, int finishColumn, byte[][] board) {
+    	return board[finishRow][finishColumn] * board[startRow][startColumn] < 0;
+    }
+    
+    /**
+     * Определить отношения по этой координате между стартовой и конечной позициями
+     */
+    private PositionRelatives relativesBetweenStartAndFinish(
+    		int startCoordinate, int finishCoordinate) {
+    	if (startCoordinate < finishCoordinate) {
+    		return PositionRelatives.GREATER;
+    	}
+    	if (startCoordinate > finishCoordinate) {
+    		return PositionRelatives.LESS;
+    	}
+    	return PositionRelatives.EQUAL;
+    }
+    
+    /**
+     * Определить следующую позицию по координате при данном отношении
+     */
+    private int nextPosition(int currentPos, PositionRelatives relation) {
+        if (relation.equals(PositionRelatives.GREATER)) {
+        	return currentPos + 1;
+        } else if (relation.equals(PositionRelatives.LESS)) {
+            return currentPos - 1;
+        }
+        return currentPos;
+    }
+    
+    /**
+     * Проверить, что координата находится в границах
+     */
+    private boolean isInsideBorders(int pos) {
+    	return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
+    }
+    
+    /**
+     * Проверить, что сдвинуться можно
+     */
+    private boolean isShiftAvailable(int verticalShift, int horizontalShift, 
+    		int row, int column, byte[][] board) {
+    	if (isInsideBorders(row + verticalShift) && isInsideBorders(column + verticalShift) &&
+                (isPositionEnemy(row, column, row + verticalShift, column + horizontalShift, board))
+                || isPositionEmpty(row, column, board)) {
+            return true;
+        }
+    	return false;
+    }
+    
+    /**
+     * Проверить, что дальнейшее движение возможно
+     */
+    private boolean isFurtherShiftAvailable(int verticalShift, int horizontalShift, 
+    		int row, int column, byte[][] board) {
+    	if (isInsideBorders(row + verticalShift) && isInsideBorders(column + verticalShift) &&
+    			isPositionEmpty(row, column, board)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Получить все доступные ходы в данном направлении
+     */
+    private List<PositionOnBoard> directionAllMoves(int row, int column, 
+    		int verticalShift, int horizontalShift, byte[][] board) {
+    	List<PositionOnBoard> moves = new ArrayList<PositionOnBoard>();
+    	boolean isWayFree = true;
+    	while (isInsideBorders(row) && isInsideBorders(column) && isWayFree) {
+    		if (isShiftAvailable(verticalShift, horizontalShift, row, column, board)) {
+    			moves.add(new PositionOnBoard(row + verticalShift, column + horizontalShift));
+    		}
+    		isWayFree = isFurtherShiftAvailable(verticalShift, horizontalShift, row, column, board);
+			row += verticalShift;
+			column += horizontalShift;
+    	}
+    	return moves;
     }
 }

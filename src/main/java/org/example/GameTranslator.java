@@ -59,7 +59,7 @@ public class GameTranslator {
     /**
      * Сформировать текст сообщения с состоянием доски в виде строки
      */
-    public String chessboardString(GameHandler.moveProperty moveProperty,
+    public String chessboardString(GameHandler.MoveProperty moveProperty,
                                    byte[][] currentChessboard, boolean isWhiteToMove) {
         String chessboardString, side, board, additional;
         board = boardString(currentChessboard, isWhiteToMove);
@@ -69,11 +69,11 @@ public class GameTranslator {
             side = MOVING_SIDES[1];
         }
         additional = switch (moveProperty) {
-            case GameHandler.moveProperty.REGULAR -> "";
-            case GameHandler.moveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
-            case GameHandler.moveProperty.INVALID -> "\n" + INVALID_MOVE;
-            case GameHandler.moveProperty.CHECK -> "\n" + CHECK_MOVE;
-            case GameHandler.moveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? BLACK_WIN : WHITE_WIN);
+            case GameHandler.MoveProperty.REGULAR -> "";
+            case GameHandler.MoveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
+            case GameHandler.MoveProperty.INVALID -> "\n" + INVALID_MOVE;
+            case GameHandler.MoveProperty.CHECK -> "\n" + CHECK_MOVE;
+            case GameHandler.MoveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? BLACK_WIN : WHITE_WIN);
         };
         chessboardString = """
                 %s

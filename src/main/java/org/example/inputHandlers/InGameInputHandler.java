@@ -81,7 +81,7 @@ public class InGameInputHandler implements InputHandler {
     		responses.add(moveMessage);
     	}
     	if (notationMatch.find() || currentMoveState.isMoveReady()) {
-        	GameHandler.moveProperty move = GameHandler.moveProperty.REGULAR;
+        	GameHandler.MoveProperty move = GameHandler.MoveProperty.REGULAR;
     		if (currentMoveState.isMoveReady()) {
     			move = moveHandler.processMove(
     					currentMoveState.getFigure(), 
@@ -100,8 +100,8 @@ public class InGameInputHandler implements InputHandler {
     				move, 
     				currentUserState.getGameState().getBoard(), 
     				currentUserState.getGameState().isWhiteToMove()));
-    		if (move.equals(GameHandler.moveProperty.MATE)) {
-    			currentUserState.setUserState(UserState.USER_STATE.MAINMENU);
+    		if (move.equals(GameHandler.MoveProperty.MATE)) {
+    			currentUserState.setUserState(UserState.userStatus.MAIN_MENU);
             } else {
             	responses.add(YOUR_MOVE);
             }

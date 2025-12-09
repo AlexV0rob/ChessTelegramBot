@@ -22,7 +22,7 @@ public class MoveHandler {
 	/**
 	 * Обработать ход целиком
 	 */
-    public GameHandler.moveProperty processMove(
+    public GameHandler.MoveProperty processMove(
     		String figure, String startPosition, String finishPosition, 
     		GameState currentGameState) {
         int figureCode = movePartsConverter.getFigureCode(figure);

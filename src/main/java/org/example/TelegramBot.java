@@ -151,44 +151,42 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
      * Обработать текстовое сообщение, полученное от пользователя
      */
     private void processTextMessage(String incomingMessage, long chatId) {
-        List<String> responseMessageText = mainLogic.processInput(incomingMessage, chatId);
-        Iterator<String> responseMessagesIterator = responseMessageText.iterator();
-        sendMessages(chatId, responseMessagesIterator);
+        List<String> responseMessages = mainLogic.processInput(incomingMessage, chatId);
+        sendMessages(chatId, responseMessages);
     }
     
     /**
      * Обработать callback запрос, полученный от пользователя
      */
     private void processCallbackQuery(String callbackData, int messageId, long chatId) {
-        List<String> responseMessageText = mainLogic.processInput(callbackData, chatId);
-        Iterator<String> responseMessagesIterator = responseMessageText.iterator();
-        String currentMessageText = "";
-        InlineKeyboardMarkup editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
-        if (responseMessagesIterator.hasNext()) {
-        	currentMessageText = responseMessagesIterator.next();
+        List<String> responseMessages = mainLogic.processInput(callbackData, chatId);
+        
+        if (!responseMessages.isEmpty()) {
+        	String firstMessageText = responseMessages.getFirst();
+    		InlineKeyboardMarkup editedMessageKeyboard;
+        	if (responseMessages.isEmpty()) {
+        		List<IdentifiedButton> inlineButtons = mainLogic.getCurrentIdentifiedButtons(chatId);
+        		editedMessageKeyboard = InlineKeyboardMarkup
+        				.builder()
+        				.keyboard(createInlineKeyboard(inlineButtons))
+        				.build();
+        	} else { 
+        		editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
+        	}
+        	editMessage(chatId, messageId, firstMessageText, editedMessageKeyboard);
+        	sendMessages(chatId, responseMessages);
         }
-        if (!responseMessagesIterator.hasNext()) {
-        	List<IdentifiedButton> inlineButtons = mainLogic.getCurrentIdentifiedButtons(chatId);
-        	editedMessageKeyboard = InlineKeyboardMarkup
-        			.builder()
-        			.keyboard(createInlineKeyboard(inlineButtons))
-        			.build();
-        }
-        if (!currentMessageText.isEmpty()) {
-        	editMessage(chatId, messageId, currentMessageText, editedMessageKeyboard);
-        }
-        sendMessages(chatId, responseMessagesIterator);
     }
     
-    private void sendMessages(long chatId, Iterator<String> messagesTextsIterator) {
-    	String currentMessageText = "";
-    	while (messagesTextsIterator.hasNext()) {
-        	currentMessageText = messagesTextsIterator.next();
-        	if (messagesTextsIterator.hasNext()) {
-        		sendMessage(chatId, currentMessageText, new ReplyKeyboardRemove(true));
-        	}
-        }
-    	if (!currentMessageText.isEmpty()) {
+    /**
+     * Отправить сообщения
+     */
+    private void sendMessages(long chatId, List<String> messagesTexts) {
+    	if (!messagesTexts.isEmpty()) {
+    		String lastMessageText = messagesTexts.getLast();
+    		for (String currentMessageText : messagesTexts) {
+    			sendMessage(chatId, currentMessageText, new ReplyKeyboardRemove(true));
+    		}
     		List<SimpleButton> replyButtons = mainLogic.getCurrentSimpleButtons(chatId);
         	List<IdentifiedButton>inlineButtons = mainLogic.getCurrentIdentifiedButtons(chatId);
         	ReplyKeyboard lastMessageKeyboard;
@@ -208,7 +206,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         	} else {
         		lastMessageKeyboard = new ReplyKeyboardRemove(true);
         	}
-        	sendMessage(chatId, currentMessageText, lastMessageKeyboard);
+        	sendMessage(chatId, lastMessageText, lastMessageKeyboard);
     	}
     }
 }

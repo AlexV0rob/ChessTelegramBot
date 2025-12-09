@@ -23,7 +23,7 @@ public class ChessmenTest {
                 {1, 1, 1, 1, 1, 1, 1, 1},
                 {2, 3, 4, 5, 6, 4, 3, 2}
         };
-        Chessmen pawn = new Pawn(0, 7);
+        Chessmen pawn = new Pawn();
         PositionOnBoard startPosition = new PositionOnBoard(1, 0);
         PositionOnBoard finishPosition = new PositionOnBoard(1, 0);
         Assertions.assertFalse(pawn.checkMove(startPosition, finishPosition, board));
@@ -50,7 +50,7 @@ public class ChessmenTest {
                 {0, 1, 1, 1, 1, 1, 1, 1},
                 {2, 3, 4, 5, 6, 4, 3, 0}
         };
-        Chessmen rook = new Rook(0, 7);
+        Chessmen rook = new Rook();
         PositionOnBoard startPosition = new PositionOnBoard(0, 0);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 0);
         Assertions.assertFalse(rook.checkMove(startPosition, finishPosition, board));
@@ -79,7 +79,7 @@ public class ChessmenTest {
                 {2, 3, 4, 5, 6, 4, 3, 2}
 
         };
-        Chessmen bishop = new Bishop(0, 7);
+        Chessmen bishop = new Bishop();
         PositionOnBoard startPosition = new PositionOnBoard(0, 2);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 2);
         Assertions.assertFalse(bishop.checkMove(startPosition, finishPosition, board));
@@ -106,7 +106,7 @@ public class ChessmenTest {
                 {1, 1, 1, 1, 0, 0, 1, 1},
                 {2, 3, 4, 5, 6, 4, 3, 2}
         };
-        Chessmen king = new King(0, 7);
+        Chessmen king = new King();
         PositionOnBoard startPosition = new PositionOnBoard(0, 4);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 4);
 
@@ -134,7 +134,7 @@ public class ChessmenTest {
                 {1, 1, 1, 0, 1, 1, 1, 1},
                 {2, 3, 4, 5, 6, 4, 3, 2},
         };
-        Chessmen knight = new Knight(0, 7);
+        Chessmen knight = new Knight();
         PositionOnBoard startPosition = new PositionOnBoard(0, 1);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 1);
         Assertions.assertFalse(knight.checkMove(startPosition, finishPosition, board));
@@ -162,7 +162,7 @@ public class ChessmenTest {
                 {2, 3, 4, 5, 6, 4, 3, 2},
 
         };
-        Chessmen queen = new Queen(0, 7);
+        Chessmen queen = new Queen();
         PositionOnBoard startPosition = new PositionOnBoard(0, 3);
         PositionOnBoard finishPosition = new PositionOnBoard(0, 3);
         Assertions.assertFalse(queen.checkMove(startPosition, finishPosition, board));
