@@ -1,3 +1,5 @@
+src/main/resources/states.db
+src/test/resources/states.db
 .settings/
 target/
 pom.xml.tag
@@ -14,6 +16,7 @@ buildNumber.properties
 # Eclipse m2e generated files
 # Eclipse Core
 .project
+.idea
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 /bin/
