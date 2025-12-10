@@ -8,48 +8,36 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.lang.Math;
+import org.example.buttons.IdentifiedButton;
+import org.example.buttons.SimpleButton;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.example.buttons.*;
-
 /**
- * Класс, который работает с Телеграмом 
+ * Класс, который подключается к телеграму 
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	/**
-	 * Выполняет коммуникацию с Телеграмом
+	 * Экземпляр класса TelegramClient 
+
 	 */
-	private final TelegramClient telegramClient;	
-	/**
-	 * Отвечающего за обработку ввода
-	 */
-	private final MainLogic mainLogic = new MainLogic();	
-	/**
-	 * Преобразует пользовательский ввод в единый вид для дальнейшей обработки
-	 */
-	private final UserInputConverter userInputConverter = new UserInputConverter();	
-	/**
-	 * Создаёт клавиатуры для различных состояний бота
-	 */
-	private final KeyboardCreator keyboardCreator = new KeyboardCreator();
+	private final TelegramClient telegramClient;
 	
 	/**
-	 * Ассоциативный массив с парами (ID чата телеграм, состояние игры)
+	 * Экземпляр класса MainLogic, обрабатывает входящие сообщения
 	 */
-	private HashMap<Long, GameState> games = new HashMap<Long, GameState>();
+	private MainLogic mainLogic = new MainLogic();
 	
 	/**
 	 * Конструктор класса
@@ -81,31 +69,26 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
      */
     private List<KeyboardRow> createReplyKeyboard(List<SimpleButton> buttons) {
         List<KeyboardRow> buttonsRows = new ArrayList<KeyboardRow>();
-        KeyboardRow currentRow = new KeyboardRow();
-        int rowCounter = 0, buttonsInRow = 4;
+        KeyboardRow currentRow;
         for (SimpleButton currentButton : buttons) {
-        	if (rowCounter == buttonsInRow) {
-        		buttonsRows.add(currentRow);
-        		currentRow = new KeyboardRow();
-        		rowCounter = 0;
-        	}
+        	currentRow = new KeyboardRow();
         	currentRow.add(KeyboardButton
     				.builder()
-    				.text(currentButton.text())
+    				.text(currentButton.buttonText())
     				.build());
-        	++rowCounter;
+        	buttonsRows.add(currentRow);
         }
-        buttonsRows.add(currentRow);
         return buttonsRows;
-    }    
+    }
+    
     /**
      * Создать Inline клавиатуру
      */
-    private List<InlineKeyboardRow> createInlineKeyboard(List<IdentificatedButton> buttons) {
+    private List<InlineKeyboardRow> createInlineKeyboard(List<IdentifiedButton> buttons) {
         List<InlineKeyboardRow> buttonsRows = new ArrayList<InlineKeyboardRow>();
         InlineKeyboardRow currentRow = new InlineKeyboardRow();
         int rowCounter = 0, buttonsInRow = 4;
-        for (IdentificatedButton currentButton : buttons) {
+        for (IdentifiedButton currentButton : buttons) {
         	if (rowCounter == buttonsInRow) {
         		buttonsRows.add(currentRow);
         		currentRow = new InlineKeyboardRow();
@@ -113,8 +96,8 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         	}
         	currentRow.add(InlineKeyboardButton
     				.builder()
-    				.text(currentButton.text())
-    				.callbackData(currentButton.id())
+    				.text(currentButton.buttonText())
+    				.callbackData(currentButton.buttonId())
     				.build());
         	++rowCounter;
         }
@@ -143,6 +126,8 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
            	return -1;
         }
     }
+    
+
     /**
      * Изменить сообщение
      */
@@ -166,81 +151,62 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
      * Обработать текстовое сообщение, полученное от пользователя
      */
     private void processTextMessage(String incomingMessage, long chatId) {
-    	if (!games.containsKey(chatId)) {
-        	games.put(chatId, new GameState());
-        }
-        GameState currentGameState = games.get(chatId);
-        
-        List<String> responseMessagesTexts = mainLogic.processUserInput(
-        		userInputConverter.convertFromTelegramMessage(
-        				incomingMessage,
-        				currentGameState.isInGame()),
-        		currentGameState);
-        //Для каждого сообщения нужно выставить параметр клавиатуры
-        List<ReplyKeyboard> keyboardsForMessages = new ArrayList<ReplyKeyboard>();
-        /*
-         * Все сообщения, кроме последнего, должны быть без клавиатуры, 
-         * а клавиатура последнего зависит от текущего режима
-         */
-        for (int i = 0; i < responseMessagesTexts.size() - 1; ++i) {
-        	keyboardsForMessages.add(new ReplyKeyboardRemove(true));
-        }
-        if (currentGameState.isNoGame()) {
-        	keyboardsForMessages.add(ReplyKeyboardMarkup
-        		.builder()
-                .keyboard(createReplyKeyboard(keyboardCreator.menuButtons()))
-                .resizeKeyboard(true)
-                .selective(true)
-                .build());
-        } else if (currentGameState.isInGame()) {
-        	keyboardsForMessages.add(InlineKeyboardMarkup
-            	.builder()
-                .keyboard(createInlineKeyboard(
-                		keyboardCreator.gameButtons(currentGameState)))
-                .build());
-        } else {
-        	keyboardsForMessages.add(new ReplyKeyboardRemove(true));
-        }
-        
-        Iterator<String> responseMessages = responseMessagesTexts.iterator();
-        Iterator<ReplyKeyboard> messagesKeyboards = keyboardsForMessages.iterator();
-        
-        while (responseMessages.hasNext() && messagesKeyboards.hasNext()) {
-        	sendMessage(chatId, responseMessages.next(), messagesKeyboards.next());
-        }
+        List<String> responseMessages = mainLogic.processInput(incomingMessage, chatId);
+        sendMessages(chatId, responseMessages);
     }
+    
     /**
      * Обработать callback запрос, полученный от пользователя
      */
     private void processCallbackQuery(String callbackData, int messageId, long chatId) {
-    	if (!games.containsKey(chatId)) {
-        	games.put(chatId, new GameState());
+        List<String> responseMessages = mainLogic.processInput(callbackData, chatId);
+        
+        if (!responseMessages.isEmpty()) {
+        	String firstMessageText = responseMessages.getFirst();
+    		InlineKeyboardMarkup editedMessageKeyboard;
+        	if (responseMessages.isEmpty()) {
+        		List<IdentifiedButton> inlineButtons = mainLogic.getCurrentIdentifiedButtons(chatId);
+        		editedMessageKeyboard = InlineKeyboardMarkup
+        				.builder()
+        				.keyboard(createInlineKeyboard(inlineButtons))
+        				.build();
+        	} else { 
+        		editedMessageKeyboard = InlineKeyboardMarkup.builder().build();
+        	}
+        	editMessage(chatId, messageId, firstMessageText, editedMessageKeyboard);
+        	sendMessages(chatId, responseMessages);
         }
-        GameState currentGameState = games.get(chatId);
-        
-        String editedMessageText = mainLogic.processUserInput(
-        		userInputConverter.convertFromTelegramCallback(
-        				callbackData,
-        				currentGameState.isInGame()),
-        		currentGameState).getFirst();
-        
-        //Если не в игре, Inline клавиатура не нужна
-        InlineKeyboardMarkup keyboard;
-        if (currentGameState.isInGame()) {
-        	keyboard = InlineKeyboardMarkup
-    				.builder()
-    				.keyboard(createInlineKeyboard(
-    						keyboardCreator.gameButtons(currentGameState)))
-    				.build();
-        } else {
-        	keyboard = InlineKeyboardMarkup.builder().build();
-        }
-        
-        editMessage(chatId, messageId, editedMessageText, keyboard);
-        
-        //Если ход полностью собран, его нужно реализовать
-        if (currentGameState.isMoveReady()) {
-        	processTextMessage(currentGameState.assembleMove(), chatId);
-		}
+    }
+    
+    /**
+     * Отправить сообщения
+     */
+    private void sendMessages(long chatId, List<String> messagesTexts) {
+    	if (!messagesTexts.isEmpty()) {
+    		String lastMessageText = messagesTexts.getLast();
+    		for (String currentMessageText : messagesTexts) {
+    			sendMessage(chatId, currentMessageText, new ReplyKeyboardRemove(true));
+    		}
+    		List<SimpleButton> replyButtons = mainLogic.getCurrentSimpleButtons(chatId);
+        	List<IdentifiedButton>inlineButtons = mainLogic.getCurrentIdentifiedButtons(chatId);
+        	ReplyKeyboard lastMessageKeyboard;
+        	if (!replyButtons.isEmpty()) {
+        		lastMessageKeyboard = ReplyKeyboardMarkup
+        				.builder()
+        				.keyboard(createReplyKeyboard(replyButtons))
+        				.resizeKeyboard(true)
+        				.selective(true)
+        				.oneTimeKeyboard(true)
+        				.build();
+        	} else if (!inlineButtons.isEmpty()) {
+        		lastMessageKeyboard = InlineKeyboardMarkup
+        				.builder()
+        				.keyboard(createInlineKeyboard(inlineButtons))
+        				.build();
+        	} else {
+        		lastMessageKeyboard = new ReplyKeyboardRemove(true);
+        	}
+        	sendMessage(chatId, lastMessageText, lastMessageKeyboard);
+    	}
     }
 }

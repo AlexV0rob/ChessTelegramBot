@@ -1,6 +1,6 @@
 package org.example.buttons;
 
 /**
- * Простая кнопка, содержит только текст
+ * Кнопка, содержащая только текст
  */
-public record SimpleButton(String text) {}
+public record SimpleButton(String buttonText) {}
