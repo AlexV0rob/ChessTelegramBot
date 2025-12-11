@@ -11,6 +11,7 @@ public class ChessmenMovement {
      * Без сдвига
      */
     private static final int NO_SHIFT = 0;
+
     /**
      * Сдвиг по вертикали
      */
@@ -28,47 +29,9 @@ public class ChessmenMovement {
      */
     private final static int MAX_SIDE_VALUE = 7;
     /**
-     * Ход на одну клетку
+     * Сигнальная позиция
      */
-    private final static int SINGULAR_MOVE = 7;
-
-    /**
-     * Направление движения
-     */
-    public enum moveDirection {
-        /**
-         * Движение вверх по доске
-         */
-        UP,
-        /**
-         * Движение вниз по доске
-         */
-        DOWN,
-        /**
-         * Движение влево по доске
-         */
-        LEFT,
-        /**
-         * Движение вправо по доске
-         */
-        RIGHT,
-        /**
-         * Движение вверх по правой диагонали
-         */
-        UP_AND_RIGHT,
-        /**
-         * Движение вниз по правой диагонали
-         */
-        DOWN_AND_RIGHT,
-        /**
-         * Движение вниз по левой диагонали
-         */
-        UP_AND_LEFT,
-        /**
-         * Движение вниз по левой диагонали
-         */
-        DOWN_AND_LEFT
-    }
+    private final static PositionOnBoard SIGNAL_POSITION = new PositionOnBoard(-1, -1);
 
     /**
      * Расположение позиций друг относительно друга
@@ -89,20 +52,41 @@ public class ChessmenMovement {
     }
 
     /**
-     * Делаем список доступых ходов в заданном направлении
+     * Делает список доступых ходов в заданном направлении
      */
-    public List<PositionOnBoard> allPossibleMovesAtChosenDirection(PositionOnBoard startPosition, byte[][] board,
-                                                                   moveDirection direction) {
+    public List<PositionOnBoard> allVerticalAndHorizontalmoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
-        PositionOnBoard currentPosition = startPosition;
-        while (isPositionEnemy(startPosition.row(), startPosition.column(), currentPosition.row(),
-                currentPosition.column(), board)) {
-            currentPosition = move(currentPosition, board, SINGULAR_MOVE, direction);
-            if (currentPosition.row() != -1) {
-                possibleMoves.add(currentPosition);
-            } else {
-                break;
-            }
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, VERTICAL_SHIFT, NO_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, -VERTICAL_SHIFT, NO_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, NO_SHIFT, HORIZONTAL_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, NO_SHIFT, -HORIZONTAL_SHIFT, board));
+        return possibleMoves;
+    }
+
+    /**
+     * Делает список доступых ходов в заданном направлении
+     */
+    public List<PositionOnBoard> allDiagonalmoves(PositionOnBoard start, byte[][] board) {
+        List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, VERTICAL_SHIFT, HORIZONTAL_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, -VERTICAL_SHIFT, -HORIZONTAL_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, VERTICAL_SHIFT, -HORIZONTAL_SHIFT, board));
+        possibleMoves.addAll(allPossibleMovesAtDirection(start, -VERTICAL_SHIFT, HORIZONTAL_SHIFT, board));
+        return possibleMoves;
+
+    }
+
+    /**
+     * Делает список доступых ходов в заданном направлении
+     */
+    private List<PositionOnBoard> allPossibleMovesAtDirection(PositionOnBoard startPosition, int verticalShift,
+                                                              int horizontalShift, byte[][] board) {
+        List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
+        PositionOnBoard currentPosition = move(startPosition, verticalShift, horizontalShift, board);
+        while (currentPosition != SIGNAL_POSITION
+                && isPositionEmpty(currentPosition.row(), currentPosition.column(), board)) {
+            possibleMoves.add(currentPosition);
+            currentPosition = move(currentPosition, verticalShift, horizontalShift, board);
         }
         return possibleMoves;
     }
@@ -136,7 +120,7 @@ public class ChessmenMovement {
     /**
      * Проверка отсутствия препятствий на пути из стартовой позиции в конечную
      */
-    private boolean isWayFree(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
+    public boolean isWayFree(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
         PositionRelatives verticalRelatives =
                 relativesBetweenStartAndFinish(start.row(), finish.row());
         PositionRelatives horizontalRelatives =
@@ -155,65 +139,13 @@ public class ChessmenMovement {
     /**
      * Функция делающая сдвиг в заданном направлении
      */
-    public PositionOnBoard move(PositionOnBoard startPosition, byte[][] board,
-                                int n, moveDirection direction) {
-        switch (direction) {
-            case moveDirection.UP:
-                if (isShiftAvailable(VERTICAL_SHIFT * n, NO_SHIFT, startPosition.row(),
-                        startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() + VERTICAL_SHIFT * n, startPosition.column());
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.DOWN:
-                if (isShiftAvailable(-VERTICAL_SHIFT * n, NO_SHIFT, startPosition.row(),
-                        startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() - VERTICAL_SHIFT * n, startPosition.column());
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.RIGHT:
-                if (isShiftAvailable(NO_SHIFT, VERTICAL_SHIFT * n, startPosition.row(),
-                        startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row(),
-                            startPosition.column() - HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.LEFT:
-                if (isShiftAvailable(NO_SHIFT, -HORIZONTAL_SHIFT * n, startPosition.row(),
-                        startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row(),
-                            startPosition.column() - HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.UP_AND_RIGHT:
-                if (isShiftAvailable(VERTICAL_SHIFT * n, HORIZONTAL_SHIFT * n,
-                        startPosition.row(), startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() + VERTICAL_SHIFT * n,
-                            startPosition.column() + HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.DOWN_AND_RIGHT:
-                if (isShiftAvailable(-VERTICAL_SHIFT * n, -VERTICAL_SHIFT * n,
-                        startPosition.row(), startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() - VERTICAL_SHIFT * n,
-                            startPosition.column() - HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.DOWN_AND_LEFT:
-                if (isShiftAvailable(-VERTICAL_SHIFT * n, HORIZONTAL_SHIFT * n,
-                        startPosition.row(), startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() - VERTICAL_SHIFT * n,
-                            startPosition.column() + HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
-            case moveDirection.UP_AND_LEFT:
-                if (isShiftAvailable(VERTICAL_SHIFT * n, -HORIZONTAL_SHIFT * n,
-                        startPosition.row(), startPosition.column(), board)) {
-                    return new PositionOnBoard(startPosition.row() + VERTICAL_SHIFT * n,
-                            startPosition.column() - HORIZONTAL_SHIFT * n);
-                }
-                return new PositionOnBoard(-1, 0);
+    public PositionOnBoard move(PositionOnBoard startPosition,
+                                int verticalShift, int horizontalShift, byte[][] board) {
+        if (isShiftAvailable(verticalShift, horizontalShift, startPosition.row(), startPosition.column(), board)) {
+            return new PositionOnBoard(startPosition.row() + verticalShift,
+                    startPosition.column() + horizontalShift);
         }
-        return null;
+        return SIGNAL_POSITION;
     }
 
     /**

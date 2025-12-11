@@ -1,6 +1,9 @@
 package org.example.chess;
 
 
+import org.example.movement.ChessmenMovement;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,25 +11,30 @@ import java.util.List;
  */
 public class Queen implements Chessmen {
     /**
-     * Ладья для проверки вертикальных и горизонтальных ходов
+     * Экземпляр класса chessmenMovement
      */
-    private final Chessmen rook = new Rook();
-    /**
-     * Слон для проверки диагональных ходов
-     */
-    private final Chessmen bishop = new Bishop();
+    private final ChessmenMovement chessmenMovement = new ChessmenMovement();
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        boolean result = rook.checkMove(start, finish, board)
-                || bishop.checkMove(start, finish, board);
-        return result;
+
+        if (board[finish.row()][finish.column()] == 0 ||
+                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
+            if (((Math.abs(start.row() - finish.row()) == 0 ^
+                    Math.abs(start.column() - finish.column()) == 0) ||
+                    Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column())) &&
+                    chessmenMovement.isWayFree(start, finish, board)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
-        List<PositionOnBoard> possibleMoves = rook.allPossibleMoves(start, board);
-        possibleMoves.addAll(bishop.allPossibleMoves(start, board));
+        List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
+        possibleMoves.addAll(chessmenMovement.allDiagonalmoves(start, board));
+        possibleMoves.addAll(chessmenMovement.allVerticalAndHorizontalmoves(start, board));
         return possibleMoves;
     }
 }
