@@ -23,9 +23,8 @@ public class Rook implements Chessmen {
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (isInsideBorders(finish.row()) && isInsideBorders(finish.column()) &&
-                (isPositionEmpty(finish.row(), finish.column(), board) ||
-                        isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board))) {
+        if (isPositionEmpty(finish.row(), finish.column(), board) ||
+                isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board)) {
             if ((Math.abs(start.row() - finish.row()) == 0 ^
                     Math.abs(start.column() - finish.column()) == 0) &&
                     chessmenMovement.isWayFree(start, finish, board)) {
@@ -33,13 +32,6 @@ public class Rook implements Chessmen {
             }
         }
         return false;
-    }
-
-    /**
-     * Проверить, что координата находится в границах
-     */
-    private boolean isInsideBorders(int pos) {
-        return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
     }
 
     /**
