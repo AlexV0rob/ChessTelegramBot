@@ -4,68 +4,69 @@ package org.example.states;
  * Хранитель состояния пользователя
  */
 public class UserState {
-	/**
-	 * Код пустого поля
-	 */
-	private final static byte EMPTY = 0;
-	
-	/**
-	 * Код пешки
-	 */
-	private final static byte PAWN = 1;
-	
-	/**
-	 * Код ладьи
-	 */
-	private final static byte ROOK = 2;
-	
-	/**
-	 * Код коня
-	 */
-	private final static byte KNIGHT = 3;
-	
-	/**
-	 * Код слона
-	 */
-	private final static byte BISHOP = 4;
-	
-	/**
-	 * Код ферзя
-	 */
-	private final static byte QUEEN = 5;
-	
-	/**
-	 * Код короля
-	 */
-	private final static byte KING = 6;
+    /**
+     * Код пустого поля
+     */
+    private final static byte EMPTY = 0;
 
-	/**
-	 * Код белой стороны
-	 */
-	private final static byte WHITE = -1;
+    /**
+     * Код пешки
+     */
+    private final static byte PAWN = 1;
 
-	/**
-	 * Код чёрной стороны
-	 */
-	private final static byte BLACK = 1;
-	
+    /**
+     * Код ладьи
+     */
+    private final static byte ROOK = 2;
+
+    /**
+     * Код коня
+     */
+    private final static byte KNIGHT = 3;
+
+    /**
+     * Код слона
+     */
+    private final static byte BISHOP = 4;
+
+    /**
+     * Код ферзя
+     */
+    private final static byte QUEEN = 5;
+
+    /**
+     * Код короля
+     */
+    private final static byte KING = 6;
+
+    /**
+     * Код белой стороны
+     */
+    private final static byte WHITE = -1;
+
+    /**
+     * Код чёрной стороны
+     */
+    private final static byte BLACK = 1;
+
     /**
      * Начальная доска
      */
     private final static byte[][] START_BOARD =
             {
-            		{WHITE * ROOK, WHITE * KNIGHT, WHITE * BISHOP, WHITE * QUEEN, 
-            				WHITE * KING, WHITE * BISHOP, WHITE * KNIGHT, WHITE * ROOK},
-            		{WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, 
-            			WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN},
+                    {WHITE * ROOK, WHITE * KNIGHT, WHITE * BISHOP, WHITE * QUEEN,
+                            WHITE * KING, WHITE * BISHOP, WHITE * KNIGHT, WHITE * ROOK},
+                    {WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN,
+                            WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-                    {BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, 
-                    	BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN},
-                    {BLACK * ROOK, BLACK * KNIGHT, BLACK * BISHOP, BLACK * QUEEN, 
-                    	BLACK * KING, BLACK * BISHOP, BLACK * KNIGHT, BLACK * ROOK}
+                    {BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN,
+                            BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN},
+                    {BLACK * ROOK, BLACK * KNIGHT, BLACK * BISHOP, BLACK * QUEEN,
+                            BLACK * KING, BLACK * BISHOP, BLACK * KNIGHT, BLACK * ROOK},
+
             };
 
     /**
