@@ -10,6 +10,9 @@ import java.util.List;
  * Тестирование методов класса ChessmenMovementTest
  */
 public class ChessmenMovementTest {
+    /**
+     * Класс для реализации логики перемещения слона
+     */
     private final ChessmenMovement chessmenMovement = new ChessmenMovement();
 
     /**
