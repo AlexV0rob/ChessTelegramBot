@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 /**
- * Тестирование методов классаChessmenMovementTest
+ * Тестирование методов класса ChessmenMovementTest
  */
 public class ChessmenMovementTest {
     private final ChessmenMovement chessmenMovement = new ChessmenMovement();
@@ -69,13 +69,13 @@ public class ChessmenMovementTest {
                 new PositionOnBoard(0, 5),
                 new PositionOnBoard(0, 6),
                 new PositionOnBoard(0, 7));
-        List<PositionOnBoard> actualPositions = chessmenMovement.allVerticalAndHorizontalmoves(
+        List<PositionOnBoard> actualPositions = chessmenMovement.allVerticalAndHorizontalMoves(
                 new PositionOnBoard(0, 0), board);
         Assertions.assertIterableEquals(expectedPositions, actualPositions);
     }
 
     /**
-     * Тестирование проверки отсуствия препятсвий на пути
+     * Тестирование проверки отсутствия препятствий на пути
      */
     @Test
     public void isWayFreeTets() {

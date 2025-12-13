@@ -34,7 +34,7 @@ public class Queen implements Chessmen {
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
         possibleMoves.addAll(chessmenMovement.allDiagonalMoves(start, board));
-        possibleMoves.addAll(chessmenMovement.allVerticalAndHorizontalmoves(start, board));
+        possibleMoves.addAll(chessmenMovement.allVerticalAndHorizontalMoves(start, board));
         return possibleMoves;
     }
 }

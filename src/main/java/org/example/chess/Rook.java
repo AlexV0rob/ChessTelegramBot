@@ -2,7 +2,6 @@ package org.example.chess;
 
 import org.example.movement.ChessmenMovement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +29,7 @@ public class Rook implements Chessmen {
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
-        List<PositionOnBoard> possibleMoves = chessmenMovement.allVerticalAndHorizontalmoves(start, board);
+        List<PositionOnBoard> possibleMoves = chessmenMovement.allVerticalAndHorizontalMoves(start, board);
         return possibleMoves;
     }
 

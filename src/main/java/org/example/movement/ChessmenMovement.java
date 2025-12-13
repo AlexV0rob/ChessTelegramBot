@@ -5,6 +5,9 @@ import org.example.chess.PositionOnBoard;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс, отвественный за перемещение шахматных фигур
+ */
 public class ChessmenMovement {
     /**
      * Без сдвига
@@ -53,7 +56,7 @@ public class ChessmenMovement {
     /**
      * Делает список доступых ходов в заданном направлении
      */
-    public List<PositionOnBoard> allVerticalAndHorizontalmoves(PositionOnBoard start, byte[][] board) {
+    public List<PositionOnBoard> allVerticalAndHorizontalMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
         possibleMoves.addAll(allPossibleMovesAtDirection(start, VERTICAL_SHIFT, NO_SHIFT, board));
         possibleMoves.addAll(allPossibleMovesAtDirection(start, -VERTICAL_SHIFT, NO_SHIFT, board));
@@ -84,7 +87,7 @@ public class ChessmenMovement {
         int currentVerticalShift = 1;
         int currentHorizontalShift = 1;
         PositionOnBoard currentPosition = startPosition;
-        while (currentPosition != SIGNAL_POSITION &&
+        while (!currentPosition.equals(SIGNAL_POSITION) &&
                 isShiftAvailable(verticalShift * currentVerticalShift,
                         horizontalShift * currentHorizontalShift, startPosition.row(),
                         startPosition.column(), board)) {
@@ -147,7 +150,7 @@ public class ChessmenMovement {
     }
 
     /**
-     * Функция делающая сдвиг в заданном направлении
+     * Функция, делающая сдвиг в заданном направлении
      */
     private PositionOnBoard move(PositionOnBoard startPosition,
                                  int verticalShift, int horizontalShift, byte[][] board) {

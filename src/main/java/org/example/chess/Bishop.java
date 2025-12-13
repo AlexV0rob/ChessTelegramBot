@@ -15,12 +15,6 @@ public class Bishop implements Chessmen {
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        /*
-         * Проверяем правильность хода в два этапа:
-         * 1) Смотрим что интересующая нас етка нас не занята или там находится
-         * шахматная фигура оппонента
-         * 2) Проверяем что слон может так сходить
-         */
         if (board[finish.row()][finish.column()] == 0 ||
                 board[finish.row()][finish.column()] * board[start.row()][start.column()] < 0) {
             if (Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column())
