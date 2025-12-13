@@ -21,7 +21,6 @@ import org.example.buttons.IdentifiedButton;
 import org.example.buttons.SimpleButton;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
