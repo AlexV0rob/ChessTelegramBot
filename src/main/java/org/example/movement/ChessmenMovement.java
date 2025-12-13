@@ -1,7 +1,6 @@
 package org.example.movement;
 
 import org.example.chess.PositionOnBoard;
-import org.example.chess.Rook;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,7 @@ public class ChessmenMovement {
     /**
      * Делает список доступых ходов в заданном направлении
      */
-    public List<PositionOnBoard> allDiagonalmoves(PositionOnBoard start, byte[][] board) {
+    public List<PositionOnBoard> allDiagonalMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
         possibleMoves.addAll(allPossibleMovesAtDirection(start, VERTICAL_SHIFT, HORIZONTAL_SHIFT, board));
         possibleMoves.addAll(allPossibleMovesAtDirection(start, -VERTICAL_SHIFT, -HORIZONTAL_SHIFT, board));
@@ -82,11 +81,22 @@ public class ChessmenMovement {
     private List<PositionOnBoard> allPossibleMovesAtDirection(PositionOnBoard startPosition, int verticalShift,
                                                               int horizontalShift, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
-        PositionOnBoard currentPosition = move(startPosition, verticalShift, horizontalShift, board);
-        while (currentPosition != SIGNAL_POSITION
-                && isPositionEmpty(currentPosition.row(), currentPosition.column(), board)) {
+        int currentVerticalShift = 1;
+        int currentHorizontalShift = 1;
+        PositionOnBoard currentPosition = startPosition;
+        while (currentPosition != SIGNAL_POSITION &&
+                isShiftAvailable(verticalShift * currentVerticalShift,
+                        horizontalShift * currentHorizontalShift, startPosition.row(),
+                        startPosition.column(), board)) {
+            currentPosition = move(startPosition, verticalShift * currentVerticalShift,
+                    horizontalShift * currentHorizontalShift, board);
             possibleMoves.add(currentPosition);
-            currentPosition = move(currentPosition, verticalShift, horizontalShift, board);
+            if (isPositionEnemy(startPosition.row(), startPosition.column(),
+                    currentPosition.row(), currentPosition.column(), board)) {
+                break;
+            }
+            currentVerticalShift++;
+            currentHorizontalShift++;
         }
         return possibleMoves;
     }
@@ -139,8 +149,8 @@ public class ChessmenMovement {
     /**
      * Функция делающая сдвиг в заданном направлении
      */
-    public PositionOnBoard move(PositionOnBoard startPosition,
-                                int verticalShift, int horizontalShift, byte[][] board) {
+    private PositionOnBoard move(PositionOnBoard startPosition,
+                                 int verticalShift, int horizontalShift, byte[][] board) {
         if (isShiftAvailable(verticalShift, horizontalShift, startPosition.row(), startPosition.column(), board)) {
             return new PositionOnBoard(startPosition.row() + verticalShift,
                     startPosition.column() + horizontalShift);
@@ -167,7 +177,7 @@ public class ChessmenMovement {
      */
     private boolean isPositionEnemy(int startRow, int startColumn,
                                     int finishRow, int finishColumn, byte[][] board) {
-        return board[finishRow][finishColumn] < 0 != board[startRow][startColumn] < 0;
+        return board[finishRow][finishColumn] * board[startRow][startColumn] < 0;
     }
 
     /**
@@ -175,10 +185,12 @@ public class ChessmenMovement {
      */
     private boolean isShiftAvailable(int verticalShift, int horizontalShift,
                                      int row, int column, byte[][] board) {
-        if (isInsideBorders(row + verticalShift) && isInsideBorders(column + verticalShift) &&
-                (isPositionEnemy(row, column, row + verticalShift, column + horizontalShift, board))
-                || isPositionEmpty(row, column, board)) {
-            return true;
+        if (isInsideBorders(row + verticalShift) && isInsideBorders(column + horizontalShift)) {
+            if (isPositionEnemy(row, column, row + verticalShift,
+                    column + horizontalShift, board)
+                    || isPositionEmpty(row + verticalShift, column + horizontalShift, board)) {
+                return true;
+            }
         }
         return false;
     }

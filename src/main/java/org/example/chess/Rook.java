@@ -30,7 +30,7 @@ public class Rook implements Chessmen {
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
-        List<PositionOnBoard> possibleMoves = chessmenMovement.allDiagonalmoves(start, board);
+        List<PositionOnBoard> possibleMoves = chessmenMovement.allVerticalAndHorizontalmoves(start, board);
         return possibleMoves;
     }
 
