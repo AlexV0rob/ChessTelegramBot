@@ -12,11 +12,20 @@ public class Rook implements Chessmen {
      * Экземпляр класса chessmenMovement
      */
     private final ChessmenMovement chessmenMovement = new ChessmenMovement();
+    /**
+     * Минимальная размерность игрового поля
+     */
+    private final static int MIN_SIDE_VALUE = 0;
+    /**
+     * Максимальная размерность игрового поля
+     */
+    private final static int MAX_SIDE_VALUE = 7;
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (board[finish.row()][finish.column()] == 0 ||
-                (board[finish.row()][finish.column()] < 0 != board[start.row()][start.column()] < 0)) {
+        if (isInsideBorders(finish.row()) && isInsideBorders(finish.column()) &&
+                (isPositionEmpty(finish.row(), finish.column(), board) ||
+                        isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board))) {
             if ((Math.abs(start.row() - finish.row()) == 0 ^
                     Math.abs(start.column() - finish.column()) == 0) &&
                     chessmenMovement.isWayFree(start, finish, board)) {
@@ -26,6 +35,27 @@ public class Rook implements Chessmen {
         return false;
     }
 
+    /**
+     * Проверить, что координата находится в границах
+     */
+    private boolean isInsideBorders(int pos) {
+        return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
+    }
+
+    /**
+     * Проверить, что в точке назначения пустое поле
+     */
+    private boolean isPositionEmpty(int row, int column, byte[][] board) {
+        return board[row][column] == 0;
+    }
+
+    /**
+     * Проверить, что в точке назначения фигура противника
+     */
+    private boolean isPositionEnemy(int startRow, int startColumn,
+                                    int finishRow, int finishColumn, byte[][] board) {
+        return board[finishRow][finishColumn] * board[startRow][startColumn] < 0;
+    }
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {

@@ -12,17 +12,48 @@ public class Bishop implements Chessmen {
      * Экземпляр класса chessmenMovement
      */
     private final ChessmenMovement chessmenMovement = new ChessmenMovement();
+    /**
+     * Минимальная размерность игрового поля
+     */
+    private final static int MIN_SIDE_VALUE = 0;
+    /**
+     * Максимальная размерность игрового поля
+     */
+    private final static int MAX_SIDE_VALUE = 7;
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
-        if (board[finish.row()][finish.column()] == 0 ||
-                board[finish.row()][finish.column()] * board[start.row()][start.column()] < 0) {
+        if (isInsideBorders(finish.row()) && isInsideBorders(finish.column()) &&
+                (isPositionEmpty(finish.row(), finish.column(), board) ||
+                        isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board))) {
             if (Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column())
                     && chessmenMovement.isWayFree(start, finish, board)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Проверить, что координата находится в границах
+     */
+    private boolean isInsideBorders(int pos) {
+        return pos <= MAX_SIDE_VALUE && pos >= MIN_SIDE_VALUE;
+    }
+
+    /**
+     * Проверить, что в точке назначения пустое поле
+     */
+    private boolean isPositionEmpty(int row, int column, byte[][] board) {
+        return board[row][column] == 0;
+    }
+
+    /**
+     * Проверить, что в точке назначения фигура противника
+     */
+    private boolean isPositionEnemy(int startRow, int startColumn,
+                                    int finishRow, int finishColumn, byte[][] board) {
+        return board[finishRow][finishColumn] * board[startRow][startColumn] < 0;
     }
 
     @Override

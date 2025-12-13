@@ -87,7 +87,8 @@ public class ChessmenMovement {
         int currentVerticalShift = 1;
         int currentHorizontalShift = 1;
         PositionOnBoard currentPosition = startPosition;
-        while (!currentPosition.equals(SIGNAL_POSITION) &&
+        while (currentPosition.row() != SIGNAL_POSITION.row() &&
+                currentPosition.column() != SIGNAL_POSITION.column() &&
                 isShiftAvailable(verticalShift * currentVerticalShift,
                         horizontalShift * currentHorizontalShift, startPosition.row(),
                         startPosition.column(), board)) {
