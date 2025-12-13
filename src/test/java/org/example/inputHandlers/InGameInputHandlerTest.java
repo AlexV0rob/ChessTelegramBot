@@ -3,9 +3,6 @@ package org.example.inputHandlers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-import org.example.GameTranslator;
-import org.example.MoveHandler;
-import org.example.chess.GameHandler;
 import org.example.states.UserState;
 
 import java.util.ArrayList;
@@ -22,16 +19,6 @@ public class InGameInputHandlerTest {
 			new InGameInputHandler();
 	
 	/**
-	 * Обработчик хода и частей хода
-	 */
-	private final MoveHandler moveHandler = new MoveHandler();
-	
-	/**
-	 * Игровой переводчик
-	 */
-	private final GameTranslator gameTranslator = new GameTranslator();
-	
-	/**
 	 * Пригласительное сообщение к ходу
 	 */
 	private final static String YOUR_MOVE = "Ваш ход: ";
@@ -42,14 +29,20 @@ public class InGameInputHandlerTest {
 	@Test
 	public void moveTest() {
 		UserState userStateReal = new UserState();
-		UserState userStateExpected = new UserState();
-		GameHandler.MoveProperty moveExpected = 
-				moveHandler.processMove("", "e2", "e4", userStateExpected.getGameState());
 		List<String> textsExpected = List.of(
-				gameTranslator.chessboardString(
-						moveExpected, 
-						userStateExpected.getGameState().getBoard(), 
-						userStateExpected.getGameState().isWhiteToMove()), 
+				"""
+Ход чёрных
+
+1  [WR][WN][WB][WK][WQ][WB][WN][WR]
+2  [WP][WP][WP][      ][WP][WP][WP][WP]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][WP][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [ BP][ BP][ BP][ BP][ BP][ BP][ BP][ BP]
+8  [ BR][ BN][ BB][ BK][ BQ][ BB][ BN][ BR]
+      H      G      F      E      D      C      B      A     \s
+				""", 
 				YOUR_MOVE);
 		List<String> textsReal = inGameInputHandler.processInput("e2e4", userStateReal);
 		Assertions.assertIterableEquals(textsExpected, textsReal);
