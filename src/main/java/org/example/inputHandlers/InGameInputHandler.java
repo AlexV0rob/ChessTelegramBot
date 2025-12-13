@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 /**
  * Обработчик ввода в игре
  */
-public class InGameInputHandler implements InputHandler {
+public class InGameInputHandler {
 	/**
 	 * Обработчик частей хода
 	 */
@@ -32,7 +32,7 @@ public class InGameInputHandler implements InputHandler {
 	private final GameTranslator gameTranslator = new GameTranslator();
 	
 	/**
-	 * Сообщщение о неизвестном формате ввода
+	 * Сообщение о неизвестном формате ввода
 	 */
 	private final static String UNKNOWN_INPUT = "Неизвестный формат ввода хода";
 	
@@ -54,7 +54,9 @@ public class InGameInputHandler implements InputHandler {
     private final static Pattern CALLBACK_PATTERN =
             Pattern.compile("^__((?:[prbnqkPRBNQK])|(?:[a-hA-H][1-8]))__$");
     
-    @Override
+    /**
+     * Обработать игровой ввод
+     */
     public List<String> processInput(String userInput, UserState currentUserState) {
     	Matcher notationMatch = NOTATION_PATTERN.matcher(userInput);
     	Matcher callbackMatch = CALLBACK_PATTERN.matcher(userInput);
@@ -101,7 +103,7 @@ public class InGameInputHandler implements InputHandler {
     				currentUserState.getGameState().getBoard(), 
     				currentUserState.getGameState().isWhiteToMove()));
     		if (move.equals(GameHandler.MoveProperty.MATE)) {
-    			currentUserState.setUserState(UserState.userStatus.MAIN_MENU);
+    			currentUserState.setUserState(UserState.UserStatus.MAIN_MENU);
             } else {
             	responses.add(YOUR_MOVE);
             }

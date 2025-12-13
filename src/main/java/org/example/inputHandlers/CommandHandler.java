@@ -41,7 +41,7 @@ public class CommandHandler {
             Скоро будет больше возможностей.
             """;
     /**
-     * Ответ на неизветную команду
+     * Ответ на неизвестную команду
      */
     private final static String UNKNOWN_MESSAGE = "Неизвестная команда";
     /**
@@ -66,7 +66,7 @@ public class CommandHandler {
                                        UserState currentUserState) {
         switch (command) {
             case "start", "quit" -> {
-                currentUserState.setUserState(UserState.userStatus.MAIN_MENU);
+                currentUserState.setUserState(UserState.UserStatus.MAIN_MENU);
                 if (command.equals("start")) {
                     return List.of(START_MESSAGE, MENU_MESSAGE);
                 }
@@ -76,7 +76,7 @@ public class CommandHandler {
                 return List.of(HELP_MESSAGE);
             }
             case "newsinglegame" -> {
-                currentUserState.setUserState(UserState.userStatus.IN_GAME);
+                currentUserState.setUserState(UserState.UserStatus.IN_GAME);
                 currentUserState.resetGameState();
                 return List.of(
                         GAME_STARTED,

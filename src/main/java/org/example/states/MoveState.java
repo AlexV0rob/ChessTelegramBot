@@ -5,9 +5,9 @@ package org.example.states;
  */
 public class MoveState {
     /**
-     * Возможный состояния готовности хода
+     * Возможные состояния готовности хода
      */
-    private enum status {
+    private enum MoveStatus {
         /**
          * Ход не собран
          */
@@ -44,7 +44,7 @@ public class MoveState {
     /**
      * Текущее состояние готовности хода
      */
-    private status currentStatus;
+    private MoveStatus currentStatus;
 
     /**
      * Конструктор, ставит 0 в фигуру, -1 в начальную и конечную позиции и
@@ -54,7 +54,7 @@ public class MoveState {
         figure = "";
         startPosition = "";
         finishPosition = "";
-        currentStatus = status.NOTHING;
+        currentStatus = MoveStatus.NOTHING;
     }
 
     /**
@@ -82,7 +82,7 @@ public class MoveState {
      * Индикатор готовности хода
      */
     public boolean isMoveReady() {
-        return currentStatus.equals(status.FINISH);
+        return currentStatus.equals(MoveStatus.FINISH);
     }
 
     /**
@@ -90,21 +90,21 @@ public class MoveState {
      * готовности хода на следующее
      *
      * @param newMovePart в зависимости от текущего состояния готовности хода
-     *                    может быть фигурой, начальной или конечной позицией
+     * может быть фигурой, начальной или конечной позицией
      */
     public void nextStatus(String newMovePart) {
         switch (currentStatus) {
             case NOTHING -> {
                 figure = newMovePart;
-                currentStatus = status.FIGURE;
+                currentStatus = MoveStatus.FIGURE;
             }
             case FIGURE -> {
                 startPosition = newMovePart;
-                currentStatus = status.START;
+                currentStatus = MoveStatus.START;
             }
             case START -> {
                 finishPosition = newMovePart;
-                currentStatus = status.FINISH;
+                currentStatus = MoveStatus.FINISH;
             }
             case FINISH -> {
                 clearMoveState();
@@ -120,6 +120,6 @@ public class MoveState {
         figure = "";
         startPosition = "";
         finishPosition = "";
-        currentStatus = status.NOTHING;
+        currentStatus = MoveStatus.NOTHING;
     }
 }

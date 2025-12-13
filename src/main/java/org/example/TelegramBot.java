@@ -21,7 +21,6 @@ import org.example.buttons.IdentifiedButton;
 import org.example.buttons.SimpleButton;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -29,8 +28,7 @@ import java.util.List;
  */
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 	/**
-	 * Экземпляр класса TelegramClient 
-
+	 * Экземпляр класса TelegramClient
 	 */
 	private final TelegramClient telegramClient;
 	
