@@ -54,10 +54,10 @@ public class UserState {
      */
     private final static byte[][] START_BOARD =
             {
-                    {WHITE * ROOK, WHITE * KNIGHT, WHITE * BISHOP, WHITE * QUEEN,
-                            WHITE * KING, WHITE * BISHOP, WHITE * KNIGHT, WHITE * ROOK},
-                    {WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, EMPTY * PAWN,
-                            WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN},
+            		{WHITE * ROOK, WHITE * KNIGHT, WHITE * BISHOP, WHITE * QUEEN, 
+            				WHITE * KING, WHITE * BISHOP, WHITE * KNIGHT, WHITE * ROOK},
+            		{WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, 
+            			WHITE * PAWN, WHITE * PAWN, WHITE * PAWN, WHITE * PAWN},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
                     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
@@ -65,14 +65,13 @@ public class UserState {
                     {BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN,
                             BLACK * PAWN, BLACK * PAWN, BLACK * PAWN, BLACK * PAWN},
                     {BLACK * ROOK, BLACK * KNIGHT, BLACK * BISHOP, BLACK * QUEEN,
-                            BLACK * KING, BLACK * BISHOP, BLACK * KNIGHT, BLACK * ROOK}
 
             };
 
     /**
      * Состояние пользователя
      */
-    public enum userStatus {
+    public enum UserStatus {
         /**
          * Главное меню
          */
@@ -91,7 +90,7 @@ public class UserState {
     /**
      * Текущее состояние пользователя
      */
-    private userStatus currentUserState;
+    private UserStatus currentUserState;
 
     /**
      * Состояние игры
@@ -108,14 +107,14 @@ public class UserState {
      */
     public UserState() {
         currentGameState = new GameState(START_BOARD, BOARD_SIDE_LENGTH, true);
-        currentUserState = userStatus.MAIN_MENU;
+        currentUserState = UserStatus.MAIN_MENU;
         currentMoveState = new MoveState();
     }
 
     /**
      * Установить новое состояние пользователя
      */
-    public void setUserState(userStatus newUserState) {
+    public void setUserState(UserStatus newUserState) {
         currentUserState = newUserState;
     }
 
@@ -129,7 +128,7 @@ public class UserState {
     /**
      * Получить текущее состояние пользователя
      */
-    public userStatus getUserState() {
+    public UserStatus getUserState() {
         return currentUserState;
     }
 

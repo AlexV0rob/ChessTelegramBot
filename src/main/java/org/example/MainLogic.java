@@ -5,7 +5,6 @@ import org.example.buttons.SimpleButton;
 
 import org.example.inputHandlers.CommandHandler;
 import org.example.inputHandlers.InGameInputHandler;
-import org.example.inputHandlers.MainMenuInputHandler;
 
 import org.example.states.UserState;
 
@@ -26,10 +25,6 @@ public class MainLogic {
 	 */
 	private final InGameInputHandler inGameHandler = new InGameInputHandler();
 	/**
-	 * Обработчик ввода в главном меню
-	 */
-	private final MainMenuInputHandler inMenuHandler = new MainMenuInputHandler();
-	/**
 	 * Обработчик команд
 	 */
 	private final CommandHandler commandHandler = new CommandHandler();
@@ -49,6 +44,16 @@ public class MainLogic {
 	 */
     private final static Pattern COMMAND_PATTERN =
             Pattern.compile("^/([\\w]+)(?: ([\\wа-яА-ЯёЁ]+))?");
+    
+	/**
+	 * Сообщение о неизвестном запросе
+	 */
+	private final static String UNKNOWN_INPUT = "Неизвестный запрос меню"; 
+
+	/**
+	 * Текст кнопки меню для начала одиночной игры
+	 */
+	private final static String NEW_SINGLE_GAME = "Начать игру на этом устройстве";
 	
     /**
      * Обработать ввод в соответствии с режимом пользователя
@@ -67,9 +72,9 @@ public class MainLogic {
         	return commandHandler.processCommand(commandText, commandArgument, currentUserState);
         }
         switch (currentUserState.getUserState()) {
-        case UserState.userStatus.MAIN_MENU:
-        	return inMenuHandler.processInput(userInput, currentUserState);
-        case UserState.userStatus.IN_GAME:
+        case UserState.UserStatus.MAIN_MENU:
+        	return processMenuInput(currentUserState, userInput);
+        case UserState.UserStatus.IN_GAME:
         	return inGameHandler.processInput(userInput, currentUserState);
         }
         return commandHandler.processCommand("quit", "", currentUserState);
@@ -84,9 +89,9 @@ public class MainLogic {
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.userStatus.MAIN_MENU:
+        case UserState.UserStatus.MAIN_MENU:
         	return buttonsCreator.getMenuButtons();
-        case UserState.userStatus.IN_GAME:
+        case UserState.UserStatus.IN_GAME:
         	return List.of();
         }
     	return List.of();
@@ -101,14 +106,24 @@ public class MainLogic {
         }
     	UserState currentUserState = games.get(chatId);
     	switch (currentUserState.getUserState()) {
-        case UserState.userStatus.MAIN_MENU:
+        case UserState.UserStatus.MAIN_MENU:
         	return List.of();
-        case UserState.userStatus.IN_GAME:
+        case UserState.UserStatus.IN_GAME:
         	return buttonsCreator.getGameButtons(
         			currentUserState.getMoveState(), 
         			currentUserState.getGameState().getBoard(),
         			currentUserState.getGameState().isWhiteToMove());
         }
     	return List.of();
+	}
+	
+	/**
+	 * Обработать ввод в меню
+	 */
+	private List<String> processMenuInput(UserState currentUserState, String userInput) {
+		if (userInput.equals(NEW_SINGLE_GAME)) {
+			return commandHandler.processCommand("newsinglegame", "", currentUserState);
+		}
+		return List.of(UNKNOWN_INPUT);
 	}
 }
