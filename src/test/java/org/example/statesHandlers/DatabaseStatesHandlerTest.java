@@ -52,7 +52,6 @@ public class DatabaseStatesHandlerTest {
 			String usersDB = """
           		CREATE TABLE IF NOT EXISTS users (
           			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-          			unknown_id BIGINT,
       				telegram_id BIGINT,
       				discord_id BIGINT,
           			status TINYINT NOT NULL,
@@ -75,6 +74,7 @@ public class DatabaseStatesHandlerTest {
           			type TINYINT NOT NULL,
           			first_to_move BIT NOT NULL,
           			chessboard BLOB NOT NULL,
+          			chessboard_side_length INTEGER NOT NULL,
           			white_to_move BIT NOT NULL
           		);
           		""";
@@ -96,8 +96,8 @@ public class DatabaseStatesHandlerTest {
 		} catch (SQLException e) {
 			throw new CriticalError("Couldn't reset states", e);
 		}
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 	}
 	
 	/**
@@ -128,7 +128,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void createNewLobbyTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertEquals(1, states.getLobbyFirstPlayer("game"));
 		Assertions.assertEquals(2, states.getLobbySecondPlayer("game"));
 		Assertions.assertTrue(states.isLobbyFirstPlayerToMove("game"));
@@ -140,7 +142,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void deleteLobbyTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.deleteLobby("game");
 		Assertions.assertNull(states.getLobbyType("game"));
 	}
@@ -150,7 +154,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void getLobbyAnotherUserIdTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER,
+				new byte[0][0], 0, true);
 		Assertions.assertEquals(2, states.getLobbyAnotherUserId("game", 1));
 	}
 
@@ -209,7 +215,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void isLobbyExistingTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.bookLobbyName("game1", 1);
 		Assertions.assertTrue(states.isLobbyExisting("game"));
 		Assertions.assertTrue(states.isLobbyExisting("game1"));
@@ -221,7 +229,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void isLobbyAvailableTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.bookLobbyName("game1", 1);
 		Assertions.assertFalse(states.isLobbyAvailable("game"));
 		Assertions.assertTrue(states.isLobbyAvailable("game1"));
@@ -260,7 +270,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void changeLobbyMovingUserTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertTrue(states.isLobbyFirstPlayerToMove("game"));
 		states.changeLobbyMovingUser("game");
 		Assertions.assertFalse(states.isLobbyFirstPlayerToMove("game"));
@@ -271,7 +283,9 @@ public class DatabaseStatesHandlerTest {
 	 */
 	@Test
 	public void changeGameMovingSideTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertTrue(states.isGameWhiteToMove("game"));
 		states.changeGameMovingSide("game");
 		Assertions.assertFalse(states.isGameWhiteToMove("game"));
@@ -284,10 +298,10 @@ public class DatabaseStatesHandlerTest {
 	public void addNewUserTest() {
 		Assertions.assertNull(states.getUserLobbyName(3));
 		Assertions.assertNull(states.getUserLobbyName(4));
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 		Assertions.assertEquals("", states.getUserLobbyName(3));
 		Assertions.assertNull(states.getUserLobbyName(4));
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 		Assertions.assertEquals("", states.getUserLobbyName(4));
 	}
 

@@ -16,16 +16,16 @@ public class MemoryStatesHandlerTest{
 	/**
 	 * Хранитель состояний
 	 */
-	private final FakeStatesHandler states = new FakeStatesHandler();
+	private StatesHandler states;
 
 	/**
 	 * Сбросить сохранённое состоние перед каждым тестом
 	 */
 	@BeforeEach
 	public void StatesReset() {
-		states.resetAll();
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states = new MemoryStatesHandler();
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 	}
 	
 	/**
@@ -56,7 +56,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void createNewLobbyTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertEquals(1, states.getLobbyFirstPlayer("game"));
 		Assertions.assertEquals(2, states.getLobbySecondPlayer("game"));
 		Assertions.assertTrue(states.isLobbyFirstPlayerToMove("game"));
@@ -68,7 +70,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void deleteLobbyTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.deleteLobby("game");
 		Assertions.assertNull(states.getLobbyType("game"));
 	}
@@ -78,7 +82,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void getLobbyAnotherUserIdTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertEquals(2, states.getLobbyAnotherUserId("game", 1));
 	}
 
@@ -137,7 +143,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void isLobbyExistingTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.bookLobbyName("game1", 1);
 		Assertions.assertTrue(states.isLobbyExisting("game"));
 		Assertions.assertTrue(states.isLobbyExisting("game1"));
@@ -149,7 +157,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void isLobbyAvailableTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		states.bookLobbyName("game1", 1);
 		Assertions.assertFalse(states.isLobbyAvailable("game"));
 		Assertions.assertTrue(states.isLobbyAvailable("game1"));
@@ -188,7 +198,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void changeLobbyMovingUserTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertTrue(states.isLobbyFirstPlayerToMove("game"));
 		states.changeLobbyMovingUser("game");
 		Assertions.assertFalse(states.isLobbyFirstPlayerToMove("game"));
@@ -199,7 +211,9 @@ public class MemoryStatesHandlerTest{
 	 */
 	@Test
 	public void changeGameMovingSideTest() {
-		states.createNewLobby("game", 1, 2, true, LobbyState.LobbyType.MULTIPLAYER);
+		states.createNewLobby("game", 1, 2, 
+				true, LobbyState.LobbyType.MULTIPLAYER, 
+				new byte[0][0], 0, true);
 		Assertions.assertTrue(states.isGameWhiteToMove("game"));
 		states.changeGameMovingSide("game");
 		Assertions.assertFalse(states.isGameWhiteToMove("game"));
@@ -212,10 +226,10 @@ public class MemoryStatesHandlerTest{
 	public void addNewUserTest() {
 		Assertions.assertNull(states.getUserLobbyName(3));
 		Assertions.assertNull(states.getUserLobbyName(4));
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 		Assertions.assertEquals("", states.getUserLobbyName(3));
 		Assertions.assertNull(states.getUserLobbyName(4));
-		states.addNewUser(UserState.MessengerType.UNKNOWN);
+		states.addNewUser(UserState.MessengerType.TELEGRAM);
 		Assertions.assertEquals("", states.getUserLobbyName(4));
 	}
 

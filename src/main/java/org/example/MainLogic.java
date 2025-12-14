@@ -3,8 +3,6 @@ package org.example;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.Bot;
-import org.example.bots.DiscordBot;
-import org.example.bots.TelegramBot;
 import org.example.states.UserState;
 import org.example.statesHandlers.StatesHandler;
 
@@ -49,12 +47,12 @@ public class MainLogic {
     /**
      * Экземпляр TelegramBot для отправки сообщений в Телеграм
      */
-    private TelegramBot tgBot = null;
+    private Bot tgBot = null;
 
     /**
      * Экземпляр DiscordBot для отправки сообщений в Дискорд
      */
-    private DiscordBot dsBot = null;
+    private Bot dsBot = null;
     
     /**
      * Скомпилированное регулярное выражение команды
@@ -189,13 +187,8 @@ public class MainLogic {
         long secondUserId = 0;
         List<String> firstMessages = new ArrayList<String>();
         List<String> secondMessages = new ArrayList<String>();
-        UserState.MessengerType currentMessenger = UserState.MessengerType.UNKNOWN;
+        UserState.MessengerType currentMessenger = bot.getBotMessengerType();
         Matcher command = COMMAND_PATTERN.matcher(userInput);
-        if (bot instanceof TelegramBot) {
-            currentMessenger = UserState.MessengerType.TELEGRAM;
-        } else if (bot instanceof DiscordBot) {
-            currentMessenger = UserState.MessengerType.DISCORD;
-        }
         String lobbyName = "";
         if (userId != 0) {
         	ImmutablePair<List<String>, List<String>> responseMessages = null;
@@ -263,16 +256,16 @@ public class MainLogic {
         long messageId = statesHandler.getUserMessageId(userId);
         if (messageId >= 0) {
           String messageText = firstMessages.removeFirst();
-          editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
+          editMessage(userId, messageId, messageText, !firstMessages.isEmpty());
         }
         if (!firstMessages.isEmpty()) {
-          sendMessages(bot, userId, chatId, currentMessenger, firstMessages);
+          sendMessages(userId, chatId, currentMessenger, firstMessages);
         }
       }
       if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
     	  UserState.MessengerType secondMessenger = statesHandler.getUserMessenger(secondUserId);
     	  long secondChatId = statesHandler.getUserMessengerId(secondUserId, secondMessenger);
-        sendMessages(bot, secondUserId, secondChatId, secondMessenger, secondMessages);        
+        sendMessages(secondUserId, secondChatId, secondMessenger, secondMessages);        
       }
     }
 
@@ -336,19 +329,18 @@ public class MainLogic {
      * Получить внутренний идентификатор системы
      */
     private long getSystemId(Bot bot, long chatId) {
-        if (bot instanceof TelegramBot && tgBot == null) {
-            tgBot = (TelegramBot) bot;
+    	UserState.MessengerType messenger = bot.getBotMessengerType();
+        if (messenger.equals(UserState.MessengerType.TELEGRAM) && tgBot == null) {
+            tgBot = bot;
         }
-        if (bot instanceof DiscordBot && dsBot == null) {
-            dsBot = (DiscordBot) bot;
+        if (messenger.equals(UserState.MessengerType.DISCORD) && dsBot == null) {
+            dsBot = bot;
         }
         long userId = 0;
-        if (bot instanceof TelegramBot) {
+        if (messenger.equals(UserState.MessengerType.TELEGRAM)) {
         	userId = statesHandler.getUserIdFromTelegramId(chatId);
-        } else if (bot instanceof DiscordBot) {
+        } else if (messenger.equals(UserState.MessengerType.DISCORD)) {
         	userId = statesHandler.getUserIdFromDiscordId(chatId);
-        } else {
-        	userId = statesHandler.getUserIdFromUnknownId(chatId);
         }
         return userId;
     }
@@ -395,7 +387,7 @@ public class MainLogic {
                 case "link" -> {
                     Matcher linkMatch = LINK_PATTERN.matcher(argument);
                     long otherChatId = 0;
-            		UserState.MessengerType messenger = UserState.MessengerType.UNKNOWN;
+            		UserState.MessengerType messenger = null;
                     if (linkMatch.find()) {
                     	String otherMessenger = linkMatch.group(1);
                     	otherChatId = Long.parseLong(linkMatch.group(2));
@@ -509,11 +501,10 @@ public class MainLogic {
     /**
      * Отправить сообщения пользователю
      */
-    private void sendMessages(Bot bot, long userId, long chatId, UserState.MessengerType userMessenger,
+    private void sendMessages(long userId, long chatId, UserState.MessengerType userMessenger,
                               List<String> messagesTexts) {
         if (chatId != 0) {
             Bot botToSend = switch (userMessenger) {
-                case UserState.MessengerType.UNKNOWN -> bot;
                 case UserState.MessengerType.TELEGRAM -> tgBot;
                 case UserState.MessengerType.DISCORD -> dsBot;
             };
@@ -527,13 +518,12 @@ public class MainLogic {
     /**
      * Изменить сообщение
      */
-    private void editMessage(Bot bot, long userId,
-                             long messageId, String editedMessageText, boolean moreMessages) {
+    private void editMessage(long userId, long messageId, 
+    		String editedMessageText, boolean moreMessages) {
         UserState.MessengerType userMessenger = statesHandler.getUserMessenger(userId);
         long chatId = statesHandler.getUserMessengerId(userId, userMessenger);
         if (chatId != 0) {
             Bot botToSend = switch (userMessenger) {
-                case UserState.MessengerType.UNKNOWN -> bot;
                 case UserState.MessengerType.TELEGRAM -> tgBot;
                 case UserState.MessengerType.DISCORD -> dsBot;
             };

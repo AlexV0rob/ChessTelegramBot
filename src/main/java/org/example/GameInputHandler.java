@@ -117,6 +117,7 @@ public class GameInputHandler {
 		responseMessagesFirst.add(gameTranslator.chessboardString(
 				firstPlayerProperty, 
 				states.getGameChessboard(lobbyName),
+				states.getGameSideLength(lobbyName),
         		states.isGameWhiteToMove(lobbyName), 
 				viewSide));
 		if (!moveProperty.equals(GameHandler.MoveProperty.IMPOSSIBLE) && 
@@ -124,6 +125,7 @@ public class GameInputHandler {
 			responseMessagesSecond.add(gameTranslator.chessboardString(
 					moveProperty, 
 					states.getGameChessboard(lobbyName),
+					states.getGameSideLength(lobbyName),
 	        		states.isGameWhiteToMove(lobbyName), 
 					!viewSide));			
 		}

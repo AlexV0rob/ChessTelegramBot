@@ -19,6 +19,30 @@ public class CommandHandler {
     public CommandHandler(StatesHandler statesHandler) {
         states = statesHandler;
     }
+    
+    /**
+     * Начальная игровая доска
+     */
+    private final static byte[][] START_BOARD = {
+    		{-2, -3, -4, -5, -6, -4, -3, -2},
+    		{-1, -1, -1, -1, -1, -1, -1, -1},
+    		{0, 0, 0, 0, 0, 0, 0, 0},
+    		{0, 0, 0, 0, 0, 0, 0, 0},
+    		{0, 0, 0, 0, 0, 0, 0, 0},
+    		{0, 0, 0, 0, 0, 0, 0, 0},
+    		{1, 1, 1, 1, 1, 1, 1, 1},
+    		{2, 3, 4, 5, 6, 4, 3, 2}
+    };
+    
+    /**
+     * Сторона доски
+     */
+    private final static int BOARD_SIDE_LENGTH = 8;
+    
+    /**
+     * Ходят ли белые
+     */
+    private final static boolean IS_WHITE_TO_MOVE = true;
 
     /**
      * Пригласительное сообщение к вводу названия матча
@@ -105,12 +129,9 @@ public class CommandHandler {
      */
     public void processNewLocalCommand(long userId) {
         states.setNewUserStatus(userId, UserState.UserStatus.INGAME);
-        states.createNewLobby(
-                String.valueOf(userId),
-                userId,
-                userId,
-                true,
-                LobbyState.LobbyType.SINGLEPLAYER);
+        states.createNewLobby(String.valueOf(userId), userId, userId,
+                true, LobbyState.LobbyType.SINGLEPLAYER, 
+                START_BOARD, BOARD_SIDE_LENGTH, IS_WHITE_TO_MOVE);
         states.setUserLobbyName(userId, String.valueOf(userId));
     }
 
@@ -157,12 +178,9 @@ public class CommandHandler {
                 	states.setNewUserStatus(userId, UserState.UserStatus.INGAME);
                 	states.setUserLobbyName(userId, argument);
                 	states.unbookLobbyName(argument);
-                	states.createNewLobby(
-                        	argument,
-                        	creatorId,
-                        	userId,
-                        	isFirstWhite,
-                        	LobbyState.LobbyType.MULTIPLAYER);
+                	states.createNewLobby(argument, creatorId, userId,
+                            isFirstWhite, LobbyState.LobbyType.MULTIPLAYER, 
+                            START_BOARD, BOARD_SIDE_LENGTH, IS_WHITE_TO_MOVE);
                 	states.setNewUserStatus(creatorId, UserState.UserStatus.INGAME);
                 	states.setUserLobbyName(creatorId, argument);
                 	return isFirstWhite;
@@ -174,14 +192,16 @@ public class CommandHandler {
     /**
      * Обработать команду /link[ argument]
      */
-    public String processLinkCommand(long userId, long chatId,
-                                     UserState.MessengerType messenger) throws CommandException {
+    public String processLinkCommand(long userId, long chatId, 
+    		UserState.MessengerType messenger) throws CommandException {
         states.setNewUserStatus(userId, UserState.UserStatus.MESSENGER_CHOOSING);
-        if (chatId == 0 && messenger.equals(null)) {
+        if (chatId == 0 && messenger == null) {
             throw new CommandException(MESSENGER_CHOOSE);
         } else {
             if (chatId == 0) {
                 throw new CommandException(MESSENGER_ID);
+            } else if (states.isMessengerIdExisting(messenger, chatId)) {
+            	throw new CommandException(LINK_ERROR);
             } else {
                 if (states.isMessengerIdExisting(messenger, chatId)) {
                 	throw new CommandException(LINK_ERROR);

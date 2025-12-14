@@ -22,53 +22,47 @@ public class MemoryStatesHandler implements StatesHandler {
 	protected long highestId = 1;
 	
 	/**
-	 * Ассоциативный массив с соответствием идентификатора неизвестного и 
-	 * мессенджера идентификатора пользователя внутренней системы
-	 */
-	protected Map<Long, Long> unknownIds = new HashMap<Long, Long>();
-	
-	/**
 	 * Ассоциативный массив с соответствием идентификатора Telegram и 
 	 * идентификатора пользователя внутренней системы
 	 */
-	protected Map<Long, Long> telegramIds = new HashMap<Long, Long>();
+	private Map<Long, Long> telegramIds = new HashMap<Long, Long>();
 
 	/**
 	 * Ассоциативный массив с соответствием идентификатора Discord и 
 	 * идентификатора пользователя внутренней системы
 	 */
-	protected Map<Long, Long> discordIds = new HashMap<Long, Long>();
+	private Map<Long, Long> discordIds = new HashMap<Long, Long>();
 	
 	/**
 	 * Ассоциативный массив с соответствием идентификатора внутренней 
 	 * системы и ассоциативным массивом с идентификаторами мессенджеров
 	 */
-	protected Map<Long, Map<UserState.MessengerType, Long>> messengersIds = 
+	private Map<Long, Map<UserState.MessengerType, Long>> messengersIds = 
 			new HashMap<Long, Map<UserState.MessengerType, Long>>();
 	
 	/**
 	 * Ассоциативный массив с соответствием идентификатора пользователя и 
 	 * его состояния
 	 */
-    protected Map<Long, UserState> users = new HashMap<Long, UserState>();
+    private Map<Long, UserState> users = new HashMap<Long, UserState>();
     
     /**
      * Ассоциативный массив с соответствием идентификатора матча и его
      * состояния
      */
-    protected Map<String, LobbyState> games = new HashMap<String, LobbyState>();
+    private Map<String, LobbyState> games = new HashMap<String, LobbyState>();
     
     /**
 	 * Ассоциативный массив с соответствием идентификатора пользователя и 
 	 * идентификатора последнего отправленного ему сообщения
 	 */
-	protected Map<Long, Long> messages = new HashMap<Long, Long>();
+	private Map<Long, Long> messages = new HashMap<Long, Long>();
 	
 	/**
 	 * Ассоциативный массив с соответствием названия ещё не начавшегося 
 	 * матча и идентификатора его создателя
 	 */
-	protected Map<String, Long> names = new HashMap<String, Long>();
+	private Map<String, Long> names = new HashMap<String, Long>();
 
 	@Override
 	public void setNewUserStatus(long userId, UserStatus status) {
@@ -93,9 +87,13 @@ public class MemoryStatesHandler implements StatesHandler {
 	}
 
 	@Override
-	public void createNewLobby(String lobbyName, long firstPlayerId, 
-			long secondPlayerId, boolean isFirstPlayerWhite, LobbyType lobbyType) {
-		games.put(lobbyName, new LobbyState(firstPlayerId, secondPlayerId, isFirstPlayerWhite, lobbyType));
+	public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId,
+			boolean isFirstPlayerWhite, LobbyType lobbyType,
+			byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
+		games.put(lobbyName, new LobbyState(firstPlayerId, secondPlayerId,  
+				isFirstPlayerWhite, lobbyType, 
+				chessboard, sideLength, isWhiteToMove)
+		);
 	}
 
 	@Override
@@ -313,14 +311,6 @@ public class MemoryStatesHandler implements StatesHandler {
 		}
 		return userId;
 	}
-
-	@Override
-	public long getUserIdFromUnknownId(long chatId) {
-		if (unknownIds.containsKey(chatId)) {
-			return unknownIds.get(chatId);
-		}
-		return 0;
-	}
 	
 	@Override
 	public long getUserIdFromTelegramId(long chatId) {
@@ -343,9 +333,6 @@ public class MemoryStatesHandler implements StatesHandler {
 		if (messengersIds.containsKey(userId)) {
 			messengersIds.get(userId).put(newUserMessenger, chatId);
 			switch (newUserMessenger) {
-			case UserState.MessengerType.UNKNOWN -> {
-				unknownIds.put(chatId, userId);
-			}
 			case UserState.MessengerType.TELEGRAM -> {
 				telegramIds.put(chatId, userId);				
 			}
@@ -359,9 +346,6 @@ public class MemoryStatesHandler implements StatesHandler {
 	@Override
 	public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
 		switch (messenger) {
-		case UserState.MessengerType.UNKNOWN -> {
-			return unknownIds.containsKey(chatId);
-		}
 		case UserState.MessengerType.TELEGRAM -> {
 			return telegramIds.containsKey(chatId);		
 		}
@@ -393,6 +377,15 @@ public class MemoryStatesHandler implements StatesHandler {
 	@Override
 	public void addUserWin(long userId) {
 		// TODO Auto-generated method stub
-		
+
+	}
+	
+	@Override
+	public int getGameSideLength(String lobbyName) {
+		LobbyState lobby = games.getOrDefault(lobbyName, null);
+		if (lobby != null) {
+			return lobby.getGameState().getSideLength();
+		}
+		return 0;
 	}	
 }

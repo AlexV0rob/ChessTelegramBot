@@ -3,11 +3,13 @@ package org.example;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.bots.FakeBot;
 import org.example.states.UserState;
-import org.example.statesHandlers.FakeStatesHandler;
+import org.example.statesHandlers.MemoryStatesHandler;
+import org.example.statesHandlers.StatesHandler;
 
 import java.util.List;
 
@@ -18,28 +20,29 @@ public class MainLogicTest {
     /**
      * Фальшивый аккумулирующий бот
      */
-    private final FakeBot fakeBot = new FakeBot();
+    private final FakeBot fakeBot = new FakeBot(UserState.MessengerType.TELEGRAM);
 
     /**
      * Хранитель состояний
      */
-    private final FakeStatesHandler states = new FakeStatesHandler();
+    private StatesHandler states;
 
     /**
      * Главный логический модуль
      */
-    private final MainLogic mainLogic = new MainLogic(states);
+    private MainLogic mainLogic;
 
     /**
      * Сброс состояний
      */
     @BeforeEach
     public void resetStates() {
-    	states.resetAll();
-    	states.addNewUser(UserState.MessengerType.UNKNOWN);
-    	states.addNewMessengerId(1, UserState.MessengerType.UNKNOWN, 1);
-    	states.addNewUser(UserState.MessengerType.UNKNOWN);
-    	states.addNewMessengerId(2, UserState.MessengerType.UNKNOWN, 2);
+    	states = new MemoryStatesHandler();
+    	mainLogic = new MainLogic(states);
+    	mainLogic.processInput(fakeBot, "/start", 1);
+    	mainLogic.processInput(fakeBot, "/start", 2);
+    	mainLogic.processInput(fakeBot, "new", 1);
+    	mainLogic.processInput(fakeBot, "new", 2);
     	fakeBot.clearMessages();
     }
     
@@ -47,7 +50,7 @@ public class MainLogicTest {
      * Проверить работу меню
      */
     @Test
-    public void menuInputTest() throws CommandException {
+    public void menuInputTest() {
         mainLogic.processInput(fakeBot, "/quit", 1);
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of("Чем займёмся?"), responseReal);
@@ -266,10 +269,10 @@ public class MainLogicTest {
      */
     @Test
     public void newUserTest() {
-    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
+    	Assertions.assertEquals(0, states.getUserIdFromTelegramId(3));
     	mainLogic.processInput(fakeBot, "/start", 3);
     	mainLogic.processInput(fakeBot, "new", 3);
-    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
+    	Assertions.assertEquals(3, states.getUserIdFromTelegramId(3));
     }
     
     /**
@@ -277,12 +280,11 @@ public class MainLogicTest {
      */
     @Test
     public void oldUserTest() {
-    	states.addNewUser(UserState.MessengerType.TELEGRAM);
-    	states.addNewMessengerId(3, UserState.MessengerType.TELEGRAM, 1);
-    	Assertions.assertEquals(0, states.getUserIdFromUnknownId(3));
-    	mainLogic.processInput(fakeBot, "/start", 3);
-    	mainLogic.processInput(fakeBot, "old", 3);
-    	mainLogic.processInput(fakeBot, "Telegram 1", 3);
-    	Assertions.assertEquals(3, states.getUserIdFromUnknownId(3));
+    	Assertions.assertEquals(0, states.getUserIdFromDiscordId(1));
+    	FakeBot otherBot = new FakeBot(UserState.MessengerType.DISCORD);
+    	mainLogic.processInput(otherBot, "/start", 1);
+    	mainLogic.processInput(otherBot, "old", 1);
+    	mainLogic.processInput(otherBot, "Telegram 1", 1);
+    	Assertions.assertEquals(1, states.getUserIdFromDiscordId(1));
     }
 }

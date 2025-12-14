@@ -12,27 +12,10 @@ import org.example.states.UserState;
 import org.example.states.UserState.MessengerType;
 import org.example.states.UserState.UserStatus;
 
+/**
+ * Хранитель состояний в базе данных
+ */
 public class DatabaseStatesHandler implements StatesHandler {
-    /**
-     * Длина стороны доски
-     */
-    private final static int BOARD_SIDE_LENGTH = 8;
-
-    /**
-     * Начальная доска
-     */
-    private final static byte[][] START_BOARD =
-            {
-                    {-2, -3, -4, -5, -6, -4, -3, -2},
-                    {-1, -1, -1, -1, -1, -1, -1, -1},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {2, 3, 4, 5, 6, 4, 3, 2}
-            };
-
     /**
      * Строка с ссылкой на базу данных
      */
@@ -46,34 +29,34 @@ public class DatabaseStatesHandler implements StatesHandler {
         try (Connection connection = DriverManager.getConnection(url);
              Statement statement = connection.createStatement();) {
             String usersDB = """
-                    		CREATE TABLE IF NOT EXISTS users (
-                    			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    			unknown_id BIGINT,
-                    telegram_id BIGINT,
-                    discord_id BIGINT,
-                    			status TINYINT NOT NULL,
-                    			figure CHAR(1),
-                    			start CHAR(2),
-                    			finish CHAR(2),
-                    			parts_count TINYINT,
-                    			messenger TINYINT,
-                    			lobby_name VARCHAR(16),
-                    			lobby_id INTEGER,
-                    			message_id BIGINT NOT NULL
-                    		)
+            		CREATE TABLE IF NOT EXISTS users (
+            			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            			telegram_id BIGINT,
+            			discord_id BIGINT,
+            			status TINYINT NOT NULL,
+                    	figure CHAR(1),
+                    	start CHAR(2),
+                    	finish CHAR(2),
+                    	parts_count TINYINT,
+                    	messenger TINYINT,
+                    	lobby_name VARCHAR(16),
+                    	lobby_id INTEGER,
+                    	message_id BIGINT NOT NULL
+                    )
                     """;
 
             String gamesDB = """
-                    		CREATE TABLE IF NOT EXISTS games (
-                    			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    			name VARCHAR(16) NOT NULL,
-                    first_user_id BIGINT NOT NULL,
-                    second_user_id BIGINT NOT NULL,
-                    			type TINYINT NOT NULL,
-                    			first_to_move BIT NOT NULL,
-                    			chessboard BLOB NOT NULL,
-                    			white_to_move BIT NOT NULL
-                    		)
+                    CREATE TABLE IF NOT EXISTS games (
+                    	prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    	name VARCHAR(16) NOT NULL,
+                    	first_user_id BIGINT NOT NULL,
+                    	second_user_id BIGINT NOT NULL,
+                    	type TINYINT NOT NULL,
+                    	first_to_move BIT NOT NULL,
+                    	chessboard BLOB NOT NULL,
+                    	chessboard_side_length INTEGER NOT NULL,
+                    	white_to_move BIT NOT NULL
+                    )
                     """;
 
             String namesDB = """
@@ -87,8 +70,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             statement.execute(usersDB);
             statement.execute(gamesDB);
             statement.execute(namesDB);
-            statement.close();
-            connection.close();
         } catch (SQLException e) {
 			throw new DatabaseException("Couldn't connect to database", e);
         }
@@ -106,8 +87,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setByte(1, getUserStatusCode(status));
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -125,10 +104,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            String lobbyName = result.next() ? result.getString(1) : null;
-            preparedStatement.close();
-            connection.close();
-            return lobbyName;
+            return result.next() ? result.getString(1) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -147,8 +123,6 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
             preparedStatement.setLong(1, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -156,12 +130,14 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public void createNewLobby(String lobbyName, long firstPlayerId,
-                               long secondPlayerId, boolean isFirstPlayerWhite, LobbyType lobbyType) {
+    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId, 
+    		boolean isFirstPlayerWhite, LobbyType lobbyType, 
+    		byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
         String insertQuery = """
                 INSERT INTO games 
-                (name, first_user_id, second_user_id, type, first_to_move, chessboard, white_to_move)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (name, first_user_id, second_user_id, type, first_to_move, 
+                chessboard, chessboard_side_length, white_to_move)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);) {
@@ -170,11 +146,10 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setLong(3, secondPlayerId);
             preparedStatement.setByte(4, getLobbyTypeCode(lobbyType));
             preparedStatement.setBoolean(5, isFirstPlayerWhite);
-            preparedStatement.setBytes(6, getBoardBytesFromArray(START_BOARD));
-            preparedStatement.setBoolean(7, true);
+            preparedStatement.setBytes(6, getBoardBytesFromArray(chessboard, sideLength));
+            preparedStatement.setInt(7, sideLength);
+            preparedStatement.setBoolean(8, isWhiteToMove);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -192,10 +167,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            LobbyState.LobbyType type = result.next() ? getLobbyTypeByCode(result.getByte(1)) : null;
-            preparedStatement.close();
-            connection.close();
-            return type;
+            return result.next() ? getLobbyTypeByCode(result.getByte(1)) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -213,8 +185,6 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);) {
             preparedStatement.setString(1, lobbyName);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -240,21 +210,17 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatementSecond.setString(1, lobbyName);
             ResultSet resultFirst = preparedStatementFirst.executeQuery();
             ResultSet resultSecond = preparedStatementSecond.executeQuery();
-            long anotherId = -1;
             if (resultFirst.next() && resultSecond.next()) {
                 long firstId = resultFirst.getLong(1);
                 long secondId = resultSecond.getLong(1);
-                anotherId = (userId == firstId ? secondId : firstId);
+                return (userId == firstId) ? secondId : firstId;
             }
-            preparedStatementFirst.close();
-            preparedStatementSecond.close();
-            connection.close();
-            return anotherId;
+            return -1;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
         }
-        return 0;
+        return -01;
     }
 
     @Override
@@ -269,8 +235,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setString(1, lobbyName);
             preparedStatement.setLong(2, creatorId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -287,8 +251,6 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);) {
             preparedStatement.setString(1, lobbyName);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -306,10 +268,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            long creatorId = result.next() ? result.getLong(1) : -1;
-            preparedStatement.close();
-            connection.close();
-            return creatorId;
+            return result.next() ? result.getLong(1) : 0;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -329,8 +288,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setString(1, lobbyName);
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -356,11 +313,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatementGames.setString(1, lobbyName);
             ResultSet resultNames = preparedStatementNames.executeQuery();
             ResultSet resultGames = preparedStatementGames.executeQuery();
-            boolean isExisting = resultNames.next() || resultGames.next();
-            preparedStatementNames.close();
-            preparedStatementGames.close();
-            connection.close();
-            return isExisting;
+            return resultNames.next() || resultGames.next();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -379,10 +332,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            boolean isAvailable = result.next();
-            preparedStatement.close();
-            connection.close();
-            return isAvailable;
+            return result.next();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -430,10 +380,7 @@ public class DatabaseStatesHandler implements StatesHandler {
                 preparedStatementUpdate.setString(1, movePart);
                 preparedStatementUpdate.setLong(2, userId);
                 preparedStatementUpdate.executeUpdate();
-                preparedStatementUpdate.close();
             }
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -451,10 +398,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            String figure = result.next() ? result.getString(1) : null;
-            preparedStatement.close();
-            connection.close();
-            return figure;
+            return result.next() ? result.getString(1) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -473,10 +417,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            String start = result.next() ? result.getString(1) : null;
-            preparedStatement.close();
-            connection.close();
-            return start;
+            return result.next() ? result.getString(1) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -495,10 +436,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            String finish = result.next() ? result.getString(1) : null;
-            preparedStatement.close();
-            connection.close();
-            return finish;
+            return result.next() ? result.getString(1) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -517,10 +455,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            boolean isMoveReady = result.next() ? result.getByte(1) == 3 : false;
-            preparedStatement.close();
-            connection.close();
-            return isMoveReady;
+            return result.next() ? result.getByte(1) == 3 : false;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -539,10 +474,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            boolean isWhiteToMove = result.next() ? result.getBoolean(1) : false;
-            preparedStatement.close();
-            connection.close();
-            return isWhiteToMove;
+            return result.next() ? result.getBoolean(1) : false;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -553,7 +485,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public byte[][] getGameChessboard(String lobbyName) {
         String selectQuery = """
-                SELECT chessboard 
+                SELECT chessboard, chessboard_side_length 
                 FROM games 
                 WHERE name = ?
                 """;
@@ -561,10 +493,9 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            byte[][] board = result.next() ? getBoardArrayFromString(result.getBytes(1)) : null;
-            preparedStatement.close();
-            connection.close();
-            return board;
+            return result.next() ? 
+            		getBoardArrayFromString(result.getBytes(1), result.getInt(2)) : 
+            		null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -594,10 +525,7 @@ public class DatabaseStatesHandler implements StatesHandler {
                 preparedStatementUpdate.setBoolean(1, !movingSide);
                 preparedStatementUpdate.setString(2, lobbyName);
                 preparedStatementUpdate.executeUpdate();
-                preparedStatementUpdate.close();
             }
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -607,7 +535,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public void moveGameFigure(String lobbyName, PositionOnBoard startPosition, PositionOnBoard finishPosition) {
         String selectQuery = """
-                SELECT chessboard 
+                SELECT chessboard, chessboard_side_length 
                 FROM games 
                 WHERE name = ?
                 """;
@@ -616,7 +544,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
-                byte[][] chessboard = getBoardArrayFromString(result.getBytes(1));
+                byte[][] chessboard = getBoardArrayFromString(result.getBytes(1), result.getInt(2));
                 chessboard[finishPosition.row()][finishPosition.column()] =
                         chessboard[startPosition.row()][startPosition.column()];
                 chessboard[startPosition.row()][startPosition.column()] = 0;
@@ -626,13 +554,10 @@ public class DatabaseStatesHandler implements StatesHandler {
                         WHERE name = ?
                         """;
                 PreparedStatement preparedStatementUpdate = connection.prepareStatement(updateQuery);
-                preparedStatementUpdate.setBytes(1, getBoardBytesFromArray(chessboard));
+                preparedStatementUpdate.setBytes(1, getBoardBytesFromArray(chessboard, result.getInt(2)));
                 preparedStatementUpdate.setString(2, lobbyName);
                 preparedStatementUpdate.executeUpdate();
-                preparedStatementUpdate.close();
             }
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -661,10 +586,7 @@ public class DatabaseStatesHandler implements StatesHandler {
                 preparedStatementUpdate.setBoolean(1, !movingSide);
                 preparedStatementUpdate.setString(2, lobbyName);
                 preparedStatementUpdate.executeUpdate();
-                preparedStatementUpdate.close();
             }
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -675,9 +597,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     public long addNewUser(MessengerType newUserMessenger) {
         String insertQuery = """
                 INSERT INTO users 
-                (unknown_id, telegram_id, discord_id, status, figure, start, 
+                (telegram_id, discord_id, status, figure, start, 
                 	finish, parts_count, messenger, lobby_name, lobby_id, message_id)
-                VALUES (0, 0, 0, 0, "", "", "", 0, ?, "", -1, -1)
+                VALUES (0, 0, 0, "", "", "", 0, ?, "", -1, -1)
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement =
@@ -685,10 +607,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setByte(1, getUserMessengerCode(newUserMessenger));
             preparedStatement.executeUpdate();
             ResultSet result = preparedStatement.getGeneratedKeys();
-            long userId = result.getLong(1);
-            preparedStatement.close();
-            connection.close();
-            return userId;
+            return result.getLong(1);
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -707,11 +626,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            UserState.UserStatus status =
-                    result.next() ? getUserStatusByCode(result.getByte(1)) : null;
-            preparedStatement.close();
-            connection.close();
-            return status;
+            return result.next() ? getUserStatusByCode(result.getByte(1)) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -735,8 +650,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             while (result.next()) {
                 lobbiesNames.add(result.getString(1));
             }
-            preparedStatement.close();
-            connection.close();
             return lobbiesNames;
         } catch (SQLException e) {
             System.out.println("Error with database");
@@ -757,10 +670,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            long firstId = result.next() ? result.getLong(1) : -1;
-            preparedStatement.close();
-            connection.close();
-            return firstId;
+            return result.next() ? result.getLong(1) : -1;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -779,10 +689,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            long secondId = result.next() ? result.getLong(1) : -1;
-            preparedStatement.close();
-            connection.close();
-            return secondId;
+            return result.next() ? result.getLong(1) : -1;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -801,10 +708,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            boolean isFirstToMove = result.next() ? result.getBoolean(1) : false;
-            preparedStatement.close();
-            connection.close();
-            return isFirstToMove;
+            return result.next() ? result.getBoolean(1) : false;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -824,8 +728,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setLong(1, lastMessageId);
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Couldn't reset user move state");
             e.printStackTrace();
@@ -843,10 +745,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            long messageId = result.next() ? result.getLong(1) : -1;
-            preparedStatement.close();
-            connection.close();
-            return messageId;
+            return result.next() ? result.getLong(1) : -1;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -865,8 +764,6 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
             preparedStatement.setLong(1, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -884,11 +781,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            UserState.MessengerType messenger =
-                    result.next() ? getUserMessengerByCode(result.getByte(1)) : null;
-            preparedStatement.close();
-            connection.close();
-            return messenger;
+            return result.next() ? getUserMessengerByCode(result.getByte(1)) : null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -899,7 +792,6 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public long getUserMessengerId(long userId, MessengerType userMessenger) {
         String messengerField = switch (userMessenger) {
-            case UserState.MessengerType.UNKNOWN -> "unknown_id";
             case UserState.MessengerType.TELEGRAM -> "telegram_id";
             case UserState.MessengerType.DISCORD -> "discord_id";
         };
@@ -912,32 +804,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
-            long messengerId = result.next() ? result.getLong(1) : 0;
-            preparedStatement.close();
-            connection.close();
-            return messengerId;
-        } catch (SQLException e) {
-            System.out.println("Error with database");
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    @Override
-    public long getUserIdFromUnknownId(long chatId) {
-        String selectQuery = """
-                SELECT prime_id 
-                FROM users 
-                WHERE unknown_id = ?
-                """;
-        try (Connection connection = DriverManager.getConnection(url);
-             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-            preparedStatement.setLong(1, chatId);
-            ResultSet result = preparedStatement.executeQuery();
-            long messengerId = result.next() ? result.getLong(1) : 0;
-            preparedStatement.close();
-            connection.close();
-            return messengerId;
+            return result.next() ? result.getLong(1) : 0;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -956,10 +823,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, chatId);
             ResultSet result = preparedStatement.executeQuery();
-            long messengerId = result.next() ? result.getLong(1) : 0;
-            preparedStatement.close();
-            connection.close();
-            return messengerId;
+            return result.next() ? result.getLong(1) : 0;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -978,10 +842,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, chatId);
             ResultSet result = preparedStatement.executeQuery();
-            long messengerId = result.next() ? result.getLong(1) : 0;
-            preparedStatement.close();
-            connection.close();
-            return messengerId;
+            return result.next() ? result.getLong(1) : 0;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -992,7 +853,6 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId) {
         String messengerField = switch (newUserMessenger) {
-            case UserState.MessengerType.UNKNOWN -> "unknown_id";
             case UserState.MessengerType.TELEGRAM -> "telegram_id";
             case UserState.MessengerType.DISCORD -> "discord_id";
         };
@@ -1006,8 +866,6 @@ public class DatabaseStatesHandler implements StatesHandler {
             preparedStatement.setLong(1, chatId);
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -1017,7 +875,6 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
         String messengerField = switch (messenger) {
-            case UserState.MessengerType.UNKNOWN -> "unknown_id";
             case UserState.MessengerType.TELEGRAM -> "telegram_id";
             case UserState.MessengerType.DISCORD -> "discord_id";
         };
@@ -1029,10 +886,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, chatId);
             ResultSet result = preparedStatement.executeQuery();
-            boolean isExisting = result.next();
-            preparedStatement.close();
-            connection.close();
-            return isExisting;
+            return result.next();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -1063,6 +917,25 @@ public class DatabaseStatesHandler implements StatesHandler {
 	public void addUserWin(long userId) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public int getGameSideLength(String lobbyName) {
+		String selectQuery = """
+                SELECT chessboard_side_length 
+                FROM games 
+                WHERE name = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setString(1, lobbyName);
+            ResultSet result = preparedStatement.executeQuery();
+            return result.next() ? result.getInt(1) : 0;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return 0;
 	}
 
     /**
@@ -1120,9 +993,8 @@ public class DatabaseStatesHandler implements StatesHandler {
      */
     private UserState.MessengerType getUserMessengerByCode(byte code) {
         return switch (code) {
-            case 0 -> UserState.MessengerType.UNKNOWN;
-            case 1 -> UserState.MessengerType.TELEGRAM;
-            case 2 -> UserState.MessengerType.DISCORD;
+            case 0 -> UserState.MessengerType.TELEGRAM;
+            case 1 -> UserState.MessengerType.DISCORD;
             default -> null;
         };
     }
@@ -1132,22 +1004,19 @@ public class DatabaseStatesHandler implements StatesHandler {
      */
     private byte getUserMessengerCode(UserState.MessengerType messenger) {
         return switch (messenger) {
-            case UserState.MessengerType.UNKNOWN -> 0;
-            case UserState.MessengerType.TELEGRAM -> 1;
-            case UserState.MessengerType.DISCORD -> 2;
+            case UserState.MessengerType.TELEGRAM -> 0;
+            case UserState.MessengerType.DISCORD -> 1;
         };
     }
 
     /**
      * Получить доску в виде массива из строки
      */
-    private byte[][] getBoardArrayFromString(byte[] boardBytes) {
-        byte[][] board = new byte[BOARD_SIDE_LENGTH][];
-        for (int i = 0; i < BOARD_SIDE_LENGTH; ++i) {
-            board[i] = new byte[BOARD_SIDE_LENGTH];
-            for (int j = 0; j < BOARD_SIDE_LENGTH; ++j) {
-                board[i][j] = boardBytes[i * BOARD_SIDE_LENGTH + j];
-                ;
+    private byte[][] getBoardArrayFromString(byte[] boardBytes, int sideLength) {
+        byte[][] board = new byte[sideLength][sideLength];
+        for (int i = 0; i < sideLength; ++i) {
+            for (int j = 0; j < sideLength; ++j) {
+                board[i][j] = boardBytes[i * sideLength + j];
             }
         }
         return board;
@@ -1156,11 +1025,11 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Получить доску в виде строки из массива
      */
-    private byte[] getBoardBytesFromArray(byte[][] boardArray) {
-        byte[] boardSymbols = new byte[BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH];
-        for (int i = 0; i < BOARD_SIDE_LENGTH; ++i) {
-            for (int j = 0; j < BOARD_SIDE_LENGTH; ++j) {
-                boardSymbols[i * BOARD_SIDE_LENGTH + j] = boardArray[i][j];
+    private byte[] getBoardBytesFromArray(byte[][] boardArray, int sideLength) {
+        byte[] boardSymbols = new byte[sideLength * sideLength];
+        for (int i = 0; i < sideLength; ++i) {
+            for (int j = 0; j < sideLength; ++j) {
+                boardSymbols[i * sideLength + j] = boardArray[i][j];
             }
         }
         return boardSymbols;
