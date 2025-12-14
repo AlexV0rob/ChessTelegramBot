@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -247,8 +248,12 @@ public class MemoryStatesHandler implements StatesHandler {
 	}
 
 	@Override
-	public List<String> getBookedLobbies() {
+	public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
+		//TODO
+		return null;
+		/*
 		return List.copyOf(names.keySet());
+		*/
 	}
 
 	@Override
@@ -365,5 +370,29 @@ public class MemoryStatesHandler implements StatesHandler {
 		}
 		}
 		return false;
+	}
+
+	@Override
+	public List<ImmutablePair<String, Double>> getTopTenUsers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImmutablePair<String, Double> getUserRating(long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addUserLose(long secondId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addUserWin(long userId) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

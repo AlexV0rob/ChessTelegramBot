@@ -309,6 +309,7 @@ public class MainLogic {
             case UserState.UserStatus.MAINMENU:
             case UserState.UserStatus.AWAITING:
             case UserState.UserStatus.CREATING:
+            case UserState.UserStatus.MESSENGER_CHOOSING:
                 return List.of();
             case UserState.UserStatus.INGAME:
                 String lobbyName = statesHandler.getUserLobbyName(userId);
@@ -324,8 +325,8 @@ public class MainLogic {
                 }
                 return List.of();
             case UserState.UserStatus.CHOOSING:
-                List<String> listOfLobbiesID = statesHandler.getBookedLobbies();
-                return buttonsCreator.getLobbyButtons(listOfLobbiesID);
+                List<ImmutablePair<String, Double>> lobbies = statesHandler.getBookedLobbies(userId);
+                return buttonsCreator.getLobbyButtons(lobbies);
         }
         }
         return List.of();
@@ -421,6 +422,22 @@ public class MainLogic {
                         responseMessagesFirst.addAll(gameMessages.getKey());
                         responseMessagesSecond.addAll(gameMessages.getValue());
                     }
+                }
+                case "leadertable" -> {
+                	List<ImmutablePair<String, Double>> board = statesHandler.getTopTenUsers();
+                	ImmutablePair<String, Double> userRating = statesHandler.getUserRating(userId);
+                	int ratingIndex = 1;
+                	String leaderBoard = "";
+                	for (ImmutablePair<String, Double> rating : board) {
+                		leaderBoard += "(%i) %s: Win rate %d"
+                				.formatted(ratingIndex, rating.getLeft(), rating.getRight());
+                		++ratingIndex;
+                	}
+                	responseMessagesFirst.add("""
+                			Таблица Лидеров:
+                			%s
+                			Ваш рейтинг: %s Win rate %d
+                			""".formatted(leaderBoard, userRating.getLeft(), userRating.getRight()));
                 }
                 default -> {
                     responseMessagesFirst.add(UNKNOWN_COMMAND);

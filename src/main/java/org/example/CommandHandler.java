@@ -73,6 +73,12 @@ public class CommandHandler {
      * Сообщение об ошибке привязки мессенджера
      */
     private final static String LINK_ERROR = "Этот ID уже используется, введи другой";
+    
+    /**
+     * Сообщение о слишком большой разнице в рейтинге
+     */
+    private final static String RATING_ERROR = 
+    		"Рейтинг этого матча слишком отличается, к нему нельзя присоединиться";
 
 
     /**
@@ -141,20 +147,26 @@ public class CommandHandler {
             } else if (!states.isLobbyAvailable(argument)) {
                 throw new CommandException(JOIN_ERROR);
             } else {
-                boolean isFirstWhite = true;
-                states.setNewUserStatus(userId, UserState.UserStatus.INGAME);
-                states.setUserLobbyName(userId, argument);
+            	double userRating = states.getUserRating(userId).getRight();
                 long creatorId = states.getLobbyCreator(argument);
-                states.unbookLobbyName(argument);
-                states.createNewLobby(
-                        argument,
-                        creatorId,
-                        userId,
-                        isFirstWhite,
-                        LobbyState.LobbyType.MULTIPLAYER);
-                states.setNewUserStatus(creatorId, UserState.UserStatus.INGAME);
-                states.setUserLobbyName(creatorId, argument);
-                return isFirstWhite;
+            	double creatorRating = states.getUserRating(creatorId).getRight();
+            	if (Math.abs(userRating - creatorRating) > 5) {
+            		throw new CommandException(RATING_ERROR);
+            	} else {
+            		boolean isFirstWhite = true;
+                	states.setNewUserStatus(userId, UserState.UserStatus.INGAME);
+                	states.setUserLobbyName(userId, argument);
+                	states.unbookLobbyName(argument);
+                	states.createNewLobby(
+                        	argument,
+                        	creatorId,
+                        	userId,
+                        	isFirstWhite,
+                        	LobbyState.LobbyType.MULTIPLAYER);
+                	states.setNewUserStatus(creatorId, UserState.UserStatus.INGAME);
+                	states.setUserLobbyName(creatorId, argument);
+                	return isFirstWhite;
+            	}
             }
         }
     }
@@ -165,13 +177,15 @@ public class CommandHandler {
     public String processLinkCommand(long userId, long chatId,
                                      UserState.MessengerType messenger) throws CommandException {
         states.setNewUserStatus(userId, UserState.UserStatus.MESSENGER_CHOOSING);
-        if (chatId == 0 && messenger.equals(UserState.MessengerType.UNKNOWN)) {
+        if (chatId == 0 && messenger.equals(null)) {
             throw new CommandException(MESSENGER_CHOOSE);
         } else {
             if (chatId == 0) {
                 throw new CommandException(MESSENGER_ID);
             } else {
-                if (!states.isMessengerIdExisting(messenger, chatId)) {
+                if (states.isMessengerIdExisting(messenger, chatId)) {
+                	throw new CommandException(LINK_ERROR);
+                } else {
                     states.addNewMessengerId(userId, messenger, chatId);
                     states.setNewUserStatus(userId, UserState.UserStatus.MAINMENU);
                 }

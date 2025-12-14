@@ -148,6 +148,10 @@ public class GameInputHandler {
 			long secondId = states.getLobbyAnotherUserId(lobbyName, userId);
 			states.setNewUserStatus(secondId, UserStatus.MAINMENU);
 			states.resetUserLobbyName(secondId);
+			if (states.getLobbyType(lobbyName).equals(LobbyState.LobbyType.MULTIPLAYER)) {
+				states.addUserLose(secondId);
+				states.addUserWin(userId);
+			}
 			states.deleteLobby(lobbyName);
 			responseMessagesFirst.add(MENU_MESSAGE);
 			responseMessagesSecond.add(MENU_MESSAGE);

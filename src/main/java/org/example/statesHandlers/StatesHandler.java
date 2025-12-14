@@ -2,6 +2,7 @@ package org.example.statesHandlers;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -146,7 +147,7 @@ public interface StatesHandler {
 	/**
 	 * Получить список всех зарезервированных матчей
 	 */
-	public List<String> getBookedLobbies();
+	public List<ImmutablePair<String, Double>> getBookedLobbies(long userId);
 
 	/**
 	 * Получить идентфикатор первого игрока матча
@@ -215,4 +216,24 @@ public interface StatesHandler {
 	 * Проверить, что в таком мессенджере такой идентификатор числится
 	 */
 	public boolean isMessengerIdExisting(MessengerType messenger, long chatId);
+
+	/**
+	 * Получить не больше десяти пользователей с самым большим рейтингом
+	 */
+	public List<ImmutablePair<String, Double>> getTopTenUsers();
+
+	/**
+	 * Получить имя пользователя и его рейтинг
+	 */
+	public ImmutablePair<String, Double> getUserRating(long userId);
+
+	/**
+	 * Добавить пользователю поражение
+	 */
+	public void addUserLose(long secondId);
+
+	/**
+	 * Добавить пользователю победу
+	 */
+	public void addUserWin(long userId);
 }

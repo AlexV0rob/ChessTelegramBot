@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -719,7 +720,10 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public List<String> getBookedLobbies() {
+    public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
+    	//TODO
+    	return null;
+    	/*
         String selectQuery = """
                 SELECT name 
                 FROM names 
@@ -739,6 +743,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             e.printStackTrace();
         }
         return null;
+        */
     }
 
     @Override
@@ -1035,6 +1040,30 @@ public class DatabaseStatesHandler implements StatesHandler {
 
         return true;
     }
+
+	@Override
+	public List<ImmutablePair<String, Double>> getTopTenUsers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImmutablePair<String, Double> getUserRating(long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addUserLose(long secondId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addUserWin(long userId) {
+		// TODO Auto-generated method stub
+		
+	}
 
     /**
      * Получить состояние пользователя по его коду
