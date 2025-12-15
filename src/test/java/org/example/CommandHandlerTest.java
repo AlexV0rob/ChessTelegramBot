@@ -22,23 +22,23 @@ public class CommandHandlerTest {
      * Обработчик команд
      */
     private CommandHandler commandHandler;
-    
+
     /**
      * Сбросить состояние
      */
     @BeforeEach
     public void resetStates() {
-    	states = new MemoryStatesHandler();
-    	commandHandler = new CommandHandler(states);
+        states = new MemoryStatesHandler();
+        commandHandler = new CommandHandler(states);
     }
-    
+
     /**
      * Создать пользователя с заранее заданным статусом
      */
     private long newUserWithStatus(UserState.UserStatus status) {
-    	long userId = states.addNewUser(UserState.MessengerType.TELEGRAM);
-    	states.setNewUserStatus(userId, status);
-    	return userId;
+        long userId = states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
+        states.setNewUserStatus(userId, status);
+        return userId;
     }
 
     /**
@@ -47,9 +47,9 @@ public class CommandHandlerTest {
     @Test
     public void quitCommandSingleUserTest() {
         long userId = newUserWithStatus(UserState.UserStatus.INGAME);
-        states.createNewLobby("game", userId, userId, 
-        		true, LobbyState.LobbyType.SINGLEPLAYER, 
-        		new byte[0][0], 0, true);
+        states.createNewLobby("game", userId, userId,
+                true, LobbyState.LobbyType.SINGLEPLAYER,
+                new byte[0][0], 0, true);
         states.setUserLobbyName(userId, "game");
         commandHandler.processQuitCommand(userId);
         Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
@@ -64,9 +64,9 @@ public class CommandHandlerTest {
     public void quitCommandTwoUsersTest() {
         long userId1 = newUserWithStatus(UserState.UserStatus.INGAME);
         long userId2 = newUserWithStatus(UserState.UserStatus.INGAME);
-        states.createNewLobby("game", userId1, userId2, 
-        		true, LobbyState.LobbyType.MULTIPLAYER, 
-        		new byte[0][0], 0, true);
+        states.createNewLobby("game", userId1, userId2,
+                true, LobbyState.LobbyType.MULTIPLAYER,
+                new byte[0][0], 0, true);
         states.setUserLobbyName(userId1, "game");
         states.setUserLobbyName(userId2, "game");
         commandHandler.processQuitCommand(userId1);

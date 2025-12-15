@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -29,20 +30,23 @@ public class DatabaseStatesHandler implements StatesHandler {
         try (Connection connection = DriverManager.getConnection(url);
              Statement statement = connection.createStatement();) {
             String usersDB = """
-            		CREATE TABLE IF NOT EXISTS users (
-            			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            			telegram_id BIGINT,
-            			discord_id BIGINT,
-            			status TINYINT NOT NULL,
-                    	figure CHAR(1),
-                    	start CHAR(2),
-                    	finish CHAR(2),
-                    	parts_count TINYINT,
-                    	messenger TINYINT,
-                    	lobby_name VARCHAR(16),
-                    	lobby_id INTEGER,
-                    	message_id BIGINT NOT NULL
-                    )
+                    		CREATE TABLE IF NOT EXISTS users (
+                    			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                telegram_id BIGINT,
+                                discord_id BIGINT,
+                    			status TINYINT NOT NULL,
+                    			figure CHAR(1),
+                    			start CHAR(2),
+                    			finish CHAR(2),
+                    			parts_count TINYINT,
+                    			messenger TINYINT,
+                    			lobby_name VARCHAR(16),
+                    			lobby_id INTEGER,
+                    			message_id BIGINT NOT NULL,
+                    			games_played BIGINT NOT NULL,
+                    			games_won BIGINT NOT NULL,
+                    			player_name VARCHAR(16) NOT NULL
+                    		)
                     """;
 
             String gamesDB = """
@@ -71,8 +75,60 @@ public class DatabaseStatesHandler implements StatesHandler {
             statement.execute(gamesDB);
             statement.execute(namesDB);
         } catch (SQLException e) {
-			throw new DatabaseException("Couldn't connect to database", e);
+            throw new DatabaseException("Couldn't connect to database", e);
         }
+    }
+
+    @Override
+    public List<ImmutablePair<String, Double>> getTopTenUsers() {
+        String selectQuery = """
+                SELECT cast(games_won AS REAL) / games_played, player_name 
+                FROM users 
+                WHERE games_played > 0 
+                ORDER BY CAST(games_won as real) / games_played DESC LIMIT 10
+                """;
+        List<ImmutablePair<String, Double>> resultList = new ArrayList<ImmutablePair<String, Double>>();
+        try (Connection connection = DriverManager.getConnection(url);
+             Statement statement = connection.createStatement();) {
+            ResultSet resultSet = statement.executeQuery(selectQuery);
+            while (resultSet.next()) {
+                resultList.add(new ImmutablePair<>(resultSet.getString(2), resultSet.getDouble(1)));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+    @Override
+    public void addUserLose(long secondId) {
+        updateUserPlayedGames(secondId);
+    }
+
+    @Override
+    public void addUserWin(long userId) {
+        updateUserPlayedGames(userId);
+        updateUserWonGames(userId);
+    }
+
+    @Override
+    public int getGameSideLength(String lobbyName) {
+        String selectQuery = """
+                SELECT chessboard_side_length 
+                FROM games 
+                WHERE name = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setString(1, lobbyName);
+            ResultSet result = preparedStatement.executeQuery();
+            return result.next() ? result.getInt(1) : 0;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override
@@ -130,9 +186,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId, 
-    		boolean isFirstPlayerWhite, LobbyType lobbyType, 
-    		byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
+    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId,
+                               boolean isFirstPlayerWhite, LobbyType lobbyType,
+                               byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
         String insertQuery = """
                 INSERT INTO games 
                 (name, first_user_id, second_user_id, type, first_to_move, 
@@ -493,9 +549,9 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            return result.next() ? 
-            		getBoardArrayFromString(result.getBytes(1), result.getInt(2)) : 
-            		null;
+            return result.next() ?
+                    getBoardArrayFromString(result.getBytes(1), result.getInt(2)) :
+                    null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -594,17 +650,18 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public long addNewUser(MessengerType newUserMessenger) {
+    public long addNewUser(MessengerType newUserMessenger, String userName) {
         String insertQuery = """
                 INSERT INTO users 
-                (telegram_id, discord_id, status, figure, start, 
-                	finish, parts_count, messenger, lobby_name, lobby_id, message_id)
-                VALUES (0, 0, 0, "", "", "", 0, ?, "", -1, -1)
+                ( telegram_id, discord_id, status, figure, start, 
+                	finish, parts_count, messenger, lobby_name, lobby_id, message_id,games_played,games_won,player_name)
+                VALUES (0, 0, 0, "", "", "", 0, ?, "", -1, -1, 0, 0, ?)
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement =
                      connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);) {
             preparedStatement.setByte(1, getUserMessengerCode(newUserMessenger));
+            preparedStatement.setString(2, userName);
             preparedStatement.executeUpdate();
             ResultSet result = preparedStatement.getGeneratedKeys();
             return result.getLong(1);
@@ -636,8 +693,8 @@ public class DatabaseStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
-    	//TODO
-    	return null;
+        //TODO
+        return null;
     	/*
         String selectQuery = """
                 SELECT name 
@@ -873,6 +930,21 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
+    public ImmutablePair<String, Double> getUserRating(long chatId) {
+        double userStatistic = 0.0;
+
+        long playedGames = 0;
+        long wonGames = 0;
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
+        playedGames = result.getLeft();
+        wonGames = result.getRight();
+        if (playedGames != 0) {
+            userStatistic = (double) wonGames / playedGames;
+        }
+        return new ImmutablePair(getPlayerName(chatId), userStatistic);
+    }
+
+    @Override
     public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
         String messengerField = switch (messenger) {
             case UserState.MessengerType.TELEGRAM -> "telegram_id";
@@ -895,48 +967,51 @@ public class DatabaseStatesHandler implements StatesHandler {
         return true;
     }
 
-	@Override
-	public List<ImmutablePair<String, Double>> getTopTenUsers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ImmutablePair<String, Double> getUserRating(long userId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addUserLose(long secondId) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addUserWin(long userId) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public int getGameSideLength(String lobbyName) {
-		String selectQuery = """
-                SELECT chessboard_side_length 
-                FROM games 
-                WHERE name = ?
+    /**
+     * Обновить количество Сыгранных игр
+     */
+    private void updateUserPlayedGames(long chatId) {
+        long playedGames = 0;
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
+        String updateQuery = """
+                UPDATE users 
+                SET games_played = ? 
+                WHERE prime_id = ?
                 """;
         try (Connection connection = DriverManager.getConnection(url);
-             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-            preparedStatement.setString(1, lobbyName);
-            ResultSet result = preparedStatement.executeQuery();
-            return result.next() ? result.getInt(1) : 0;
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
+            playedGames = result.getLeft() + 1;
+            preparedStatement.setLong(1, playedGames);
+            preparedStatement.setLong(2, chatId);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
         }
-        return 0;
-	}
+    }
+
+    /**
+     * Обновить количество выигранных игр
+     */
+    private void updateUserWonGames(long userId) {
+        long wonGames = 0;
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(userId);
+        String updateQuery = """
+                UPDATE users 
+                SET games_won = ? 
+                WHERE prime_id = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
+            wonGames = result.getRight() + 1;
+            preparedStatement.setLong(1, wonGames);
+            preparedStatement.setLong(2, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Получить состояние пользователя по его коду
@@ -1020,6 +1095,54 @@ public class DatabaseStatesHandler implements StatesHandler {
             }
         }
         return board;
+    }
+
+    /**
+     * Получить количество сыгранных игр
+     */
+    private ImmutablePair<Long, Long> getUserPlayedAndWonGames(long userId) {
+
+        String selectQuery = """
+                SELECT games_played, games_won 
+                FROM users 
+                WHERE prime_id = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setLong(1, userId);
+            ResultSet result = preparedStatement.executeQuery();
+            if (result.next()) {
+                return new ImmutablePair<>(result.getLong(1), result.getLong(2));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Получить имя пользователя
+     */
+    private String getPlayerName(long userId) {
+        String selectQuery = """
+                SELECT player_name  
+                FROM users 
+                WHERE prime_id = ? 
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setLong(1, userId);
+
+            ResultSet result = preparedStatement.executeQuery();
+            String userName = result.next() ? result.getString(1) : "";
+
+            return userName;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return "";
     }
 
     /**
