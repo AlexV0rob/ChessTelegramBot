@@ -42,30 +42,18 @@ public class LobbyState {
 	 * Тип матча
 	 */
 	private final LobbyType type;
-	
-	/**
-	 * Конструктор
-	 */
-	public LobbyState(long firstPlayerId, long secondPlayerId, 
-			boolean isFirstWhite, LobbyType thisLobbyType) {
-		firstId = firstPlayerId;
-		secondId = secondPlayerId;
-		isFirstMove = isFirstWhite;
-		type = thisLobbyType;
-		gameState = new GameState();
-	}
 
 	/**
 	 * Конструктор с установкой значения доски
 	 */
 	public LobbyState(long firstPlayerId, long secondPlayerId, 
 			boolean isFirstWhite, LobbyType thisLobbyType, 
-			byte[][] chessboard, int boardSideLength, boolean isWhiteToMove) {
+			byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
 		firstId = firstPlayerId;
 		secondId = secondPlayerId;
 		isFirstMove = isFirstWhite;
 		type = thisLobbyType;
-		gameState = new GameState(chessboard, boardSideLength, isWhiteToMove);
+		gameState = new GameState(chessboard, sideLength, isWhiteToMove);
 	}
 	
 	/**

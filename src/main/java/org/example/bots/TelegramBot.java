@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.example.MainLogic;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
+import org.example.states.UserState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,4 +201,9 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
         	e.printStackTrace();
         }
     }
+
+	@Override
+	public UserState.MessengerType getBotMessengerType() {
+		return UserState.MessengerType.TELEGRAM;
+	}
 }

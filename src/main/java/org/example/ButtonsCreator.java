@@ -1,5 +1,6 @@
 package org.example;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.auxiliary.IdentifiedButton;
 import org.example.auxiliary.SimpleButton;
 import org.example.chess.Bishop;
@@ -81,10 +82,13 @@ public class ButtonsCreator {
     /**
      * Получить список кнопок доступных лобби
      */
-    public List<IdentifiedButton> getLobbyButtons(List<String> listOfLobbies) {
+    public List<IdentifiedButton> getLobbyButtons(List<ImmutablePair<String, Double>> listOfLobbies) {
         List<IdentifiedButton> lobbyButtons = new ArrayList<IdentifiedButton>();
-        for (String lobbyID : listOfLobbies) {
-            lobbyButtons.add(new IdentifiedButton("__" + lobbyID + "__", lobbyID));
+        for (ImmutablePair<String, Double> lobby : listOfLobbies) {
+            lobbyButtons.add(
+            		new IdentifiedButton(
+            				"__" + lobby.getLeft() + "__", 
+            				"%s %d".formatted(lobby.getLeft(), lobby.getRight())));
         }
         return lobbyButtons;
     }

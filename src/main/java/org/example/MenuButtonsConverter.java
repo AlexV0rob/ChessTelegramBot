@@ -31,6 +31,11 @@ public class MenuButtonsConverter {
      * Текст кнопки для выхода из режима ожидания
      */
     private final static String QUIT_LOBBY = "Отменить поиск соперника и удалить матч";
+    
+    /**
+     * Текст кнопки вывода таблицы лидеров
+     */
+    private final static String LEADER_BOARD = "Таблица лидеров";
 
     /**
      * Получить командный эквивалент запросу меню
@@ -43,6 +48,7 @@ public class MenuButtonsConverter {
             case LINK_MESSENGER -> "link";
             case QUIT_LOBBY -> "quit";
             case NEW_MESSENGER -> "new_messenger";
+            case LEADER_BOARD -> "leadertable";
             default -> "unknown";
         };
     }
@@ -58,6 +64,7 @@ public class MenuButtonsConverter {
             case "quit" -> QUIT_LOBBY;
             case "link" -> LINK_MESSENGER;
             case "new_messenger" -> NEW_MESSENGER;
+            case "leadertable" -> LEADER_BOARD;
             default -> "Неизвестно";
         };
     }
