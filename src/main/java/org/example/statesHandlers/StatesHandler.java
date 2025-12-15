@@ -14,225 +14,225 @@ import org.example.states.UserState.UserStatus;
  * Хранитель и обработчик состояний пользователей
  */
 public interface StatesHandler {
-	/**
-	 * Установить пользователю новое состояние
-	 */
-	void setNewUserStatus(long userId, UserStatus status);
-	
-	/**
-	 * Получить название матча по идентификатору пользователя
-	 */
-	String getUserLobbyName(long userId);
+    /**
+     * Установить пользователю новое состояние
+     */
+    void setNewUserStatus(long userId, UserStatus status);
 
-	/**
-	 * Сбросить название матча в состоянии пользователя
-	 */
-	void resetUserLobbyName(long userId);
+    /**
+     * Получить название матча по идентификатору пользователя
+     */
+    String getUserLobbyName(long userId);
 
-	/**
-	 * Создать новый матч и добавить его в список идущих
-	 */
-	void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId, 
-			boolean isFirstPlayerWhite, LobbyType lobbyType, 
-			byte[][] chessboard, int sideLength, boolean isWhiteToMove);
+    /**
+     * Сбросить название матча в состоянии пользователя
+     */
+    void resetUserLobbyName(long userId);
 
-	/**
-	 * Получить тип матча
-	 */
-	LobbyState.LobbyType getLobbyType(String lobbyName);
+    /**
+     * Создать новый матч и добавить его в список идущих
+     */
+    void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId,
+                        boolean isFirstPlayerWhite, LobbyType lobbyType,
+                        byte[][] chessboard, int sideLength, boolean isWhiteToMove);
 
-	/**
-	 * Удалить матч из списка идущих
-	 */
-	void deleteLobby(String lobbyName);
+    /**
+     * Получить тип матча
+     */
+    LobbyState.LobbyType getLobbyType(String lobbyName);
 
-	/**
-	 * Получить идентификатор второго участника матча
-	 */
-	long getLobbyAnotherUserId(String lobbyName, long userId);
+    /**
+     * Удалить матч из списка идущих
+     */
+    void deleteLobby(String lobbyName);
 
-	/**
-	 * Зарезервировать название матча
-	 */
-	void bookLobbyName(String lobbyName, long creatorId);
+    /**
+     * Получить идентификатор второго участника матча
+     */
+    long getLobbyAnotherUserId(String lobbyName, long userId);
 
-	/**
-	 * Удалить матч из списка зарезервированных
-	 */
-	void unbookLobbyName(String lobbyName);
+    /**
+     * Зарезервировать название матча
+     */
+    void bookLobbyName(String lobbyName, long creatorId);
 
-	/**
-	 * Получить идентификатор создателя матча
-	 */
-	long getLobbyCreator(String lobbyName);
+    /**
+     * Удалить матч из списка зарезервированных
+     */
+    void unbookLobbyName(String lobbyName);
 
-	/**
-	 * Установить в состояние пользователя новое название матча
-	 */
-	void setUserLobbyName(long userId, String lobbyName);
+    /**
+     * Получить идентификатор создателя матча
+     */
+    long getLobbyCreator(String lobbyName);
 
-	/**
-	 * Проверить, что матч с таким названием существует, то есть 
-	 * идёт или зарезервирован
-	 */
-	boolean isLobbyExisting(String lobbyName);
+    /**
+     * Установить в состояние пользователя новое название матча
+     */
+    void setUserLobbyName(long userId, String lobbyName);
 
-	/**
-	 * Проверить, что матч даступен, то есть название зарезервировано и 
-	 * матч ещё не идёт
-	 */
-	boolean isLobbyAvailable(String lobbyName);
+    /**
+     * Проверить, что матч с таким названием существует, то есть
+     * идёт или зарезервирован
+     */
+    boolean isLobbyExisting(String lobbyName);
 
-	/**
-	 * Добавить новую часть в хранитель состояний хода пользователя
-	 */
-	void addUserNewMovePart(long userId, String movePart);
+    /**
+     * Проверить, что матч даступен, то есть название зарезервировано и
+     * матч ещё не идёт
+     */
+    boolean isLobbyAvailable(String lobbyName);
 
-	/**
-	 * Получить фигуру как часть хода
-	 */
-	String getUserMovePartFigure(long userId);
+    /**
+     * Добавить новую часть в хранитель состояний хода пользователя
+     */
+    void addUserNewMovePart(long userId, String movePart);
 
-	/**
-	 * Получить начальную позицию как часть хода
-	 */
-	String getUserMovePartStart(long userId);
+    /**
+     * Получить фигуру как часть хода
+     */
+    String getUserMovePartFigure(long userId);
 
-	/**
-	 * Получить конечную позицию как часть хода
-	 */
-	String getUserMovePartFinish(long userId);
+    /**
+     * Получить начальную позицию как часть хода
+     */
+    String getUserMovePartStart(long userId);
 
-	/**
-	 * Проверить, что ход пользователя полностью готов
-	 */
-	boolean isUserMoveReady(long userId);
+    /**
+     * Получить конечную позицию как часть хода
+     */
+    String getUserMovePartFinish(long userId);
 
-	/**
-	 * Проверить, что в игре ходят белые
-	 */
-	boolean isGameWhiteToMove(String lobbyName);
+    /**
+     * Проверить, что ход пользователя полностью готов
+     */
+    boolean isUserMoveReady(long userId);
 
-	/**
-	 * Получить игровую шахматную доску
-	 */
-	byte[][] getGameChessboard(String lobbyName);
+    /**
+     * Проверить, что в игре ходят белые
+     */
+    boolean isGameWhiteToMove(String lobbyName);
 
-	/**
-	 * Поменять в матче ходящую сторону
-	 */
-	void changeLobbyMovingUser(String lobbyName);
+    /**
+     * Получить игровую шахматную доску
+     */
+    byte[][] getGameChessboard(String lobbyName);
 
-	/**
-	 * Передвинуть в игре фигуру со стартовой позиции на конечную
-	 */
-	void moveGameFigure(String lobbyName, 
-			PositionOnBoard startPosition, PositionOnBoard finishPosition);
+    /**
+     * Поменять в матче ходящую сторону
+     */
+    void changeLobbyMovingUser(String lobbyName);
 
-	/**
-	 * Поменять в игре ходящую сторону
-	 */
-	void changeGameMovingSide(String lobbyName);
+    /**
+     * Передвинуть в игре фигуру со стартовой позиции на конечную
+     */
+    void moveGameFigure(String lobbyName,
+                        PositionOnBoard startPosition, PositionOnBoard finishPosition);
 
-	/**
-	 * Добавить нового пользователя
-	 */
-	long addNewUser(MessengerType newUserMessenger);
+    /**
+     * Поменять в игре ходящую сторону
+     */
+    void changeGameMovingSide(String lobbyName);
 
-	/**
-	 * Получить статус состояния пользователя
-	 */
-	UserState.UserStatus getUserStatus(long userId);
+    /**
+     * Добавить нового пользователя
+     */
+    long addNewUser(MessengerType newUserMessenger, String userName);
 
-	/**
-	 * Получить список всех зарезервированных матчей
-	 */
-	public List<ImmutablePair<String, Double>> getBookedLobbies(long userId);
+    /**
+     * Получить статус состояния пользователя
+     */
+    UserState.UserStatus getUserStatus(long userId);
 
-	/**
-	 * Получить идентфикатор первого игрока матча
-	 */
-	long getLobbyFirstPlayer(String lobbyName);
+    /**
+     * Получить список всех зарезервированных матчей
+     */
+    public List<ImmutablePair<String, Double>> getBookedLobbies(long userId);
 
-	/**
-	 * Получить идентфикатор второго игрока матча
-	 */
-	long getLobbySecondPlayer(String lobbyName);
-	
-	/**
-	 * Проверить, что сейчас в матче ходит первый игрок
-	 */
-	boolean isLobbyFirstPlayerToMove(String lobbyName);
+    /**
+     * Получить идентфикатор первого игрока матча
+     */
+    long getLobbyFirstPlayer(String lobbyName);
 
-	/**
-	 * Поменять идентификатор последнего сообщения, отправленного пользователю
-	 */
-	void changeUserLastMessage(long userId, long lastMessageId);
+    /**
+     * Получить идентфикатор второго игрока матча
+     */
+    long getLobbySecondPlayer(String lobbyName);
 
-	/**
-	 * Получить идентификатор последнего сообщения, отправленного польззователю
-	 */
-	long getUserMessageId(long userId);
+    /**
+     * Проверить, что сейчас в матче ходит первый игрок
+     */
+    boolean isLobbyFirstPlayerToMove(String lobbyName);
 
-	/**
-	 * Сбросить накопленное состояние хода пользователя
-	 */
-	void resetUserMoveState(long userId);
+    /**
+     * Поменять идентификатор последнего сообщения, отправленного пользователю
+     */
+    void changeUserLastMessage(long userId, long lastMessageId);
 
-	/**
-	 * Получить текущий мессенджер пользователя
-	 */
-	MessengerType getUserMessenger(long userId);
+    /**
+     * Получить идентификатор последнего сообщения, отправленного польззователю
+     */
+    long getUserMessageId(long userId);
 
-	/**
-	 * Получить идентификатор пользователя в данном мессенджере
-	 */
-	long getUserMessengerId(long userId, MessengerType userMessenger);
-	
-	/**
-	 * Получить идентификатор пользователя во внутренней системе 
-	 * из идентификатора Telegram
-	 */
-	long getUserIdFromTelegramId(long chatId);
-	
-	/**
-	 * Получить идентификатор пользователя во внутренней системе 
-	 * из идентификатора Discord
-	 */
-	long getUserIdFromDiscordId(long chatId);
+    /**
+     * Сбросить накопленное состояние хода пользователя
+     */
+    void resetUserMoveState(long userId);
 
-	/**
-	 * Добавить новый идентификатор мессенджера
-	 */
-	void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId);
+    /**
+     * Получить текущий мессенджер пользователя
+     */
+    MessengerType getUserMessenger(long userId);
 
-	/**
-	 * Проверить, что в таком мессенджере такой идентификатор числится
-	 */
-	boolean isMessengerIdExisting(MessengerType messenger, long chatId);
+    /**
+     * Получить идентификатор пользователя в данном мессенджере
+     */
+    long getUserMessengerId(long userId, MessengerType userMessenger);
 
-	/**
-	 * Получить не больше десяти пользователей с самым большим рейтингом
-	 */
-	List<ImmutablePair<String, Double>> getTopTenUsers();
+    /**
+     * Получить идентификатор пользователя во внутренней системе
+     * из идентификатора Telegram
+     */
+    long getUserIdFromTelegramId(long chatId);
 
-	/**
-	 * Получить имя пользователя и его рейтинг
-	 */
-	ImmutablePair<String, Double> getUserRating(long userId);
+    /**
+     * Получить идентификатор пользователя во внутренней системе
+     * из идентификатора Discord
+     */
+    long getUserIdFromDiscordId(long chatId);
 
-	/**
-	 * Добавить пользователю поражение
-	 */
-	void addUserLose(long secondId);
+    /**
+     * Добавить новый идентификатор мессенджера
+     */
+    void addNewMessengerId(long userId, MessengerType newUserMessenger, long chatId);
 
-	/**
-	 * Добавить пользователю победу
-	 */
-	void addUserWin(long userId);
+    /**
+     * Проверить, что в таком мессенджере такой идентификатор числится
+     */
+    boolean isMessengerIdExisting(MessengerType messenger, long chatId);
 
-	/**
-	 * Получить длину стороны доски в игре
-	 */
-	int getGameSideLength(String lobbyName);
+    /**
+     * Получить не больше десяти пользователей с самым большим рейтингом
+     */
+    List<ImmutablePair<String, Double>> getTopTenUsers();
+
+    /**
+     * Добавить пользователю поражение
+     */
+    void addUserLose(long secondId);
+
+    /**
+     * Добавить пользователю победу
+     */
+    void addUserWin(long userId);
+
+    /**
+     * Получить длину стороны доски в игре
+     */
+    int getGameSideLength(String lobbyName);
+
+    /**
+     * Получить пару Имя пользователя/ Его статистика
+     */
+    ImmutablePair<String, Double> getUserRating(long chatId);
 }

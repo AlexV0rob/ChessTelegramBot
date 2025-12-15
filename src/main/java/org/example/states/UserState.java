@@ -1,5 +1,7 @@
 package org.example.states;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 /**
  * Хранитель состояния пользователя
  */
@@ -17,6 +19,17 @@ public class UserState {
          */
         DISCORD
     }
+
+    /**
+     * Количество сыгранных игр
+     */
+    private long countOfPlayedGames;
+    /**
+     * Количество выигранных игр
+     */
+    private long countOfWonGames;
+
+    private String userName;
 
     /**
      * Состояние пользователя
@@ -71,11 +84,14 @@ public class UserState {
     /**
      * Конструктор класса
      */
-    public UserState(MessengerType userMessenger) {
+    public UserState(MessengerType userMessenger, String nameOfUser) {
         currentUserState = UserStatus.MAINMENU;
         currentMoveState = new MoveState();
         messenger = userMessenger;
+        countOfPlayedGames = 0;
+        countOfWonGames = 0;
         currentLobbyId = "";
+        userName = nameOfUser;
     }
 
     /**
@@ -94,6 +110,38 @@ public class UserState {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Изменить количество сыгранных матчей
+     */
+    public void updatePlayedGames() {
+        countOfPlayedGames++;
+    }
+
+    /**
+     * Изменить количество сыгранных матчей
+     */
+    public void updateWonGames() {
+        countOfWonGames++;
+    }
+
+    /**
+     * Получить пару Пользователь/Статистика
+     */
+    public ImmutablePair<String, Double> getUserStatistic() {
+        Double result = 0.0;
+        if (countOfPlayedGames != 0) {
+            result = (double) countOfWonGames / countOfPlayedGames;
+        }
+        return new ImmutablePair<>(userName, result);
+    }
+
+    /**
+     * Установить имя пользователя
+     */
+    public void setUserName(String name) {
+        userName = name;
     }
 
     /**

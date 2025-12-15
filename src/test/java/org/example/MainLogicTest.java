@@ -39,19 +39,19 @@ public class MainLogicTest {
     public void resetStates() {
     	states = new MemoryStatesHandler();
     	mainLogic = new MainLogic(states);
-    	mainLogic.processInput(fakeBot, "/start", 1);
-    	mainLogic.processInput(fakeBot, "/start", 2);
-    	mainLogic.processInput(fakeBot, "new", 1);
-    	mainLogic.processInput(fakeBot, "new", 2);
+    	mainLogic.processInput(fakeBot, "/start", 1,"SomeName");
+    	mainLogic.processInput(fakeBot, "/start", 2,"SomeName");
+    	mainLogic.processInput(fakeBot, "new", 1,"SomeName");
+    	mainLogic.processInput(fakeBot, "new", 2,"SomeName");
     	fakeBot.clearMessages();
     }
-    
+
     /**
      * Проверить работу меню
      */
     @Test
     public void menuInputTest() {
-        mainLogic.processInput(fakeBot, "/quit", 1);
+        mainLogic.processInput(fakeBot, "/quit", 1,"SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of("Чем займёмся?"), responseReal);
         Assertions.assertIterableEquals(
@@ -68,7 +68,7 @@ public class MainLogicTest {
      */
     @Test
     public void createValidLobbyTest() {
-        mainLogic.processInput(fakeBot, "/create game", 1);
+        mainLogic.processInput(fakeBot, "/create game", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(
                 List.of("""
@@ -76,7 +76,7 @@ public class MainLogicTest {
                         Ожидайте присоединения противника
                         """),
                 responseReal);
-        mainLogic.processInput(fakeBot, "/join", 2);
+        mainLogic.processInput(fakeBot, "/join", 2, "SomeName");
         List<IdentifiedButton> lobbiesButtons = mainLogic
                 .getCurrentIdentifiedButtons(fakeBot, 2);
         Assertions.assertIterableEquals(
@@ -89,10 +89,10 @@ public class MainLogicTest {
      */
     @Test
     public void createInvalidLobbyTest() {
-        mainLogic.processInput(fakeBot, "/create game", 1);
+        mainLogic.processInput(fakeBot, "/create game", 1, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "/create очевиднослишкомдлинноеимя", 1);
-        mainLogic.processInput(fakeBot, "/create game", 1);
+        mainLogic.processInput(fakeBot, "/create очевиднослишкомдлинноеимя", 1, "SomeName");
+        mainLogic.processInput(fakeBot, "/create game", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(
                 List.of("Извините, название должно быть не более 16 символов. Придумайте другое:",
@@ -105,7 +105,7 @@ public class MainLogicTest {
      */
     @Test
     public void createSinglegameTest() {
-        mainLogic.processInput(fakeBot, "/new_local", 1);
+        mainLogic.processInput(fakeBot, "/new_local", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of(
                         "Игра началась",
@@ -131,9 +131,9 @@ public class MainLogicTest {
      */
     @Test
     public void makeMoveTest() {
-        mainLogic.processInput(fakeBot, "/new_local", 1);
+        mainLogic.processInput(fakeBot, "/new_local", 1, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "e2e4", 1);
+        mainLogic.processInput(fakeBot, "e2e4", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of(
                         """
@@ -158,11 +158,11 @@ public class MainLogicTest {
      */
     @Test
     public void makeMoveByPartsTest() {
-        mainLogic.processInput(fakeBot, "/new_local", 1);
+        mainLogic.processInput(fakeBot, "/new_local", 1, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "__p__", 1);
-        mainLogic.processInput(fakeBot, "__e2__", 1);
-        mainLogic.processInput(fakeBot, "__e4__", 1);
+        mainLogic.processInput(fakeBot, "__p__", 1, "SomeName");
+        mainLogic.processInput(fakeBot, "__e2__", 1, "SomeName");
+        mainLogic.processInput(fakeBot, "__e4__", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertIterableEquals(List.of(
                         "Ваш ход: ПЕШКА",
@@ -190,9 +190,9 @@ public class MainLogicTest {
      */
     @Test
     public void impossibleMoveTest() {
-        mainLogic.processInput(fakeBot, "/new_local", 1);
+        mainLogic.processInput(fakeBot, "/new_local", 1, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "e2e8", 1);
+        mainLogic.processInput(fakeBot, "e2e8", 1, "SomeName");
         List<String> responseReal = fakeBot.getAccumulatedMessages(1);
         Assertions.assertTrue(responseReal.getFirst().contains("Невозможный ход! Попробуйте снова."));
     }
@@ -202,9 +202,9 @@ public class MainLogicTest {
      */
     @Test
     public void joinLobbyTest() {
-        mainLogic.processInput(fakeBot, "/create game", 1);
+        mainLogic.processInput(fakeBot, "/create game", 1, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "/join game", 2);
+        mainLogic.processInput(fakeBot, "/join game", 2, "SomeName");
         List<String> responseRealFirst = fakeBot.getAccumulatedMessages(1);
         List<String> responseRealSecond = fakeBot.getAccumulatedMessages(2);
         Assertions.assertIterableEquals(List.of(
@@ -248,12 +248,12 @@ public class MainLogicTest {
      */
     @Test
     public void multiplayerMoveTest() {
-        mainLogic.processInput(fakeBot, "/create game", 1);
-        mainLogic.processInput(fakeBot, "/join game", 2);
+        mainLogic.processInput(fakeBot, "/create game", 1, "SomeName");
+        mainLogic.processInput(fakeBot, "/join game", 2, "SomeName");
         fakeBot.clearMessages();
-        mainLogic.processInput(fakeBot, "e7e5", 2);
-        mainLogic.processInput(fakeBot, "e2e4", 1);
-        mainLogic.processInput(fakeBot, "e7e5", 2);
+        mainLogic.processInput(fakeBot, "e7e5", 2, "SomeName");
+        mainLogic.processInput(fakeBot, "e2e4", 1, "SomeName");
+        mainLogic.processInput(fakeBot, "e7e5", 2, "SomeName");
         List<String> responseRealSecond = fakeBot.getAccumulatedMessages(1);
         List<String> responseRealFirst = fakeBot.getAccumulatedMessages(2);
         Assertions.assertEquals("Вы не можете сейчас ходить. Дождитесь хода противника.",
@@ -263,18 +263,18 @@ public class MainLogicTest {
         Assertions.assertEquals("Сейчас ходит противник.",
                 responseRealSecond.get(1));
     }
-    
+
     /**
      * Проверить добавление нового пользователя
      */
     @Test
     public void newUserTest() {
     	Assertions.assertEquals(0, states.getUserIdFromTelegramId(3));
-    	mainLogic.processInput(fakeBot, "/start", 3);
-    	mainLogic.processInput(fakeBot, "new", 3);
+    	mainLogic.processInput(fakeBot, "/start", 3,"SomeName");
+    	mainLogic.processInput(fakeBot, "new", 3,"SomeName");
     	Assertions.assertEquals(3, states.getUserIdFromTelegramId(3));
     }
-    
+
     /**
      * Проверить привязку старого пользователя
      */
@@ -282,9 +282,9 @@ public class MainLogicTest {
     public void oldUserTest() {
     	Assertions.assertEquals(0, states.getUserIdFromDiscordId(1));
     	FakeBot otherBot = new FakeBot(UserState.MessengerType.DISCORD);
-    	mainLogic.processInput(otherBot, "/start", 1);
-    	mainLogic.processInput(otherBot, "old", 1);
-    	mainLogic.processInput(otherBot, "Telegram 1", 1);
+    	mainLogic.processInput(otherBot, "/start", 1,"SomeName");
+    	mainLogic.processInput(otherBot, "old", 1,"SomeName");
+    	mainLogic.processInput(otherBot, "Telegram 1", 1,"SomeName");
     	Assertions.assertEquals(1, states.getUserIdFromDiscordId(1));
     }
 }
