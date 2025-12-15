@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -15,6 +16,7 @@ import org.example.states.UserState.UserStatus;
  * Хранитель и обработчик состояний пользователей, использующий память
  */
 public class MemoryStatesHandler implements StatesHandler {
+
     /**
      * Наибольший идентификатор во внутренней системе
      */
@@ -70,13 +72,8 @@ public class MemoryStatesHandler implements StatesHandler {
     protected Map<String, Long> names = new HashMap<String, Long>();
 
     @Override
-    public long getUserPlayedGames(long userId) {
-        return 0;
-    }
-
-    @Override
-    public long getUserWonGames(long userId) {
-        return 0;
+    public ImmutablePair<String, Long> getUserStatistic(long userId) {
+        return new ImmutablePair("", 0);
     }
 
     @Override
@@ -247,7 +244,7 @@ public class MemoryStatesHandler implements StatesHandler {
     }
 
     @Override
-    public long addNewUser(MessengerType newUserMessenger) {
+    public long addNewUser(MessengerType newUserMessenger, String UserName) {
         long userId = highestId++;
         users.put(userId, new UserState(newUserMessenger));
         Map<UserState.MessengerType, Long> messengers =

@@ -2,6 +2,7 @@ package org.example.statesHandlers;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -14,14 +15,9 @@ import org.example.states.UserState.UserStatus;
  */
 public interface StatesHandler {
     /**
-     * Получить количество сыгранных игр
+     * Получить статистику пользователя
      */
-    public long getUserPlayedGames(long userId);
-
-    /**
-     * Получить количество сыгранных игр
-     */
-    public long getUserWonGames(long userId);
+    public ImmutablePair<String, java.lang.Long> getUserStatistic(long userId);
 
     /**
      * Установить новое количество сыгранных игр
@@ -157,7 +153,7 @@ public interface StatesHandler {
     /**
      * Добавить нового пользователя
      */
-    public long addNewUser(MessengerType newUserMessenger);
+    public long addNewUser(MessengerType newUserMessenger, String UserName);
 
     /**
      * Получить статус состояния пользователя
