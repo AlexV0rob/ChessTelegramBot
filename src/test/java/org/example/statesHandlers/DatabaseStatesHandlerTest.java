@@ -53,8 +53,8 @@ public class DatabaseStatesHandlerTest {
             String usersDB = """
                     		CREATE TABLE IF NOT EXISTS users (
                     			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    telegram_id BIGINT,
-                    discord_id BIGINT,
+                                telegram_id BIGINT,
+                                discord_id BIGINT,
                     			status TINYINT NOT NULL,
                     			figure CHAR(1),
                     			start CHAR(2),
@@ -132,16 +132,29 @@ public class DatabaseStatesHandlerTest {
      */
     @Test
     public void getTopTenUsersTest() {
-        states.addUserLose(1);
-        states.addUserWin(2);
-        states.addUserLose(2);
-        states.addUserWin(1);
-        states.addUserLose(2);
-        states.addUserWin(1);
-        states.addUserLose(1);
-        states.addUserWin(2);
-        List<ImmutablePair<String, Double>> expectedList = List.of(new ImmutablePair<>("Петя", 0.5),
-                new ImmutablePair<>("Вася", 0.5));
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Три");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Четыре");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Пять");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Шесть");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Семь");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Восемь");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Девять");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Десять");
+        for (int i = 1; i < 11; ++i) {
+            states.addUserLose(i);
+            states.addUserWin(i);
+        }
+        List<ImmutablePair<String, Double>> expectedList = List.of(
+                new ImmutablePair<>("Петя", 0.5),
+                new ImmutablePair<>("Вася", 0.5),
+                new ImmutablePair<>("Три", 0.5),
+                new ImmutablePair<>("Четыре", 0.5),
+                new ImmutablePair<>("Пять", 0.5),
+                new ImmutablePair<>("Шесть", 0.5),
+                new ImmutablePair<>("Семь", 0.5),
+                new ImmutablePair<>("Восемь", 0.5),
+                new ImmutablePair<>("Девять", 0.5),
+                new ImmutablePair<>("Десять", 0.5));
         Assertions.assertIterableEquals(expectedList, states.getTopTenUsers());
     }
 
@@ -152,12 +165,10 @@ public class DatabaseStatesHandlerTest {
     public void getUserRatingTest() {
         states.addUserLose(1);
         states.addUserWin(2);
-        states.addUserLose(2);
         states.addUserWin(1);
         states.addUserLose(2);
-        states.addUserWin(1);
-        Assertions.assertEquals(new ImmutablePair<>("Петя", (double) 0), states.getUserRating(1));
-        Assertions.assertEquals(new ImmutablePair<>("Вася", (double) 1), states.getUserRating(2));
+        Assertions.assertEquals(new ImmutablePair<>("Петя", (double) 0.5), states.getUserRating(1));
+        Assertions.assertEquals(new ImmutablePair<>("Вася", (double) 0.5), states.getUserRating(2));
     }
 
     /**

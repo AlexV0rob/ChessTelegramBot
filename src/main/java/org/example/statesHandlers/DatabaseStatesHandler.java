@@ -32,9 +32,8 @@ public class DatabaseStatesHandler implements StatesHandler {
             String usersDB = """
                     		CREATE TABLE IF NOT EXISTS users (
                     			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    			unknown_id BIGINT,
-                    telegram_id BIGINT,
-                    discord_id BIGINT,
+                                telegram_id BIGINT,
+                                discord_id BIGINT,
                     			status TINYINT NOT NULL,
                     			figure CHAR(1),
                     			start CHAR(2),
@@ -83,17 +82,17 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public List<ImmutablePair<String, Double>> getTopTenUsers() {
         String selectQuery = """
-                SELECT cast(won_games AS REAL) / played_games, player_name 
-                  FROM users 
-                  WHERE played_games > 0 
-                  ORDER BY CAST(won_games as real) / played_games DESC   LIMIT 10
+                SELECT cast(games_won AS REAL) / games_played, player_name 
+                FROM users 
+                WHERE games_played > 0 
+                ORDER BY CAST(games_won as real) / games_played DESC LIMIT 10
                 """;
         List<ImmutablePair<String, Double>> resultList = new ArrayList<ImmutablePair<String, Double>>();
         try (Connection connection = DriverManager.getConnection(url);
              Statement statement = connection.createStatement();) {
             ResultSet resultSet = statement.executeQuery(selectQuery);
             while (resultSet.next()) {
-                resultList.add(new ImmutablePair<>(resultSet.getString(1), resultSet.getDouble(2)));
+                resultList.add(new ImmutablePair<>(resultSet.getString(2), resultSet.getDouble(1)));
             }
         } catch (SQLException e) {
             System.out.println("Error with database");
@@ -654,9 +653,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     public long addNewUser(MessengerType newUserMessenger, String userName) {
         String insertQuery = """
                 INSERT INTO users 
-                (unknown_id, telegram_id, discord_id, status, figure, start, 
-                	finish, parts_count, messenger, lobby_name, lobby_id, message_id,games_played,games_won,user_name)
-                VALUES (0, 0, 0, 0, "", "", "", 0, ?, "", -1, -1, 0, 0, ?)
+                ( telegram_id, discord_id, status, figure, start, 
+                	finish, parts_count, messenger, lobby_name, lobby_id, message_id,games_played,games_won,player_name)
+                VALUES (0, 0, 0, "", "", "", 0, ?, "", -1, -1, 0, 0, ?)
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement =
@@ -999,7 +998,7 @@ public class DatabaseStatesHandler implements StatesHandler {
         ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(userId);
         String updateQuery = """
                 UPDATE users 
-                SET games_played = ? 
+                SET games_won = ? 
                 WHERE prime_id = ?
                 """;
         try (Connection connection = DriverManager.getConnection(url);
@@ -1106,7 +1105,7 @@ public class DatabaseStatesHandler implements StatesHandler {
         String selectQuery = """
                 SELECT games_played, games_won 
                 FROM users 
-                WHERE primary_id = ?
+                WHERE prime_id = ?
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
@@ -1129,7 +1128,7 @@ public class DatabaseStatesHandler implements StatesHandler {
         String selectQuery = """
                 SELECT player_name  
                 FROM users 
-                WHERE primary_id = ? 
+                WHERE prime_id = ? 
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
