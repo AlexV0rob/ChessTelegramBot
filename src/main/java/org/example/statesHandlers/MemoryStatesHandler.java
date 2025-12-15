@@ -75,7 +75,7 @@ public class MemoryStatesHandler implements StatesHandler {
     protected Map<String, Long> names = new HashMap<String, Long>();
 
     @Override
-    public ImmutablePair<String, Double> getUserStat(long userId) {
+    public ImmutablePair<String, Double> getUserRating(long userId) {
         return users.get(userId).getUserStatistic();
     }
 

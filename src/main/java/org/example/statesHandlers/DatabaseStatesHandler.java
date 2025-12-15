@@ -82,8 +82,24 @@ public class DatabaseStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getTopTenUsers() {
-        // TODO Auto-generated method stub
-        return null;
+        String selectQuery = """
+                SELECT cast(won_games AS REAL) / played_games, player_name 
+                  FROM users 
+                  WHERE played_games > 0 
+                  ORDER BY CAST(won_games as real) / played_games DESC   LIMIT 10
+                """;
+        List<ImmutablePair<String, Double>> resultList = new ArrayList<ImmutablePair<String, Double>>();
+        try (Connection connection = DriverManager.getConnection(url);
+             Statement statement = connection.createStatement();) {
+            ResultSet resultSet = statement.executeQuery(selectQuery);
+            while (resultSet.next()) {
+                resultList.add(new ImmutablePair<>(resultSet.getString(1), resultSet.getDouble(2)));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return resultList;
     }
 
     @Override
@@ -915,7 +931,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public ImmutablePair<String, Double> getUserStat(long chatId) {
+    public ImmutablePair<String, Double> getUserRating(long chatId) {
         double userStatistic = 0.0;
 
         long playedGames = 0;

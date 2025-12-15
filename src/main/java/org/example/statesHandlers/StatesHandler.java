@@ -234,5 +234,5 @@ public interface StatesHandler {
     /**
      * Получить пару Имя пользователя/ Его статистика
      */
-    ImmutablePair<String, Double> getUserStat(long chatId);
+    ImmutablePair<String, Double> getUserRating(long chatId);
 }

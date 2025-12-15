@@ -1,5 +1,6 @@
 package org.example.statesHandlers;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +63,10 @@ public class DatabaseStatesHandlerTest {
                     			messenger TINYINT,
                     			lobby_name VARCHAR(16),
                     			lobby_id INTEGER,
-                    			message_id BIGINT NOT NULL
+                    			message_id BIGINT NOT NULL,
+                                games_played BIGINT NOT NULL,
+                    			games_won BIGINT NOT NULL,
+                    			player_name VARCHAR(16) NOT NULL
                     		);
                     """;
             String gamesDB = """
@@ -96,8 +100,8 @@ public class DatabaseStatesHandlerTest {
         } catch (SQLException e) {
             throw new CriticalError("Couldn't reset states", e);
         }
-        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
-        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Петя");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Вася");
     }
 
     /**
@@ -121,6 +125,39 @@ public class DatabaseStatesHandlerTest {
         states.resetUserLobbyName(1);
         Assertions.assertEquals("", states.getUserLobbyName(1));
         Assertions.assertEquals("game", states.getUserLobbyName(2));
+    }
+
+    /**
+     * Проверить вывод игроков
+     */
+    @Test
+    public void getTopTenUsersTest() {
+        states.addUserLose(1);
+        states.addUserWin(2);
+        states.addUserLose(2);
+        states.addUserWin(1);
+        states.addUserLose(2);
+        states.addUserWin(1);
+        states.addUserLose(1);
+        states.addUserWin(2);
+        List<ImmutablePair<String, Double>> expectedList = List.of(new ImmutablePair<>("Петя", 0.5),
+                new ImmutablePair<>("Вася", 0.5));
+        Assertions.assertIterableEquals(expectedList, states.getTopTenUsers());
+    }
+
+    /**
+     * Проверить подсчёт статистики
+     */
+    @Test
+    public void getUserRatingTest() {
+        states.addUserLose(1);
+        states.addUserWin(2);
+        states.addUserLose(2);
+        states.addUserWin(1);
+        states.addUserLose(2);
+        states.addUserWin(1);
+        Assertions.assertEquals(new ImmutablePair<>("Петя", (double) 0), states.getUserRating(1));
+        Assertions.assertEquals(new ImmutablePair<>("Вася", (double) 1), states.getUserRating(2));
     }
 
     /**
