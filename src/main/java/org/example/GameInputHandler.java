@@ -117,6 +117,7 @@ public class GameInputHandler {
 		responseMessagesFirst.add(gameTranslator.chessboardString(
 				firstPlayerProperty, 
 				states.getGameChessboard(lobbyName),
+				states.getGameSideLength(lobbyName),
         		states.isGameWhiteToMove(lobbyName), 
 				viewSide));
 		if (!moveProperty.equals(GameHandler.MoveProperty.IMPOSSIBLE) && 
@@ -124,6 +125,7 @@ public class GameInputHandler {
 			responseMessagesSecond.add(gameTranslator.chessboardString(
 					moveProperty, 
 					states.getGameChessboard(lobbyName),
+					states.getGameSideLength(lobbyName),
 	        		states.isGameWhiteToMove(lobbyName), 
 					!viewSide));			
 		}
@@ -148,6 +150,10 @@ public class GameInputHandler {
 			long secondId = states.getLobbyAnotherUserId(lobbyName, userId);
 			states.setNewUserStatus(secondId, UserStatus.MAINMENU);
 			states.resetUserLobbyName(secondId);
+			if (states.getLobbyType(lobbyName).equals(LobbyState.LobbyType.MULTIPLAYER)) {
+				states.addUserLose(secondId);
+				states.addUserWin(userId);
+			}
 			states.deleteLobby(lobbyName);
 			responseMessagesFirst.add(MENU_MESSAGE);
 			responseMessagesSecond.add(MENU_MESSAGE);

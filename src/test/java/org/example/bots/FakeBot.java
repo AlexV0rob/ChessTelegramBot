@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.example.states.UserState;
+
 /**
  * Фальшивый бот для тестов
  */
@@ -13,6 +15,18 @@ public class FakeBot implements Bot {
 	 * Ассоциативный массив, имитирующий пользователей 
 	 */
 	private final Map<Long, List<String>> users = new HashMap<Long, List<String>>();
+	
+	/**
+	 * Тип мессенджера этого бота
+	 */
+	private final UserState.MessengerType messenger;
+	
+	/**
+	 * Конструктор, устанавливает тип мессенджера для имитации
+	 */
+	public FakeBot(UserState.MessengerType mimicMessenger) {
+		messenger = mimicMessenger;
+	}
 	
 	@Override
 	public long sendMessages(long chatId, List<String> messagesTexts) {
@@ -45,5 +59,10 @@ public class FakeBot implements Bot {
 	 */
 	public void clearMessages() {
 		users.clear();
+	}
+	
+	@Override
+	public UserState.MessengerType getBotMessengerType() {
+		return messenger;
 	}
 }

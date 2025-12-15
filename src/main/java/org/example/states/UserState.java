@@ -9,10 +9,6 @@ public class UserState {
      */
     public enum MessengerType {
         /**
-         * Неизвестный мессенджер
-         */
-        UNKNOWN,
-        /**
          * Telegram
          */
         TELEGRAM,

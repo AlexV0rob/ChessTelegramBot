@@ -3,6 +3,7 @@ package org.example.bots;
 import java.util.List;
 
 import org.example.MainLogic;
+import org.example.states.UserState;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
@@ -13,11 +14,23 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  * Discord бот
  */
 public class DiscordBot extends ListenerAdapter implements Bot {
-    /**
-     *
-     */
-    private final JDA jda;
-
+	/**
+	 * Экземпляр класса для работы с Discord
+	 */
+	private final JDA jda;
+	
+	/**
+	 * Обработчик логики бота
+	 */
+	private final MainLogic mainLogic;
+	
+	/**
+	 * Конструктор класса
+	 */
+	public DiscordBot(JDA jdaClient, MainLogic logic) {
+		mainLogic = logic;
+		jda = jdaClient;
+	}
     /**
      * Обработчик логики бота
      */
@@ -49,7 +62,6 @@ public class DiscordBot extends ListenerAdapter implements Bot {
             channel.sendMessage(messageText).queue();
         }
     }
-
     @Override
     public long sendMessages(long chatId, List<String> messagesTexts) {
         for (String messageText : messagesTexts) {

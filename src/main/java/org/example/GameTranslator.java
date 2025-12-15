@@ -51,18 +51,15 @@ public class GameTranslator {
      * Смволы, обозначающие цвет фигуры
      */
     private final static String[] FIGURE_COLOR = {"W", " B"};
-    /**
-     * Число клеток в одном ряду
-     */
-    private final static int SQUARES_IN_A_ROW = 8;
 
     /**
      * Сформировать текст сообщения с состоянием доски в виде строки
      */
     public String chessboardString(GameHandler.MoveProperty moveProperty, 
-    		byte[][] currentChessboard, boolean isWhiteToMove, boolean forWhiteSide) {
+    		byte[][] currentChessboard, int sideLength, boolean isWhiteToMove, 
+    		boolean forWhiteSide) {
         String chessboardString, side, board, additional;
-        board = boardString(currentChessboard, forWhiteSide);
+        board = boardString(currentChessboard, sideLength, forWhiteSide);
         if (isWhiteToMove) {
             side = MOVING_SIDES[0];
         } else {
@@ -88,12 +85,12 @@ public class GameTranslator {
     /**
      * Посторить доску в строковом виде
      */
-    private String boardString(byte[][] currentChessboard, boolean isWhiteToMove) {
+    private String boardString(byte[][] currentChessboard, int sideLength, boolean isWhiteToMove) {
         String boardString = "";
         if (isWhiteToMove) {
-            for (int i = SQUARES_IN_A_ROW - 1; i >= 0; --i) {
+            for (int i = sideLength - 1; i >= 0; --i) {
                 boardString += DIGITS[i] + "  ";
-                for (int j = 0; j < SQUARES_IN_A_ROW; ++j) {
+                for (int j = 0; j < sideLength; ++j) {
                     boardString += "[";
                     if (currentChessboard[i][j] < 0) {
                         boardString += FIGURE_COLOR[0];
@@ -107,13 +104,13 @@ public class GameTranslator {
             }
             String halfSpace = " ".repeat(FIGURES_SYMBOLS[0].length() / 2 + 3);
             boardString += halfSpace;
-            for (int i = 0; i < SQUARES_IN_A_ROW; ++i) {
+            for (int i = 0; i < sideLength; ++i) {
                 boardString += LETTERS[i] + halfSpace;
             }
         } else {
-            for (int i = 0; i < SQUARES_IN_A_ROW; ++i) {
+            for (int i = 0; i < sideLength; ++i) {
                 boardString += DIGITS[i] + "  ";
-                for (int j = SQUARES_IN_A_ROW - 1; j >= 0; --j) {
+                for (int j = sideLength - 1; j >= 0; --j) {
                     boardString += "[";
                     if (currentChessboard[i][j] < 0) {
                         boardString += FIGURE_COLOR[0];
@@ -127,7 +124,7 @@ public class GameTranslator {
             }
             String halfSpace = " ".repeat(FIGURES_SYMBOLS[0].length() / 2 + 3);
             boardString += halfSpace;
-            for (int i = SQUARES_IN_A_ROW - 1; i >= 0; --i) {
+            for (int i = sideLength - 1; i >= 0; --i) {
                 boardString += LETTERS[i] + halfSpace;
             }
         }
