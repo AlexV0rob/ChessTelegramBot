@@ -14,23 +14,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  * Discord бот
  */
 public class DiscordBot extends ListenerAdapter implements Bot {
-	/**
-	 * Экземпляр класса для работы с Discord
-	 */
-	private final JDA jda;
-	
-	/**
-	 * Обработчик логики бота
-	 */
-	private final MainLogic mainLogic;
-	
-	/**
-	 * Конструктор класса
-	 */
-	public DiscordBot(JDA jdaClient, MainLogic logic) {
-		mainLogic = logic;
-		jda = jdaClient;
-	}
+    /**
+     * Экземпляр класса для работы с Discord
+     */
+    private final JDA jda;
+
     /**
      * Обработчик логики бота
      */
@@ -62,6 +50,7 @@ public class DiscordBot extends ListenerAdapter implements Bot {
             channel.sendMessage(messageText).queue();
         }
     }
+
     @Override
     public long sendMessages(long chatId, List<String> messagesTexts) {
         for (String messageText : messagesTexts) {
@@ -81,5 +70,10 @@ public class DiscordBot extends ListenerAdapter implements Bot {
     @Override
     public void editMessage(long chatId, long messageId, String editedMessageText, boolean moreMessages) {
         sendMessage(chatId, editedMessageText);
+    }
+
+    @Override
+    public UserState.MessengerType getBotMessengerType() {
+        return UserState.MessengerType.DISCORD;
     }
 }
