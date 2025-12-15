@@ -58,7 +58,9 @@ public class DatabaseStatesHandler implements StatesHandler {
                     			messenger TINYINT,
                     			lobby_name VARCHAR(16),
                     			lobby_id INTEGER,
-                    			message_id BIGINT NOT NULL
+                    			message_id BIGINT NOT NULL,
+                    			games_played BIGINT NOT NULL,
+                    			games_won BIGINT NOT NULL
                     		)
                     """;
 
@@ -89,7 +91,7 @@ public class DatabaseStatesHandler implements StatesHandler {
             statement.close();
             connection.close();
         } catch (SQLException e) {
-			throw new DatabaseException("Couldn't connect to database", e);
+            throw new DatabaseException("Couldn't connect to database", e);
         }
     }
 
@@ -675,7 +677,7 @@ public class DatabaseStatesHandler implements StatesHandler {
         String insertQuery = """
                 INSERT INTO users 
                 (unknown_id, telegram_id, discord_id, status, figure, start, 
-                	finish, parts_count, messenger, lobby_name, lobby_id, message_id)
+                	finish, parts_count, messenger, lobby_name, lobby_id, message_id,games_played,games_won)
                 VALUES (0, 0, 0, 0, "", "", "", 0, ?, "", -1, -1)
                 """;
         try (Connection connection = DriverManager.getConnection(url);
@@ -1034,6 +1036,92 @@ public class DatabaseStatesHandler implements StatesHandler {
         }
 
         return true;
+    }
+
+    @Override
+    public long getUserPlayedGames(long chatId) {
+        String selectQuery = """
+                SELECT prime_id 
+                FROM users 
+                WHERE games_played = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setLong(1, chatId);
+            ResultSet result = preparedStatement.executeQuery();
+            long messengerId = result.next() ? result.getLong(1) : 0;
+            preparedStatement.close();
+            connection.close();
+            return messengerId;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public long getUserWonGames(long chatId) {
+        String selectQuery = """
+                SELECT prime_id 
+                FROM users 
+                WHERE games_won = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setLong(1, chatId);
+            ResultSet result = preparedStatement.executeQuery();
+            long messengerId = result.next() ? result.getLong(1) : 0;
+            preparedStatement.close();
+            connection.close();
+            return messengerId;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public void updateUserPlayedGames(long userId) {
+        long playedGames = getUserPlayedGames(userId);
+        String updateQuery = """
+                UPDATE users 
+                SET games_played = ? 
+                WHERE prime_id = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
+            preparedStatement.setLong(1, playedGames++);
+            preparedStatement.setLong(2, userId);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateUserWonGames(long userId) {
+        long wonGames = getUserWonGames(userId);
+        String updateQuery = """
+                UPDATE users 
+                SET games_played = ? 
+                WHERE prime_id = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
+            preparedStatement.setLong(1, wonGames++);
+            preparedStatement.setLong(2, userId);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
     }
 
     /**
