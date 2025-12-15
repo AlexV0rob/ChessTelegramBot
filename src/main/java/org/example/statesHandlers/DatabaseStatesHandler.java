@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -919,15 +920,9 @@ public class DatabaseStatesHandler implements StatesHandler {
 
         long playedGames = 0;
         long wonGames = 0;
-        ResultSet result = getUserPlayedAndWonGames(chatId);
-        try {
-            playedGames = result.getLong(1);
-            wonGames = result.getLong(2);
-        } catch (SQLException e) {
-
-            System.out.println("Error with database");
-            e.printStackTrace();
-        }
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
+        playedGames = result.getLeft();
+        wonGames = result.getRight();
         if (playedGames != 0) {
             userStatistic = (double) wonGames / playedGames;
         }
@@ -960,10 +955,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Обновить количество Сыгранных игр
      */
-    public void updateUserPlayedGames(long chatId) {
+    private void updateUserPlayedGames(long chatId) {
         long playedGames = 0;
-        ResultSet result = getUserPlayedAndWonGames(chatId);
-
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
         String updateQuery = """
                 UPDATE users 
                 SET games_played = ? 
@@ -971,12 +965,10 @@ public class DatabaseStatesHandler implements StatesHandler {
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
-            playedGames = result.getLong(1);
+            playedGames = result.getLeft() + 1;
             preparedStatement.setLong(1, playedGames);
             preparedStatement.setLong(2, chatId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -988,7 +980,7 @@ public class DatabaseStatesHandler implements StatesHandler {
      */
     private void updateUserWonGames(long chatId) {
         long wonGames = 0;
-        ResultSet result = getUserPlayedAndWonGames(chatId);
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
         String updateQuery = """
                 UPDATE users 
                 SET games_played = ? 
@@ -996,12 +988,10 @@ public class DatabaseStatesHandler implements StatesHandler {
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
-            wonGames = result.getLong(2) + 1;
+            wonGames = result.getRight() + 1;
             preparedStatement.setLong(1, wonGames);
             preparedStatement.setLong(2, chatId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -1095,7 +1085,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Получить количество сыгранных игр
      */
-    private ResultSet getUserPlayedAndWonGames(long chatId) {
+    private ImmutablePair<Long, Long> getUserPlayedAndWonGames(long chatId) {
 
         String selectQuery = """
                 SELECT games_played, games_won 
@@ -1106,9 +1096,8 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, chatId);
             ResultSet result = preparedStatement.executeQuery();
-            preparedStatement.close();
-            connection.close();
-            return result;
+            return new ImmutablePair<>(result.next() ? result.getLong(1) : 0,
+                    result.next() ? result.getLong(2) : 0);
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -1131,8 +1120,7 @@ public class DatabaseStatesHandler implements StatesHandler {
 
             ResultSet result = preparedStatement.executeQuery();
             String userName = result.next() ? result.getString(1) : "";
-            preparedStatement.close();
-            connection.close();
+
             return userName;
         } catch (SQLException e) {
             System.out.println("Error with database");
