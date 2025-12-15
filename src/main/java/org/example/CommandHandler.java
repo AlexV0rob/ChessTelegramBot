@@ -104,7 +104,6 @@ public class CommandHandler {
     private final static String RATING_ERROR = 
     		"Рейтинг этого матча слишком отличается, к нему нельзя присоединиться";
 
-
     /**
      * Обработать команду /quit
      */

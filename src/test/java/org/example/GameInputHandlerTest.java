@@ -488,8 +488,10 @@ public class GameInputHandlerTest {
 	@Test
 	public void moveMateSingleGameTest() {
 		long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
+		double userRatingOld = states.getUserRating(userId).getRight();
 		ImmutablePair<List<String>, List<String>> gameResponses = 
 				gameInputHandler.processMove(userId, "q", "a2", "a1");
+		double userRatingNew = states.getUserRating(userId).getRight();
 		Assertions.assertIterableEquals(
 				List.of("""
 Ход белых
@@ -525,6 +527,7 @@ public class GameInputHandlerTest {
 						"Чем займёмся?"), 
 				gameResponses.getValue());
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
+		Assertions.assertTrue(Math.abs(userRatingOld - userRatingNew) < 1e-9);
 	}
 	
 	/**
@@ -535,8 +538,12 @@ public class GameInputHandlerTest {
 		ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
 		long userId1 = ids.getKey();
 		long userId2 = ids.getValue();
+		double userRatingOld1 = states.getUserRating(userId1).getRight();
+		double userRatingOld2 = states.getUserRating(userId2).getRight();
 		ImmutablePair<List<String>, List<String>> gameResponses = 
 				gameInputHandler.processMove(userId1, "q", "a2", "a1");
+		double userRatingNew1 = states.getUserRating(userId1).getRight();
+		double userRatingNew2 = states.getUserRating(userId2).getRight();
 		Assertions.assertIterableEquals(
 				List.of("""
 Ход белых
@@ -573,5 +580,7 @@ public class GameInputHandlerTest {
 				gameResponses.getValue());
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId1));
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId2));
+		Assertions.assertTrue(userRatingNew1 > userRatingOld1);
+		Assertions.assertTrue(userRatingNew2 < userRatingOld2);
 	}
 }

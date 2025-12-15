@@ -287,4 +287,17 @@ public class MainLogicTest {
     	mainLogic.processInput(otherBot, "Telegram 1", 1);
     	Assertions.assertEquals(1, states.getUserIdFromDiscordId(1));
     }
+    
+    /**
+     * Проверить вывод таблицы лидеров
+     */
+    @Test
+    public void leaderBoardTest() {
+    	//TODO
+    	String leaderString = "";
+    	Assertions.assertTrue(leaderString.contains("Таблица Лидеров:"));
+    	Assertions.assertTrue(leaderString.contains("(1) Name1: Win rate 0.0"));
+    	Assertions.assertTrue(leaderString.contains("(2) Name2: Win rate 0.0"));
+    	Assertions.assertTrue(leaderString.contains("Ваш рейтинг: Name1 Win rate 0.0"));
+    }
 }

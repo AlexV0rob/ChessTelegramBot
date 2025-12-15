@@ -259,4 +259,26 @@ public class CommandHandlerTest {
                 exception.getMessage());
         Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(userId1));
     }
+    
+    /**
+     * Проверить присоединение к матчу неподходящего уровня
+     */
+    @Test
+    public void joinBigRatingDifferenceExceptionTest() {
+        long userId1 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        long userId2 = newUserWithStatus(UserState.UserStatus.MAINMENU);
+        states.addUserWin(userId2);
+        try {
+            commandHandler.processCreateCommand(userId2, "game");
+        } catch (CommandException e) {
+            Assertions.assertFalse(true);
+        }
+        CommandException exception = Assertions.assertThrows(
+                CommandException.class, () ->
+                        commandHandler.processJoinCommand(userId1, "game"));
+        Assertions.assertEquals(
+                "Рейтинг этого матча слишком отличается, к нему нельзя присоединиться",
+                exception.getMessage());
+        Assertions.assertEquals(UserState.UserStatus.CHOOSING, states.getUserStatus(userId1));
+    }
 }
