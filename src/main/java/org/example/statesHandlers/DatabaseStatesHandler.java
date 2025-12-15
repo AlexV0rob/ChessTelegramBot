@@ -978,9 +978,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Обновить количество выигранных игр
      */
-    private void updateUserWonGames(long chatId) {
+    private void updateUserWonGames(long userId) {
         long wonGames = 0;
-        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(chatId);
+        ImmutablePair<Long, Long> result = getUserPlayedAndWonGames(userId);
         String updateQuery = """
                 UPDATE users 
                 SET games_played = ? 
@@ -990,7 +990,7 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);) {
             wonGames = result.getRight() + 1;
             preparedStatement.setLong(1, wonGames);
-            preparedStatement.setLong(2, chatId);
+            preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error with database");
@@ -1085,7 +1085,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Получить количество сыгранных игр
      */
-    private ImmutablePair<Long, Long> getUserPlayedAndWonGames(long chatId) {
+    private ImmutablePair<Long, Long> getUserPlayedAndWonGames(long userId) {
 
         String selectQuery = """
                 SELECT games_played, games_won 
@@ -1094,7 +1094,7 @@ public class DatabaseStatesHandler implements StatesHandler {
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-            preparedStatement.setLong(1, chatId);
+            preparedStatement.setLong(1, userId);
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
                 return new ImmutablePair<>(result.getLong(1), result.getLong(2));
@@ -1109,7 +1109,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     /**
      * Получить имя пользователя
      */
-    private String getPlayerName(long chatId) {
+    private String getPlayerName(long userId) {
         String selectQuery = """
                 SELECT player_name  
                 FROM users 
@@ -1117,7 +1117,7 @@ public class DatabaseStatesHandler implements StatesHandler {
                 """;
         try (Connection connection = DriverManager.getConnection(url);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-            preparedStatement.setLong(1, chatId);
+            preparedStatement.setLong(1, userId);
 
             ResultSet result = preparedStatement.executeQuery();
             String userName = result.next() ? result.getString(1) : "";
