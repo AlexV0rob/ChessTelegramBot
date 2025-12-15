@@ -1096,8 +1096,9 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setLong(1, chatId);
             ResultSet result = preparedStatement.executeQuery();
-            return new ImmutablePair<>(result.next() ? result.getLong(1) : 0,
-                    result.next() ? result.getLong(2) : 0);
+            if (result.next()) {
+                return new ImmutablePair<>(result.getLong(1), result.getLong(2));
+            }
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
