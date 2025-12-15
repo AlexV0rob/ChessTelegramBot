@@ -53,7 +53,7 @@ public class MainLogic {
      * Экземпляр DiscordBot для отправки сообщений в Дискорд
      */
     private Bot dsBot = null;
- 
+
     /**
      * Скомпилированное регулярное выражение команды
      */
@@ -256,16 +256,16 @@ public class MainLogic {
             long messageId = statesHandler.getUserMessageId(userId);
             if (messageId >= 0) {
                 String messageText = firstMessages.removeFirst();
-                editMessage(bot, userId, messageId, messageText, !firstMessages.isEmpty());
+                editMessage(userId, messageId, messageText, !firstMessages.isEmpty());
             }
             if (!firstMessages.isEmpty()) {
-                sendMessages(bot, userId, chatId, currentMessenger, firstMessages);
+                sendMessages(userId, chatId, currentMessenger, firstMessages);
             }
         }
         if (!secondMessages.isEmpty() && secondUserId != 0 && secondUserId != userId) {
             UserState.MessengerType secondMessenger = statesHandler.getUserMessenger(secondUserId);
             long secondChatId = statesHandler.getUserMessengerId(secondUserId, secondMessenger);
-            sendMessages(bot, secondUserId, secondChatId, secondMessenger, secondMessages);
+            sendMessages(secondUserId, secondChatId, secondMessenger, secondMessages);
         }
     }
 
@@ -302,6 +302,7 @@ public class MainLogic {
                 case UserState.UserStatus.MAINMENU:
                 case UserState.UserStatus.AWAITING:
                 case UserState.UserStatus.CREATING:
+                case UserState.UserStatus.MESSENGER_CHOOSING:
                     return List.of();
                 case UserState.UserStatus.INGAME:
                     String lobbyName = statesHandler.getUserLobbyName(userId);
@@ -317,8 +318,8 @@ public class MainLogic {
                     }
                     return List.of();
                 case UserState.UserStatus.CHOOSING:
-                    List<String> listOfLobbiesID = statesHandler.getBookedLobbies();
-                    return buttonsCreator.getLobbyButtons(listOfLobbiesID);
+                    List<ImmutablePair<String, Double>> lobbies = statesHandler.getBookedLobbies(userId);
+                    return buttonsCreator.getLobbyButtons(lobbies);
             }
         }
         return List.of();
@@ -328,7 +329,7 @@ public class MainLogic {
      * Получить внутренний идентификатор системы
      */
     private long getSystemId(Bot bot, long chatId) {
-    	UserState.MessengerType messenger = bot.getBotMessengerType();
+        UserState.MessengerType messenger = bot.getBotMessengerType();
         if (messenger.equals(UserState.MessengerType.TELEGRAM) && tgBot == null) {
             tgBot = bot;
         }
@@ -338,9 +339,9 @@ public class MainLogic {
         long userId = 0;
 
         if (messenger.equals(UserState.MessengerType.TELEGRAM)) {
-        	userId = statesHandler.getUserIdFromTelegramId(chatId);
+            userId = statesHandler.getUserIdFromTelegramId(chatId);
         } else if (messenger.equals(UserState.MessengerType.DISCORD)) {
-        	userId = statesHandler.getUserIdFromDiscordId(chatId);
+            userId = statesHandler.getUserIdFromDiscordId(chatId);
         }
         return userId;
     }
@@ -387,7 +388,7 @@ public class MainLogic {
                 case "link" -> {
                     Matcher linkMatch = LINK_PATTERN.matcher(argument);
                     long otherChatId = 0;
-            		UserState.MessengerType messenger = null;
+                    UserState.MessengerType messenger = null;
                     if (linkMatch.find()) {
                         String otherMessenger = linkMatch.group(1);
                         otherChatId = Long.parseLong(linkMatch.group(2));
@@ -416,20 +417,20 @@ public class MainLogic {
                     }
                 }
                 case "leadertable" -> {
-                	List<ImmutablePair<String, Double>> board = statesHandler.getTopTenUsers();
-                	ImmutablePair<String, Double> userRating = statesHandler.getUserRating(userId);
-                	int ratingIndex = 1;
-                	String leaderBoard = "";
-                	for (ImmutablePair<String, Double> rating : board) {
-                		leaderBoard += "(%i) %s: Win rate %d"
-                				.formatted(ratingIndex, rating.getLeft(), rating.getRight());
-                		++ratingIndex;
-                	}
-                	responseMessagesFirst.add("""
-                			Таблица Лидеров:
-                			%s
-                			Ваш рейтинг: %s Win rate %d
-                			""".formatted(leaderBoard, userRating.getLeft(), userRating.getRight()));
+                    List<ImmutablePair<String, Double>> board = statesHandler.getTopTenUsers();
+                    ImmutablePair<String, Double> userRating = statesHandler.getUserRating(userId);
+                    int ratingIndex = 1;
+                    String leaderBoard = "";
+                    for (ImmutablePair<String, Double> rating : board) {
+                        leaderBoard += "(%i) %s: Win rate %d"
+                                .formatted(ratingIndex, rating.getLeft(), rating.getRight());
+                        ++ratingIndex;
+                    }
+                    responseMessagesFirst.add("""
+                            Таблица Лидеров:
+                            %s
+                            Ваш рейтинг: %s Win rate %d
+                            """.formatted(leaderBoard, userRating.getLeft(), userRating.getRight()));
                 }
                 default -> {
                     responseMessagesFirst.add(UNKNOWN_COMMAND);
@@ -518,8 +519,8 @@ public class MainLogic {
     /**
      * Изменить сообщение
      */
-    private void editMessage(long userId, long messageId, 
-    		String editedMessageText, boolean moreMessages) {
+    private void editMessage(long userId, long messageId,
+                             String editedMessageText, boolean moreMessages) {
         UserState.MessengerType userMessenger = statesHandler.getUserMessenger(userId);
         long chatId = statesHandler.getUserMessengerId(userId, userMessenger);
         if (chatId != 0) {

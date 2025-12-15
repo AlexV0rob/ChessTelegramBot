@@ -80,6 +80,42 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
+    public List<ImmutablePair<String, Double>> getTopTenUsers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void addUserLose(long secondId) {
+        updateUserPlayedGames(secondId);
+    }
+
+    @Override
+    public void addUserWin(long userId) {
+        updateUserPlayedGames(userId);
+        updateUserWonGames(userId);
+    }
+
+    @Override
+    public int getGameSideLength(String lobbyName) {
+        String selectQuery = """
+                SELECT chessboard_side_length 
+                FROM games 
+                WHERE name = ?
+                """;
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
+            preparedStatement.setString(1, lobbyName);
+            ResultSet result = preparedStatement.executeQuery();
+            return result.next() ? result.getInt(1) : 0;
+        } catch (SQLException e) {
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
     public void setNewUserStatus(long userId, UserStatus status) {
         String updateQuery = """
                 UPDATE users 
@@ -134,9 +170,9 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
-    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId, 
-    		boolean isFirstPlayerWhite, LobbyType lobbyType, 
-    		byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
+    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId,
+                               boolean isFirstPlayerWhite, LobbyType lobbyType,
+                               byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
         String insertQuery = """
                 INSERT INTO games 
                 (name, first_user_id, second_user_id, type, first_to_move, 
@@ -497,9 +533,9 @@ public class DatabaseStatesHandler implements StatesHandler {
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
             preparedStatement.setString(1, lobbyName);
             ResultSet result = preparedStatement.executeQuery();
-            return result.next() ? 
-            		getBoardArrayFromString(result.getBytes(1), result.getInt(2)) : 
-            		null;
+            return result.next() ?
+                    getBoardArrayFromString(result.getBytes(1), result.getInt(2)) :
+                    null;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
@@ -641,8 +677,8 @@ public class DatabaseStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
-    	//TODO
-    	return null;
+        //TODO
+        return null;
     	/*
         String selectQuery = """
                 SELECT name 
@@ -878,6 +914,27 @@ public class DatabaseStatesHandler implements StatesHandler {
     }
 
     @Override
+    public ImmutablePair<String, Double> getUserStat(long chatId) {
+        double userStatistic = 0.0;
+
+        long playedGames = 0;
+        long wonGames = 0;
+        ResultSet result = getUserPlayedAndWonGames(chatId);
+        try {
+            playedGames = result.getLong(1);
+            wonGames = result.getLong(2);
+        } catch (SQLException e) {
+
+            System.out.println("Error with database");
+            e.printStackTrace();
+        }
+        if (playedGames != 0) {
+            userStatistic = (double) wonGames / playedGames;
+        }
+        return new ImmutablePair(getPlayerName(chatId), userStatistic);
+    }
+
+    @Override
     public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
         String messengerField = switch (messenger) {
             case UserState.MessengerType.TELEGRAM -> "telegram_id";
@@ -900,28 +957,9 @@ public class DatabaseStatesHandler implements StatesHandler {
         return true;
     }
 
-    @Override
-    public ImmutablePair<String, Long> getUserStatistic(long chatId) {
-        long userStatistic = 0;
-
-        long playedGames = 0;
-        long wonGames = 0;
-        ResultSet result = getUserPlayedAndWonGames(chatId);
-        try {
-            playedGames = result.getLong(1);
-            wonGames = result.getLong(2);
-        } catch (SQLException e) {
-
-            System.out.println("Error with database");
-            e.printStackTrace();
-        }
-        if (playedGames != 0) {
-            userStatistic = wonGames / playedGames;
-        }
-        return new ImmutablePair(getPlayerName(chatId), userStatistic);
-    }
-
-    @Override
+    /**
+     * Обновить количество Сыгранных игр
+     */
     public void updateUserPlayedGames(long chatId) {
         long playedGames = 0;
         ResultSet result = getUserPlayedAndWonGames(chatId);
@@ -945,8 +983,10 @@ public class DatabaseStatesHandler implements StatesHandler {
         }
     }
 
-    @Override
-    public void updateUserWonGames(long chatId) {
+    /**
+     * Обновить количество выигранных игр
+     */
+    private void updateUserWonGames(long chatId) {
         long wonGames = 0;
         ResultSet result = getUserPlayedAndWonGames(chatId);
         String updateQuery = """

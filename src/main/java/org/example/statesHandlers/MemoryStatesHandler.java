@@ -16,7 +16,10 @@ import org.example.states.UserState.UserStatus;
  * Хранитель и обработчик состояний пользователей, использующий память
  */
 public class MemoryStatesHandler implements StatesHandler {
-
+    /**
+     * Длинна стороны доски
+     */
+    private final static int BOARD_SIDE_LENGTH = 7;
     /**
      * Наибольший идентификатор во внутренней системе
      */
@@ -72,16 +75,8 @@ public class MemoryStatesHandler implements StatesHandler {
     protected Map<String, Long> names = new HashMap<String, Long>();
 
     @Override
-    public ImmutablePair<String, Long> getUserStatistic(long userId) {
-        return new ImmutablePair("", 0);
-    }
-
-    @Override
-    public void updateUserPlayedGames(long userId) {
-    }
-
-    @Override
-    public void updateUserWonGames(long userId) {
+    public ImmutablePair<String, Double> getUserStat(long userId) {
+        return users.get(userId).getUserStatistic();
     }
 
     @Override
@@ -107,9 +102,13 @@ public class MemoryStatesHandler implements StatesHandler {
     }
 
     @Override
-    public void createNewLobby(String lobbyName, long firstPlayerId,
-                               long secondPlayerId, boolean isFirstPlayerWhite, LobbyType lobbyType) {
-        games.put(lobbyName, new LobbyState(firstPlayerId, secondPlayerId, isFirstPlayerWhite, lobbyType));
+    public void createNewLobby(String lobbyName, long firstPlayerId, long secondPlayerId,
+                               boolean isFirstPlayerWhite, LobbyType lobbyType,
+                               byte[][] chessboard, int sideLength, boolean isWhiteToMove) {
+        games.put(lobbyName, new LobbyState(firstPlayerId, secondPlayerId,
+                isFirstPlayerWhite, lobbyType,
+                chessboard, sideLength, isWhiteToMove)
+        );
     }
 
     @Override
@@ -244,9 +243,9 @@ public class MemoryStatesHandler implements StatesHandler {
     }
 
     @Override
-    public long addNewUser(MessengerType newUserMessenger, String UserName) {
+    public long addNewUser(MessengerType newUserMessenger, String userName) {
         long userId = highestId++;
-        users.put(userId, new UserState(newUserMessenger));
+        users.put(userId, new UserState(newUserMessenger, userName));
         Map<UserState.MessengerType, Long> messengers =
                 new HashMap<UserState.MessengerType, Long>();
         messengersIds.put(userId, messengers);
@@ -262,8 +261,12 @@ public class MemoryStatesHandler implements StatesHandler {
     }
 
     @Override
-    public List<String> getBookedLobbies() {
-        return List.copyOf(names.keySet());
+    public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
+        //TODO
+        return null;
+		/*
+		return List.copyOf(names.keySet());
+		*/
     }
 
     @Override
@@ -325,14 +328,6 @@ public class MemoryStatesHandler implements StatesHandler {
     }
 
     @Override
-    public long getUserIdFromUnknownId(long chatId) {
-        if (unknownIds.containsKey(chatId)) {
-            return unknownIds.get(chatId);
-        }
-        return 0;
-    }
-
-    @Override
     public long getUserIdFromTelegramId(long chatId) {
         if (telegramIds.containsKey(chatId)) {
             return telegramIds.get(chatId);
@@ -353,9 +348,6 @@ public class MemoryStatesHandler implements StatesHandler {
         if (messengersIds.containsKey(userId)) {
             messengersIds.get(userId).put(newUserMessenger, chatId);
             switch (newUserMessenger) {
-                case UserState.MessengerType.UNKNOWN -> {
-                    unknownIds.put(chatId, userId);
-                }
                 case UserState.MessengerType.TELEGRAM -> {
                     telegramIds.put(chatId, userId);
                 }
@@ -369,9 +361,6 @@ public class MemoryStatesHandler implements StatesHandler {
     @Override
     public boolean isMessengerIdExisting(MessengerType messenger, long chatId) {
         switch (messenger) {
-            case UserState.MessengerType.UNKNOWN -> {
-                return unknownIds.containsKey(chatId);
-            }
             case UserState.MessengerType.TELEGRAM -> {
                 return telegramIds.containsKey(chatId);
             }
@@ -380,5 +369,26 @@ public class MemoryStatesHandler implements StatesHandler {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<ImmutablePair<String, Double>> getTopTenUsers() {
+        return List.of();
+    }
+
+    @Override
+    public void addUserLose(long secondId) {
+        users.get(secondId).updatePlayedGames();
+    }
+
+    @Override
+    public void addUserWin(long userId) {
+        users.get(userId).updatePlayedGames();
+        users.get(userId).updateWonGames();
+    }
+
+    @Override
+    public int getGameSideLength(String lobbyName) {
+        return BOARD_SIDE_LENGTH;
     }
 }
