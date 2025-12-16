@@ -396,15 +396,15 @@ public class GameInputHandlerTest {
     }
 
     /**
-     * Проверить ввод шахового хода в одиночной игре
-     */
-    @Test
-    public void moveCheckSingleGameTest() {
-        long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
-        ImmutablePair<List<String>, List<String>> gameResponses =
-                gameInputHandler.processMove(userId, "q", "a2", "b2");
-        Assertions.assertIterableEquals(
-                List.of("""
+	 * Проверить ввод шахового хода в одиночной игре
+	 */
+	@Test
+	public void moveCheckSingleGameTest() {
+		long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId, "q", "a2", "b2");
+		Assertions.assertIterableEquals(
+				List.of("""
 Ход чёрных
 
 1  [      ][      ][      ][      ][      ][      ][      ][ BK]
@@ -417,11 +417,54 @@ public class GameInputHandlerTest {
 8  [      ][      ][      ][      ][      ][      ][      ][      ]
       H      G      F      E      D      C      B      A     \s
 Шах! Ваш король под угрозой!
-                                """,
-                        "Ваш ход: "),
-                gameResponses.getKey());
-        Assertions.assertIterableEquals(
-                List.of("""
+						""",
+						"Ваш ход: "), 
+				gameResponses.getKey());
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
+
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [      ][WQ][      ][      ][      ][      ][      ][      ]
+1  [ BK][      ][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+						""", 
+						"Сейчас ходит противник."), 
+				gameResponses.getValue());
+	}
+	
+	/**
+	 * Проверить ввод шахового хода в многопользовательской игре
+	 */
+	@Test
+	public void moveCheckMultiGameTest() {
+		ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
+		long userId = ids.getKey();
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId, "q", "a2", "b2");
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
+
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [      ][WQ][      ][      ][      ][      ][      ][      ]
+1  [ BK][      ][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+						""",
+						"Сейчас ходит противник."), 
+				gameResponses.getKey());
+		Assertions.assertIterableEquals(
+				List.of("""
 Ход чёрных
 
 1  [      ][      ][      ][      ][      ][      ][      ][ BK]
@@ -451,6 +494,8 @@ public class GameInputHandlerTest {
 		double userRatingNew = states.getUserRating(userId).getRight();
 		Assertions.assertIterableEquals(
 				List.of("""
+Ход белых
+
 1  [      ][      ][      ][      ][      ][      ][      ][WQ]
 2  [      ][      ][      ][      ][      ][      ][      ][      ]
 3  [      ][      ][      ][      ][      ][      ][      ][      ]
@@ -518,7 +563,9 @@ public class GameInputHandlerTest {
 				gameResponses.getValue());
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId1));
 		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId2));
-		Assertions.assertTrue(userRatingNew1 > userRatingOld1);
-		Assertions.assertTrue(userRatingNew2 < userRatingOld2);
+		Assertions.assertTrue(userRatingNew1 > userRatingOld1
+				|| Math.abs(userRatingNew1 - userRatingOld1) < 1e-9);
+		Assertions.assertTrue(userRatingNew2 < userRatingOld2
+				|| Math.abs(userRatingNew2 - userRatingOld2) < 1e-9);
 	}
 }

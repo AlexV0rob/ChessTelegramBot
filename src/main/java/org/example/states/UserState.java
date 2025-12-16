@@ -1,7 +1,5 @@
 package org.example.states;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 /**
  * Хранитель состояния пользователя
  */
@@ -29,7 +27,7 @@ public class UserState {
      */
     private long countOfWonGames;
 
-    private String userName;
+    private final String userName;
 
     /**
      * Состояние пользователя
@@ -77,7 +75,7 @@ public class UserState {
     private final MessengerType messenger;
 
     /**
-     * Идентфикатор матча. в котором находится пользователь
+     * Идентфикатор матча, в котором находится пользователь
      */
     private String currentLobbyId;
 
@@ -129,19 +127,12 @@ public class UserState {
     /**
      * Получить пару Пользователь/Статистика
      */
-    public ImmutablePair<String, Double> getUserStatistic() {
+    public double getUserRating() {
         Double result = 0.0;
         if (countOfPlayedGames != 0) {
             result = (double) countOfWonGames / countOfPlayedGames;
         }
-        return new ImmutablePair<>(userName, result);
-    }
-
-    /**
-     * Установить имя пользователя
-     */
-    public void setUserName(String name) {
-        userName = name;
+        return result;
     }
 
     /**
@@ -178,4 +169,11 @@ public class UserState {
     public String getCurrentLobbyId() {
         return currentLobbyId;
     }
+
+    /**
+     * Получить имя пользователя
+     */
+	public String getUserName() {
+		return userName;
+	}
 }

@@ -38,7 +38,8 @@ public class ButtonsCreatorTest {
         Assertions.assertIterableEquals(
                 List.of(new SimpleButton("Начать новую одиночную игру"),
                 		new SimpleButton("Создать многопользовательский матч"), 
-                		new SimpleButton("Присоединится к существующему матчу")),
+                		new SimpleButton("Присоединится к существующему матчу"), 
+                		new SimpleButton("Таблица лидеров")),
                 buttonsCreator.getMenuButtons());
     }
 

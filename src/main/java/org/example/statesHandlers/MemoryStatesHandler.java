@@ -1,10 +1,12 @@
 package org.example.statesHandlers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.example.auxiliary.UserRatingComparator;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -19,64 +21,65 @@ public class MemoryStatesHandler implements StatesHandler {
     /**
      * Длинна стороны доски
      */
-    private final static int BOARD_SIDE_LENGTH = 7;
+    private final static int BOARD_SIDE_LENGTH = 8;
     /**
      * Наибольший идентификатор во внутренней системе
      */
-    protected long highestId = 1;
-
-    /**
-     * Ассоциативный массив с соответствием идентификатора неизвестного и
-     * мессенджера идентификатора пользователя внутренней системы
-     */
-    protected Map<Long, Long> unknownIds = new HashMap<Long, Long>();
+    private long highestId = 1;
 
     /**
      * Ассоциативный массив с соответствием идентификатора Telegram и
      * идентификатора пользователя внутренней системы
      */
-    protected Map<Long, Long> telegramIds = new HashMap<Long, Long>();
+    private Map<Long, Long> telegramIds = new HashMap<Long, Long>();
 
     /**
      * Ассоциативный массив с соответствием идентификатора Discord и
      * идентификатора пользователя внутренней системы
      */
-    protected Map<Long, Long> discordIds = new HashMap<Long, Long>();
+    private Map<Long, Long> discordIds = new HashMap<Long, Long>();
 
     /**
      * Ассоциативный массив с соответствием идентификатора внутренней
      * системы и ассоциативным массивом с идентификаторами мессенджеров
      */
-    protected Map<Long, Map<UserState.MessengerType, Long>> messengersIds =
+    private Map<Long, Map<UserState.MessengerType, Long>> messengersIds =
             new HashMap<Long, Map<UserState.MessengerType, Long>>();
 
     /**
      * Ассоциативный массив с соответствием идентификатора пользователя и
      * его состояния
      */
-    protected Map<Long, UserState> users = new HashMap<Long, UserState>();
+    private Map<Long, UserState> users = new HashMap<Long, UserState>();
 
     /**
      * Ассоциативный массив с соответствием идентификатора матча и его
      * состояния
      */
-    protected Map<String, LobbyState> games = new HashMap<String, LobbyState>();
+    private Map<String, LobbyState> games = new HashMap<String, LobbyState>();
 
     /**
      * Ассоциативный массив с соответствием идентификатора пользователя и
      * идентификатора последнего отправленного ему сообщения
      */
-    protected Map<Long, Long> messages = new HashMap<Long, Long>();
+    private Map<Long, Long> messages = new HashMap<Long, Long>();
 
     /**
      * Ассоциативный массив с соответствием названия ещё не начавшегося
      * матча и идентификатора его создателя
      */
-    protected Map<String, Long> names = new HashMap<String, Long>();
+    private Map<String, Long> names = new HashMap<String, Long>();
+    
+    /**
+     * Сравнитель пользовательского рейтинга
+     */
+    private UserRatingComparator userRatingComparator = new UserRatingComparator();
 
     @Override
     public ImmutablePair<String, Double> getUserRating(long userId) {
-        return users.get(userId).getUserStatistic();
+        return new ImmutablePair<>(
+        		users.get(userId).getUserName(),
+        		users.get(userId).getUserRating());
     }
 
     @Override
@@ -262,11 +265,16 @@ public class MemoryStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
-        //TODO
-        return null;
-		/*
-		return List.copyOf(names.keySet());
-		*/
+    	List<ImmutablePair<String, Double>> availableLobbies = 
+    			new ArrayList<ImmutablePair<String, Double>>();
+    	double userRating = users.get(userId).getUserRating();
+    	for (Map.Entry<String, Long> lobby : names.entrySet()) {
+    		double oppRating = users.get(lobby.getValue()).getUserRating();
+    		if (Math.abs(userRating - oppRating) < 0.05) {
+    			availableLobbies.add(new ImmutablePair<>(lobby.getKey(), oppRating));
+    		}
+    	}
+    	return availableLobbies;
     }
 
     @Override
@@ -373,7 +381,22 @@ public class MemoryStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getTopTenUsers() {
-        return List.of();
+        List<ImmutablePair<UserState, Double>> usersStatistics = 
+        		new ArrayList<ImmutablePair<UserState, Double>>();
+        for (Map.Entry<Long, UserState> user : users.entrySet()) {
+        	ImmutablePair<UserState, Double> userStat = new ImmutablePair<>(
+        			user.getValue(), user.getValue().getUserRating());
+        	usersStatistics.add(userStat);
+        }
+        usersStatistics.sort(userRatingComparator);
+        List<ImmutablePair<String, Double>> usersRatings = 
+        		new ArrayList<ImmutablePair<String, Double>>();
+        for (int i = 0; i < usersStatistics.size() && i < 10; ++i) {
+        	usersRatings.add(new ImmutablePair<>(
+        			usersStatistics.get(i).getLeft().getUserName(),
+        			usersStatistics.get(i).getRight()));
+        }
+        return usersRatings;
     }
 
     @Override

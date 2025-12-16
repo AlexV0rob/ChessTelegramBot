@@ -58,7 +58,8 @@ public class ButtonsCreator {
         return List.of(
                 new SimpleButton(menuButtonsConverter.getCommandText("new_local")),
                 new SimpleButton(menuButtonsConverter.getCommandText("create")),
-                new SimpleButton(menuButtonsConverter.getCommandText("join")));
+                new SimpleButton(menuButtonsConverter.getCommandText("join")),
+                new SimpleButton(menuButtonsConverter.getCommandText("leadertable")));
     }
 
     /**
@@ -88,7 +89,7 @@ public class ButtonsCreator {
             lobbyButtons.add(
             		new IdentifiedButton(
             				"__" + lobby.getLeft() + "__", 
-            				"%s %d".formatted(lobby.getLeft(), lobby.getRight())));
+            				"%s %.4f".formatted(lobby.getLeft(), lobby.getRight())));
         }
         return lobbyButtons;
     }

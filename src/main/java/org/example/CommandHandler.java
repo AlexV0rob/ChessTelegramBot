@@ -170,7 +170,7 @@ public class CommandHandler {
             	double userRating = states.getUserRating(userId).getRight();
                 long creatorId = states.getLobbyCreator(argument);
             	double creatorRating = states.getUserRating(creatorId).getRight();
-            	if (Math.abs(userRating - creatorRating) > 5) {
+            	if (Math.abs(userRating - creatorRating) > 0.05) {
             		throw new CommandException(RATING_ERROR);
             	} else {
             		boolean isFirstWhite = true;

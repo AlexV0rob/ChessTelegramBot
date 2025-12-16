@@ -2,10 +2,11 @@ package org.example.statesHandlers;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.example.chess.PositionOnBoard;
 import org.example.states.LobbyState;
 import org.example.states.LobbyState.LobbyType;
@@ -82,17 +83,19 @@ public class DatabaseStatesHandler implements StatesHandler {
     @Override
     public List<ImmutablePair<String, Double>> getTopTenUsers() {
         String selectQuery = """
-                SELECT cast(games_won AS REAL) / games_played, player_name 
+                SELECT player_name,
+                CASE WHEN games_played = 0 THEN 0.0
+                ELSE CAST(games_won AS REAL) / games_played END AS rating 
                 FROM users 
-                WHERE games_played > 0 
-                ORDER BY CAST(games_won as real) / games_played DESC LIMIT 10
+                ORDER BY rating DESC 
+                LIMIT 10
                 """;
         List<ImmutablePair<String, Double>> resultList = new ArrayList<ImmutablePair<String, Double>>();
         try (Connection connection = DriverManager.getConnection(url);
              Statement statement = connection.createStatement();) {
             ResultSet resultSet = statement.executeQuery(selectQuery);
             while (resultSet.next()) {
-                resultList.add(new ImmutablePair<>(resultSet.getString(2), resultSet.getDouble(1)));
+                resultList.add(new ImmutablePair<>(resultSet.getString(1), resultSet.getDouble(2)));
             }
         } catch (SQLException e) {
             System.out.println("Error with database");
@@ -653,7 +656,7 @@ public class DatabaseStatesHandler implements StatesHandler {
     public long addNewUser(MessengerType newUserMessenger, String userName) {
         String insertQuery = """
                 INSERT INTO users 
-                ( telegram_id, discord_id, status, figure, start, 
+                (telegram_id, discord_id, status, figure, start, 
                 	finish, parts_count, messenger, lobby_name, lobby_id, message_id,games_played,games_won,player_name)
                 VALUES (0, 0, 0, "", "", "", 0, ?, "", -1, -1, 0, 0, ?)
                 """;
@@ -693,27 +696,52 @@ public class DatabaseStatesHandler implements StatesHandler {
 
     @Override
     public List<ImmutablePair<String, Double>> getBookedLobbies(long userId) {
-        //TODO
-        return null;
-    	/*
-        String selectQuery = """
-                SELECT name 
+    	String selectQuery1 = """
+    			SELECT 
+        		CASE WHEN games_played = 0 THEN 0.0
+        		ELSE CAST(games_won AS REAL) / games_played END AS rating
+    			FROM users
+    			WHERE prime_id = ?
+    			""";
+        String selectQuery2 = """
+                SELECT creator_id, name 
                 FROM names 
                 """;
+        String selectQuery3 = """
+                SELECT prime_id, 
+        		CASE WHEN games_played = 0 THEN 0.0
+        		ELSE CAST(games_won AS REAL) / games_played END AS rating
+        		FROM users
+        		WHERE ABS(rating - ?) < 0.05
+        		""";
         try (Connection connection = DriverManager.getConnection(url);
-             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);) {
-            ResultSet result = preparedStatement.executeQuery();
-            List<String> lobbiesNames = new ArrayList<String>();
-            while (result.next()) {
-                lobbiesNames.add(result.getString(1));
+             PreparedStatement preparedStatement1 = connection.prepareStatement(selectQuery1);
+        		PreparedStatement preparedStatement2 = connection.prepareStatement(selectQuery2);
+        		PreparedStatement preparedStatement3 = connection.prepareStatement(selectQuery3);) {
+        	preparedStatement1.setLong(1, userId);
+            ResultSet result1 = preparedStatement1.executeQuery();
+            double userRating = result1.next() ? result1.getDouble(1) : 0.0;
+            ResultSet result2 = preparedStatement2.executeQuery();
+            preparedStatement3.setDouble(1, userRating);
+            ResultSet result3 = preparedStatement3.executeQuery();
+            Map<Long, String> allLobbies = new HashMap<Long, String>();
+            while (result2.next()) {
+            	allLobbies.put(result2.getLong(1), result2.getString(2));
             }
-            return lobbiesNames;
+            List<ImmutablePair<String, Double>> availableLobbies = 
+            		new ArrayList<ImmutablePair<String, Double>>();
+            while (result3.next()) {
+            	if (allLobbies.containsKey(result3.getLong(1))) {
+            		availableLobbies.add(new ImmutablePair<>(
+            				allLobbies.get(result3.getLong(1)), result3.getDouble(2)));
+            	}
+            }
+            return availableLobbies;
         } catch (SQLException e) {
             System.out.println("Error with database");
             e.printStackTrace();
         }
         return null;
-        */
     }
 
     @Override
@@ -941,7 +969,7 @@ public class DatabaseStatesHandler implements StatesHandler {
         if (playedGames != 0) {
             userStatistic = (double) wonGames / playedGames;
         }
-        return new ImmutablePair(getPlayerName(chatId), userStatistic);
+        return new ImmutablePair<>(getPlayerName(chatId), userStatistic);
     }
 
     @Override

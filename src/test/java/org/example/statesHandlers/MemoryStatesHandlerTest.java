@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.example.states.LobbyState;
 import org.example.states.UserState;
 
@@ -24,8 +25,8 @@ public class MemoryStatesHandlerTest {
     @BeforeEach
     public void StatesReset() {
         states = new MemoryStatesHandler();
-        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
-        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName1");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName2");
     }
 
     /**
@@ -93,13 +94,24 @@ public class MemoryStatesHandlerTest {
      */
     @Test
     public void bookLobbyNameTest() {
-        //TODO
-		/*
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName3");
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName4");
+    	states.addUserWin(3);
+    	states.addUserWin(4);
+		states.bookLobbyName("game3", 3);
 		states.bookLobbyName("game", 1);
-		Assertions.assertIterableEquals(List.of("game"), states.getBookedLobbies());
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game", 0.0)), 
+				states.getBookedLobbies(1));
 		states.bookLobbyName("game1", 2);
-		Assertions.assertIterableEquals(List.of("game", "game1"), states.getBookedLobbies());
-		*/
+		Assertions.assertIterableEquals(
+				List.of(
+						new ImmutablePair<>("game", 0.0),
+						new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game3", 1.0)), 
+				states.getBookedLobbies(4));
     }
 
     /**
@@ -107,13 +119,21 @@ public class MemoryStatesHandlerTest {
      */
     @Test
     public void unbookLobbyNameTest() {
-        //TODO
-		/*
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName3");
+    	states.addUserWin(3);
+		states.bookLobbyName("game3", 3);
 		states.bookLobbyName("game", 1);
 		states.bookLobbyName("game1", 2);
+		states.unbookLobbyName("game3");
+		Assertions.assertIterableEquals(
+				List.of(
+						new ImmutablePair<>("game", 0.0),
+						new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
 		states.unbookLobbyName("game");
-		Assertions.assertIterableEquals(List.of("game1"), states.getBookedLobbies());
-		*/
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
     }
 
     /**
@@ -231,21 +251,6 @@ public class MemoryStatesHandlerTest {
         Assertions.assertNull(states.getUserLobbyName(4));
         states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName2");
         Assertions.assertEquals("", states.getUserLobbyName(4));
-    }
-
-    /**
-     * Проверить список зарезервированных идентификаторов матчей
-     */
-    @Test
-    public void getBookedLobbiesTest() {
-        //TODO
-		/*
-		states.bookLobbyName("game", 1);
-		states.bookLobbyName("game1", 2);
-		Assertions.assertIterableEquals(List.of("game", "game1"), states.getBookedLobbies());
-		states.unbookLobbyName("game");
-		Assertions.assertIterableEquals(List.of("game1"), states.getBookedLobbies());
-		*/
     }
 
     /**
