@@ -37,7 +37,7 @@ public class DiscordBot extends ListenerAdapter implements Bot {
         if (!event.getAuthor().isBot()) {
             String userInput = event.getMessage().getContentRaw();
             long chatId = event.getChannel().getIdLong();
-            mainLogic.processInput(this, userInput, chatId, getUsernameByID(chatId));
+            mainLogic.processInput(this, userInput, chatId, getUsernameByID(event.getAuthor().getIdLong()));
         }
     }
 

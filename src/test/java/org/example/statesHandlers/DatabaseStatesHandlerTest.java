@@ -27,7 +27,7 @@ public class DatabaseStatesHandlerTest {
     /**
      * Обработчик базы данных
      */
-    private final StatesHandler states;
+    private StatesHandler states;
 
     /**
      * Конструктор, создающий экземпляр обработчика базы данных
@@ -50,55 +50,16 @@ public class DatabaseStatesHandlerTest {
             String deleteUsers = "DROP TABLE IF EXISTS users;";
             String deleteGames = "DROP TABLE IF EXISTS games;";
             String deleteNames = "DROP TABLE IF EXISTS names;";
-            String usersDB = """
-                    		CREATE TABLE IF NOT EXISTS users (
-                    			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                telegram_id BIGINT,
-                                discord_id BIGINT,
-                    			status TINYINT NOT NULL,
-                    			figure CHAR(1),
-                    			start CHAR(2),
-                    			finish CHAR(2),
-                    			parts_count TINYINT,
-                    			messenger TINYINT,
-                    			lobby_name VARCHAR(16),
-                    			lobby_id INTEGER,
-                    			message_id BIGINT NOT NULL,
-                                games_played BIGINT NOT NULL,
-                    			games_won BIGINT NOT NULL,
-                    			player_name VARCHAR(16) NOT NULL
-                    		);
-                    """;
-            String gamesDB = """
-                    		CREATE TABLE IF NOT EXISTS games (
-                    			prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    			name VARCHAR(16) NOT NULL,
-                    first_user_id BIGINT NOT NULL,
-                    second_user_id BIGINT NOT NULL,
-                    			type TINYINT NOT NULL,
-                    			first_to_move BIT NOT NULL,
-                    			chessboard BLOB NOT NULL,
-                    			chessboard_side_length INTEGER NOT NULL,
-                    			white_to_move BIT NOT NULL
-                    		);
-                    """;
-            String namesDB = """
-                    CREATE TABLE IF NOT EXISTS names (
-                    	prime_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    	name VARCHAR(16) NOT NULL,
-                    	creator_id BIGINT NOT NULL
-                    );
-                    """;
             statement.execute(deleteUsers);
             statement.execute(deleteGames);
             statement.execute(deleteNames);
-            statement.execute(usersDB);
-            statement.execute(gamesDB);
-            statement.execute(namesDB);
-            statement.close();
-            connection.close();
         } catch (SQLException e) {
             throw new CriticalError("Couldn't reset states", e);
+        } 
+        try {
+            states = new DatabaseStatesHandler(DB_URL);
+        } catch (DatabaseException e) {
+        	throw new CriticalError("Couldn't reconnect to database", e);
         }
         states.addNewUser(UserState.MessengerType.TELEGRAM, "Петя");
         states.addNewUser(UserState.MessengerType.TELEGRAM, "Вася");
@@ -213,13 +174,24 @@ public class DatabaseStatesHandlerTest {
      */
     @Test
     public void bookLobbyNameTest() {
-        //TODO
-		/*
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName3");
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName4");
+    	states.addUserWin(3);
+    	states.addUserWin(4);
+		states.bookLobbyName("game3", 3);
 		states.bookLobbyName("game", 1);
-		Assertions.assertIterableEquals(List.of("game"), states.getBookedLobbies());
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game", 0.0)), 
+				states.getBookedLobbies(1));
 		states.bookLobbyName("game1", 2);
-		Assertions.assertIterableEquals(List.of("game", "game1"), states.getBookedLobbies());
-		*/
+		Assertions.assertIterableEquals(
+				List.of(
+						new ImmutablePair<>("game", 0.0),
+						new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game3", 1.0)), 
+				states.getBookedLobbies(4));
     }
 
     /**
@@ -227,13 +199,21 @@ public class DatabaseStatesHandlerTest {
      */
     @Test
     public void unbookLobbyNameTest() {
-        //TODO
-		/*
+    	states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName3");
+    	states.addUserWin(3);
+		states.bookLobbyName("game3", 3);
 		states.bookLobbyName("game", 1);
 		states.bookLobbyName("game1", 2);
+		states.unbookLobbyName("game3");
+		Assertions.assertIterableEquals(
+				List.of(
+						new ImmutablePair<>("game", 0.0),
+						new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
 		states.unbookLobbyName("game");
-		Assertions.assertIterableEquals(List.of("game1"), states.getBookedLobbies());
-		*/
+		Assertions.assertIterableEquals(
+				List.of(new ImmutablePair<>("game1", 0.0)), 
+				states.getBookedLobbies(1));
     }
 
     /**
@@ -351,21 +331,6 @@ public class DatabaseStatesHandlerTest {
         Assertions.assertNull(states.getUserLobbyName(4));
         states.addNewUser(UserState.MessengerType.TELEGRAM, "SomeName");
         Assertions.assertEquals("", states.getUserLobbyName(4));
-    }
-
-    /**
-     * Проверить список зарезервированных идентификаторов матчей
-     */
-    @Test
-    public void getBookedLobbiesTest() {
-        //TODO
-		/*
-		states.bookLobbyName("game", 1);
-		states.bookLobbyName("game1", 2);
-		Assertions.assertIterableEquals(List.of("game", "game1"), states.getBookedLobbies());
-		states.unbookLobbyName("game");
-		Assertions.assertIterableEquals(List.of("game1"), states.getBookedLobbies());
-		*/
     }
 
     /**

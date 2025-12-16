@@ -422,14 +422,14 @@ public class MainLogic {
                     int ratingIndex = 1;
                     String leaderBoard = "";
                     for (ImmutablePair<String, Double> rating : board) {
-                        leaderBoard += "(%i) %s: Win rate %d"
+                        leaderBoard += "(%d) %s: Win rate %.4f\n"
                                 .formatted(ratingIndex, rating.getLeft(), rating.getRight());
                         ++ratingIndex;
                     }
                     responseMessagesFirst.add("""
                             Таблица Лидеров:
                             %s
-                            Ваш рейтинг: %s Win rate %d
+                            Ваш рейтинг: %s Win rate %.4f
                             """.formatted(leaderBoard, userRating.getLeft(), userRating.getRight()));
                 }
                 default -> {

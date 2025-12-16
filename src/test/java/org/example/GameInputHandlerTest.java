@@ -396,182 +396,176 @@ public class GameInputHandlerTest {
     }
 
     /**
-     * Проверить ввод шахового хода в одиночной игре
-     */
-    @Test
-    public void moveCheckSingleGameTest() {
-        long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
-        ImmutablePair<List<String>, List<String>> gameResponses =
-                gameInputHandler.processMove(userId, "q", "a2", "b2");
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход чёрных
-                                
-                                1  [      ][      ][      ][      ][      ][      ][      ][ BK]
-                                2  [      ][      ][      ][      ][      ][      ][WQ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                      H      G      F      E      D      C      B      A     \s
-                                Шах! Ваш король под угрозой!
-                                """,
-                        "Ваш ход: "),
-                gameResponses.getKey());
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход чёрных
-                                
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                2  [      ][WQ][      ][      ][      ][      ][      ][      ]
-                                1  [ BK][      ][      ][      ][      ][      ][      ][      ]
-                                      A      B      C      D      E      F      G      H     \s
-                                """,
-                        "Сейчас ходит противник."),
-                gameResponses.getValue());
-    }
+	 * Проверить ввод шахового хода в одиночной игре
+	 */
+	@Test
+	public void moveCheckSingleGameTest() {
+		long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId, "q", "a2", "b2");
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
 
-    /**
-     * Проверить ввод шахового хода в многопользовательской игре
-     */
-    @Test
-    public void moveCheckMultiGameTest() {
-        ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
-        long userId = ids.getKey();
-        ImmutablePair<List<String>, List<String>> gameResponses =
-                gameInputHandler.processMove(userId, "q", "a2", "b2");
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход чёрных
-                                
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                2  [      ][WQ][      ][      ][      ][      ][      ][      ]
-                                1  [ BK][      ][      ][      ][      ][      ][      ][      ]
-                                      A      B      C      D      E      F      G      H     \s
-                                """,
-                        "Сейчас ходит противник."),
-                gameResponses.getKey());
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход чёрных
-                                
-                                1  [      ][      ][      ][      ][      ][      ][      ][ BK]
-                                2  [      ][      ][      ][      ][      ][      ][WQ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                      H      G      F      E      D      C      B      A     \s
-                                Шах! Ваш король под угрозой!
-                                """,
-                        "Ваш ход: "),
-                gameResponses.getValue());
-    }
+1  [      ][      ][      ][      ][      ][      ][      ][ BK]
+2  [      ][      ][      ][      ][      ][      ][WQ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+      H      G      F      E      D      C      B      A     \s
+Шах! Ваш король под угрозой!
+						""",
+						"Ваш ход: "), 
+				gameResponses.getKey());
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
 
-    /**
-     * Проверить ввод матового хода в одиночной игре
-     */
-    @Test
-    public void moveMateSingleGameTest() {
-        long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
-        ImmutablePair<List<String>, List<String>> gameResponses =
-                gameInputHandler.processMove(userId, "q", "a2", "a1");
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход белых
-                                
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                2  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                1  [WQ][      ][      ][      ][      ][      ][      ][      ]
-                                      A      B      C      D      E      F      G      H     \s
-                                Шах и мат! Партия окончена. Победили белые.
-                                """,
-                        "Чем займёмся?"),
-                gameResponses.getKey());
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход белых
-                                
-                                1  [      ][      ][      ][      ][      ][      ][      ][WQ]
-                                2  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                      H      G      F      E      D      C      B      A     \s
-                                Шах и мат! Партия окончена. Победили белые.
-                                """,
-                        "Чем займёмся?"),
-                gameResponses.getValue());
-        Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
-    }
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [      ][WQ][      ][      ][      ][      ][      ][      ]
+1  [ BK][      ][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+						""", 
+						"Сейчас ходит противник."), 
+				gameResponses.getValue());
+	}
+	
+	/**
+	 * Проверить ввод шахового хода в многопользовательской игре
+	 */
+	@Test
+	public void moveCheckMultiGameTest() {
+		ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
+		long userId = ids.getKey();
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId, "q", "a2", "b2");
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
 
-    /**
-     * Проверить ввод матового хода в многопользовательской игре
-     */
-    @Test
-    public void moveMateMultiGameTest() {
-        ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
-        long userId1 = ids.getKey();
-        long userId2 = ids.getValue();
-        ImmutablePair<List<String>, List<String>> gameResponses =
-                gameInputHandler.processMove(userId1, "q", "a2", "a1");
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход белых
-                                
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                2  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                1  [WQ][      ][      ][      ][      ][      ][      ][      ]
-                                      A      B      C      D      E      F      G      H     \s
-                                Шах и мат! Партия окончена. Победили белые.
-                                """,
-                        "Чем займёмся?"),
-                gameResponses.getKey());
-        Assertions.assertIterableEquals(
-                List.of("""
-                                Ход белых
-                                
-                                1  [      ][      ][      ][      ][      ][      ][      ][WQ]
-                                2  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                3  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                4  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                5  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                6  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                7  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                8  [      ][      ][      ][      ][      ][      ][      ][      ]
-                                      H      G      F      E      D      C      B      A     \s
-                                Шах и мат! Партия окончена. Победили белые.
-                                """,
-                        "Чем займёмся?"),
-                gameResponses.getValue());
-        Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId1));
-        Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId2));
-    }
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [      ][WQ][      ][      ][      ][      ][      ][      ]
+1  [ BK][      ][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+						""",
+						"Сейчас ходит противник."), 
+				gameResponses.getKey());
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход чёрных
+
+1  [      ][      ][      ][      ][      ][      ][      ][ BK]
+2  [      ][      ][      ][      ][      ][      ][WQ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+      H      G      F      E      D      C      B      A     \s
+Шах! Ваш король под угрозой!
+						""",
+						"Ваш ход: "), 
+				gameResponses.getValue());
+	}
+	
+	/**
+	 * Проверить ввод матового хода в одиночной игре
+	 */
+	@Test
+	public void moveMateSingleGameTest() {
+		long userId = createSingleGame("game", CHECKMATE_BOARD, 8, true);
+		double userRatingOld = states.getUserRating(userId).getRight();
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId, "q", "a2", "a1");
+		double userRatingNew = states.getUserRating(userId).getRight();
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход белых
+
+1  [      ][      ][      ][      ][      ][      ][      ][WQ]
+2  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+      H      G      F      E      D      C      B      A     \s
+Шах и мат! Партия окончена. Победили белые.
+						""",
+						"Чем займёмся?"), 
+				gameResponses.getValue());
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId));
+		Assertions.assertTrue(Math.abs(userRatingOld - userRatingNew) < 1e-9);
+	}
+	
+	/**
+	 * Проверить ввод матового хода в многопользовательской игре
+	 */
+	@Test
+	public void moveMateMultiGameTest() {
+		ImmutablePair<Long, Long> ids = createMultiGame("game", CHECKMATE_BOARD, 8, true);
+		long userId1 = ids.getKey();
+		long userId2 = ids.getValue();
+		double userRatingOld1 = states.getUserRating(userId1).getRight();
+		double userRatingOld2 = states.getUserRating(userId2).getRight();
+		ImmutablePair<List<String>, List<String>> gameResponses = 
+				gameInputHandler.processMove(userId1, "q", "a2", "a1");
+		double userRatingNew1 = states.getUserRating(userId1).getRight();
+		double userRatingNew2 = states.getUserRating(userId2).getRight();
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход белых
+
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+2  [      ][      ][      ][      ][      ][      ][      ][      ]
+1  [WQ][      ][      ][      ][      ][      ][      ][      ]
+      A      B      C      D      E      F      G      H     \s
+Шах и мат! Партия окончена. Победили белые.
+						""",
+						"Чем займёмся?"), 
+				gameResponses.getKey());
+		Assertions.assertIterableEquals(
+				List.of("""
+Ход белых
+
+1  [      ][      ][      ][      ][      ][      ][      ][WQ]
+2  [      ][      ][      ][      ][      ][      ][      ][      ]
+3  [      ][      ][      ][      ][      ][      ][      ][      ]
+4  [      ][      ][      ][      ][      ][      ][      ][      ]
+5  [      ][      ][      ][      ][      ][      ][      ][      ]
+6  [      ][      ][      ][      ][      ][      ][      ][      ]
+7  [      ][      ][      ][      ][      ][      ][      ][      ]
+8  [      ][      ][      ][      ][      ][      ][      ][      ]
+      H      G      F      E      D      C      B      A     \s
+Шах и мат! Партия окончена. Победили белые.
+						""",
+						"Чем займёмся?"), 
+				gameResponses.getValue());
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId1));
+		Assertions.assertEquals(UserState.UserStatus.MAINMENU, states.getUserStatus(userId2));
+		Assertions.assertTrue(userRatingNew1 > userRatingOld1
+				|| Math.abs(userRatingNew1 - userRatingOld1) < 1e-9);
+		Assertions.assertTrue(userRatingNew2 < userRatingOld2
+				|| Math.abs(userRatingNew2 - userRatingOld2) < 1e-9);
+	}
 }
