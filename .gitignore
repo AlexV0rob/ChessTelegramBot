@@ -1,5 +1,3 @@
-src/main/resources/states.db
-src/test/resources/states.db
 .settings/
 target/
 pom.xml.tag

@@ -8,9 +8,11 @@ import org.example.statesHandlers.MemoryStatesHandler;
 import org.example.statesHandlers.StatesHandler;
 
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 
 /**
  * Основной класс, где происходит запуск бота
@@ -21,7 +23,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		String botToken = System.getenv("telegram_bot_token");
-		String databaseURL = "jdbc:sqlite:./src/main/resources/states.db";
+		String databaseURL = "jdbc:sqlite:./target/database/states.db";
 		StatesHandler statesHandler;
 		try {
 			statesHandler = new DatabaseStatesHandler(databaseURL);
@@ -34,19 +36,19 @@ public class Main {
 		}
         MainLogic mainLogic = new MainLogic(statesHandler);
         try {
-            TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
+        	TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
             botsApplication.registerBot(botToken, new TelegramBot(botToken, mainLogic));
             System.out.println("Телеграм бот запущен");
-        } catch (Exception e) {
-            System.out.println("Couldn't connect to telegram");
+        } catch (TelegramApiException e) {
+            System.out.println("Can't connect to Telegram");
             e.printStackTrace();
         }
         try {
         	JDA api = JDABuilder.createDefault(System.getenv("discord_bot_token")).build();
         	api.addEventListener(new DiscordBot(api, mainLogic));
             System.out.println("Дискорд бот запущен");
-        } catch (Exception e) {
-        	System.out.println("Couldn't connect to discord");
+        } catch (ErrorResponseException e) {
+        	System.out.println("Can't connect to Discord");
             e.printStackTrace();
         }
     }

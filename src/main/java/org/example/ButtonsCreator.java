@@ -41,14 +41,14 @@ public class ButtonsCreator {
     /**
      * Список фигур для получения всех возможных ходов
      */
-    private final static Chessmen[] FIGURES = {
+    private final List<Chessmen> figures = List.of(
             new Pawn(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new Rook(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new Knight(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new Bishop(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new Queen(MIN_SIDE_VALUE, MAX_SIDE_VALUE),
             new King(MIN_SIDE_VALUE, MAX_SIDE_VALUE)
-    };
+    );
 
 
     /**
@@ -129,8 +129,8 @@ public class ButtonsCreator {
     private List<IdentifiedButton> findAvailableFigures(byte[][] chessboard,
                                                         boolean isWhiteToMove) {
         List<IdentifiedButton> availableFigures = new ArrayList<IdentifiedButton>();
-        boolean[] isFigureOnBoard = new boolean[FIGURES.length];
-        for (int i = 0; i < FIGURES.length; ++i) {
+        boolean[] isFigureOnBoard = new boolean[figures.size()];
+        for (int i = 0; i < figures.size(); ++i) {
             isFigureOnBoard[i] = false;
         }
         for (byte[] currentChessboardRow : chessboard) {
@@ -140,7 +140,7 @@ public class ButtonsCreator {
                 }
             }
         }
-        for (int i = 0; i < FIGURES.length; ++i) {
+        for (int i = 0; i < figures.size(); ++i) {
             if (isFigureOnBoard[i]) {
                 String currentFigureSymbol = movePartsConverter
                         .getFigureSymbol(i + 1);
@@ -184,7 +184,7 @@ public class ButtonsCreator {
     private List<IdentifiedButton> findPossibleFigureMoves(
             byte[][] chessboard, int figureCode, PositionOnBoard startPosition) {
         List<PositionOnBoard> possiblePositions =
-                FIGURES[figureCode - 1].allPossibleMoves(startPosition, chessboard);
+                figures.get(figureCode - 1).allPossibleMoves(startPosition, chessboard);
         List<IdentifiedButton> possibleMoves = new ArrayList<IdentifiedButton>();
         for (PositionOnBoard currentPosition : possiblePositions) {
             char[] positionSymbols = {
