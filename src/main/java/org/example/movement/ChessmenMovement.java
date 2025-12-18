@@ -31,9 +31,9 @@ public class ChessmenMovement {
      */
     private final static int MAX_SIDE_VALUE = 7;
     /**
-     * Сигнальная позиция
+     * Неправильная позиция
      */
-    private final static PositionOnBoard SIGNAL_POSITION = new PositionOnBoard(-1, -1);
+    private static final int SIGNAL_POS = -1;
 
     /**
      * Расположение позиций друг относительно друга
@@ -87,8 +87,8 @@ public class ChessmenMovement {
         int currentVerticalShift = 1;
         int currentHorizontalShift = 1;
         PositionOnBoard currentPosition = startPosition;
-        while (currentPosition.row() != SIGNAL_POSITION.row() &&
-                currentPosition.column() != SIGNAL_POSITION.column() &&
+        while (currentPosition.row() != SIGNAL_POS &&
+                currentPosition.column() != SIGNAL_POS &&
                 isShiftAvailable(verticalShift * currentVerticalShift,
                         horizontalShift * currentHorizontalShift, startPosition.row(),
                         startPosition.column(), board)) {
@@ -159,7 +159,7 @@ public class ChessmenMovement {
             return new PositionOnBoard(startPosition.row() + verticalShift,
                     startPosition.column() + horizontalShift);
         }
-        return SIGNAL_POSITION;
+        return new PositionOnBoard(SIGNAL_POS, SIGNAL_POS);
     }
 
     /**
