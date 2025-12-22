@@ -61,7 +61,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer, Bot {
             processCallbackQuery(
                     update.getCallbackQuery().getData(),
                     update.getCallbackQuery().getMessage().getChatId(),
-                    update.getMessage().getChat().getUserName()
+                    update.getCallbackQuery().getMessage().getChat().getUserName()
             );
         }
     }

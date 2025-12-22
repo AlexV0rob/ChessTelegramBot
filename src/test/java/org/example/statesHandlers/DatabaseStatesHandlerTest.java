@@ -3,12 +3,13 @@ package org.example.statesHandlers;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.example.CriticalError;
@@ -20,9 +21,19 @@ import org.example.states.UserState;
  */
 public class DatabaseStatesHandlerTest {
     /**
-     * Адрес базы данных
+     * Директория с базой данных
      */
-    private final static String DB_URL = "jdbc:sqlite:./src/test/resources/states.db";
+    private File dbDirectory;
+    
+    /**
+     * Файл базы данных
+     */
+    private File db;
+    
+    /**
+     * SQLite префикс для подключения к базе данных
+     */
+    private final static String DB_PREFIX = "jdbc:sqlite:";
 
     /**
      * Обработчик базы данных
@@ -30,39 +41,34 @@ public class DatabaseStatesHandlerTest {
     private StatesHandler states;
 
     /**
-     * Конструктор, создающий экземпляр обработчика базы данных
-     */
-    public DatabaseStatesHandlerTest() {
-        try {
-            states = new DatabaseStatesHandler(DB_URL);
-        } catch (DatabaseException e) {
-            throw new CriticalError("Couldn't connect to database", e);
-        }
-    }
-
-    /**
-     * Сбросить сохранённое состоние перед каждым тестом
+     * Настоить начальное состояние перед каждым тестом
      */
     @BeforeEach
-    public void StatesReset() {
-        try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement statement = connection.createStatement();) {
-            String deleteUsers = "DROP TABLE IF EXISTS users;";
-            String deleteGames = "DROP TABLE IF EXISTS games;";
-            String deleteNames = "DROP TABLE IF EXISTS names;";
-            statement.execute(deleteUsers);
-            statement.execute(deleteGames);
-            statement.execute(deleteNames);
-        } catch (SQLException e) {
-            throw new CriticalError("Couldn't reset states", e);
-        } 
-        try {
-            states = new DatabaseStatesHandler(DB_URL);
-        } catch (DatabaseException e) {
-        	throw new CriticalError("Couldn't reconnect to database", e);
-        }
+    public void statesPrepare() {
+    	try {
+    		Path databasePath = Files.createTempDirectory("database");
+    		dbDirectory = databasePath.toFile();
+        	db = new File(databasePath + "/testStates.db");
+    		try {
+                states = new DatabaseStatesHandler(
+                		DB_PREFIX + databasePath + "/testStates.db");
+            } catch (DatabaseException e) {
+                throw new CriticalError("Can't connect to database", e);
+            }
+    	} catch (IOException e) {
+    		throw new CriticalError("Can't create database directory", e);
+    	}
         states.addNewUser(UserState.MessengerType.TELEGRAM, "Петя");
-        states.addNewUser(UserState.MessengerType.TELEGRAM, "Вася");
+        states.addNewUser(UserState.MessengerType.TELEGRAM, "Вася");    	
+    }
+    
+    /**
+     * Сбросить состояние после каждого теста
+     */
+    @AfterEach
+    public void statesReset() {
+        db.delete();
+        dbDirectory.delete();
     }
 
     /**
