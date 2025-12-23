@@ -328,11 +328,14 @@ public class MainLogicTest {
     public void leaderBoardTest() {
     	mainLogic.processInput(fakeBot, "/leadertable", 1, "SomeName1");
     	String leaderString = fakeBot.getAccumulatedMessages(1).getLast();
-    	Assertions.assertTrue(leaderString.contains("Таблица Лидеров:"));
-    	Assertions.assertTrue(leaderString.contains("SomeName1: Win rate 0,0000"));
-    	Assertions.assertTrue(leaderString.contains("SomeName2: Win rate 0,0000"));
-    	Assertions.assertFalse(leaderString.contains("SomeName3: Win rate 0,0000"));
-    	Assertions.assertTrue(leaderString.contains("Ваш рейтинг: SomeName1 Win rate 0,0000"));
+    	Assertions.assertEquals("""
+Таблица Лидеров:
+(1) SomeName1: Win rate 0,0000
+(2) SomeName2: Win rate 0,0000
+
+Ваш рейтинг: SomeName1 Win rate 0,0000
+    			""",
+    			leaderString);
     	addNewUser(3);
     	fastFirstUserWin(1, 3);
     	fastFirstUserWin(2, 3);
