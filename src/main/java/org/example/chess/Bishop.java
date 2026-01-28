@@ -1,6 +1,6 @@
 package org.example.chess;
 
-import org.example.movement.ChessmenMovement;
+import org.example.movement.DiagonalMovement;
 
 import java.util.List;
 
@@ -9,24 +9,16 @@ import java.util.List;
  */
 public class Bishop implements Chessmen {
     /**
-     * Экземпляр класса chessmenMovement
+     * Экземпляр класса DiagonalMovement
      */
-    private final ChessmenMovement chessmenMovement = new ChessmenMovement();
-    /**
-     * Минимальная размерность игрового поля
-     */
-    private final static int MIN_SIDE_VALUE = 0;
-    /**
-     * Максимальная размерность игрового поля
-     */
-    private final static int MAX_SIDE_VALUE = 7;
+    private final DiagonalMovement diagonal = new DiagonalMovement();
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
         if (isPositionEmpty(finish.row(), finish.column(), board) ||
                 isPositionEnemy(start.row(), start.column(), finish.row(), finish.column(), board)) {
             if (Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column())
-                    && chessmenMovement.isWayFree(start, finish, board)) {
+                    && diagonal.isWayFree(start, finish, board)) {
                 return true;
             }
         }
@@ -50,7 +42,7 @@ public class Bishop implements Chessmen {
 
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
-        List<PositionOnBoard> possibleMoves = chessmenMovement.allDiagonalMoves(start, board);
+        List<PositionOnBoard> possibleMoves = diagonal.allPossibleMoves(start, board);
         return possibleMoves;
     }
 }

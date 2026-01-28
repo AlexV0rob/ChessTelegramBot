@@ -1,7 +1,8 @@
 package org.example.chess;
 
 
-import org.example.movement.ChessmenMovement;
+import org.example.movement.DiagonalMovement;
+import org.example.movement.VerticalAndHorizontalMovement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +12,14 @@ import java.util.List;
  */
 public class Queen implements Chessmen {
     /**
-     * Экземпляр класса chessmenMovement
+     * Экземпляр класса VerticalAndHorizontalMovement
      */
-    private final ChessmenMovement chessmenMovement = new ChessmenMovement();
+    private final VerticalAndHorizontalMovement allVerticalAndHorizontal = new VerticalAndHorizontalMovement();
     /**
-     * Минимальная размерность игрового поля
+     * Экземпляр класса DiagonalMovement
      */
-    private final static int MIN_SIDE_VALUE = 0;
-    /**
-     * Максимальная размерность игрового поля
-     */
-    private final static int MAX_SIDE_VALUE = 7;
+    private final DiagonalMovement diagonal = new DiagonalMovement();
+
 
     @Override
     public boolean checkMove(PositionOnBoard start, PositionOnBoard finish, byte[][] board) {
@@ -31,7 +29,7 @@ public class Queen implements Chessmen {
             if (((Math.abs(start.row() - finish.row()) == 0 ^
                     Math.abs(start.column() - finish.column()) == 0) ||
                     Math.abs(start.row() - finish.row()) == Math.abs(start.column() - finish.column())) &&
-                    chessmenMovement.isWayFree(start, finish, board)) {
+                    diagonal.isWayFree(start, finish, board)) {
                 return true;
             }
         }
@@ -56,8 +54,8 @@ public class Queen implements Chessmen {
     @Override
     public List<PositionOnBoard> allPossibleMoves(PositionOnBoard start, byte[][] board) {
         List<PositionOnBoard> possibleMoves = new ArrayList<PositionOnBoard>();
-        possibleMoves.addAll(chessmenMovement.allDiagonalMoves(start, board));
-        possibleMoves.addAll(chessmenMovement.allVerticalAndHorizontalMoves(start, board));
+        possibleMoves.addAll(allVerticalAndHorizontal.allPossibleMoves(start, board));
+        possibleMoves.addAll(diagonal.allPossibleMoves(start, board));
         return possibleMoves;
     }
 }
