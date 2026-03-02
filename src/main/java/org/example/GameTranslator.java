@@ -1,0 +1,136 @@
+package org.example;
+
+import java.util.List;
+
+import org.example.chess.GameHandler;
+
+/**
+ * Игровой переводчик, передаёт собщения в обработчик игры и обратно
+ */
+public class GameTranslator {
+    /**
+     * Сообщения о ходе определённой стороны
+     */
+    private final static List<String> MOVING_SIDES = List.of("Ход белых", "Ход чёрных");
+    /**
+     * Сообщение о невозможном ходе
+     */
+    private final static String IMPOSSIBLE_MOVE = "Невозможный ход! Попробуйте снова.";
+    /**
+     * Сообщение о неправильной записи хода
+     */
+    private final static String INVALID_MOVE = "Неверная запись хода! Попробуйте снова.";
+    /**
+     * Сообщение о шахе
+     */
+    private final static String CHECK_MOVE = "Шах! Ваш король под угрозой!";
+    /**
+     * Сообщение о мате и конце партии
+     */
+    private final static String CHECKMATE_MOVE = "Шах и мат! Партия окончена. ";
+    /**
+     * сообщение о победе белых
+     */
+    private final static String WHITE_WIN = "Победили белые.";
+    /**
+     * Сообщение о победе чёрных
+     */
+    private final static String BLACK_WIN = "Победили чёрные.";
+
+    /**
+     * Массив букв доски
+     */
+    private final static List<String> LETTERS = List.of("A", "B", "C", "D", "E", "F", "G", "H");
+    /**
+     * Массив цифр доски
+     */
+    private final static List<String> DIGITS = List.of("1", "2", "3", "4", "5", "6", "7", "8");
+    /**
+     * Массив символов, обозначающих фигуры на доске
+     */
+    private final static List<String> FIGURES_SYMBOLS = List.of("      ", "P", "R", "N", "B", "Q", "K");
+    /**
+     * Смволы, обозначающие цвет фигуры
+     */
+    private final static List<String> FIGURE_COLOR = List.of("W", " B");
+    /**
+     * Число клеток в одном ряду
+     */
+    private final static int SQUARES_IN_A_ROW = 8;
+
+    /**
+     * Сформировать текст сообщения с состоянием доски в виде строки
+     */
+    public String chessboardString(GameHandler.MoveProperty moveProperty,
+                                   byte[][] currentChessboard, boolean isWhiteToMove) {
+        String chessboardString, side, board, additional;
+        board = boardString(currentChessboard, isWhiteToMove);
+        if (isWhiteToMove) {
+            side = MOVING_SIDES.getFirst();
+        } else {
+            side = MOVING_SIDES.getLast();
+        }
+        additional = switch (moveProperty) {
+            case GameHandler.MoveProperty.REGULAR -> "";
+            case GameHandler.MoveProperty.IMPOSSIBLE -> "\n" + IMPOSSIBLE_MOVE;
+            case GameHandler.MoveProperty.INVALID -> "\n" + INVALID_MOVE;
+            case GameHandler.MoveProperty.CHECK -> "\n" + CHECK_MOVE;
+            case GameHandler.MoveProperty.MATE -> "\n" + CHECKMATE_MOVE + (isWhiteToMove ? BLACK_WIN : WHITE_WIN);
+        };
+        chessboardString = """
+                %s
+                
+                %s%s
+                """.formatted(side, board, additional);
+        return chessboardString;
+    }
+
+    /**
+     * Посторить доску в строковом виде
+     */
+    private String boardString(byte[][] currentChessboard, boolean isWhiteToMove) {
+        String boardString = "";
+        if (isWhiteToMove) {
+            for (int i = SQUARES_IN_A_ROW - 1; i >= 0; --i) {
+                boardString += DIGITS.get(i) + "  ";
+                for (int j = 0; j < SQUARES_IN_A_ROW; ++j) {
+                    boardString += "[";
+                    if (currentChessboard[i][j] < 0) {
+                        boardString += FIGURE_COLOR.getFirst();
+                    } else if (currentChessboard[i][j] > 0) {
+                        boardString += FIGURE_COLOR.getLast();
+                    }
+                    boardString +=
+                            FIGURES_SYMBOLS.get(Math.abs(currentChessboard[i][j])) + "]";
+                }
+                boardString += "\n";
+            }
+            String halfSpace = " ".repeat(FIGURES_SYMBOLS.getFirst().length() / 2 + 3);
+            boardString += halfSpace;
+            for (int i = 0; i < SQUARES_IN_A_ROW; ++i) {
+                boardString += LETTERS.get(i) + halfSpace;
+            }
+        } else {
+            for (int i = 0; i < SQUARES_IN_A_ROW; ++i) {
+                boardString += DIGITS.get(i) + "  ";
+                for (int j = SQUARES_IN_A_ROW - 1; j >= 0; --j) {
+                    boardString += "[";
+                    if (currentChessboard[i][j] < 0) {
+                        boardString += FIGURE_COLOR.getFirst();
+                    } else if (currentChessboard[i][j] > 0) {
+                        boardString += FIGURE_COLOR.getLast();
+                    }
+                    boardString +=
+                            FIGURES_SYMBOLS.get(Math.abs(currentChessboard[i][j])) + "]";
+                }
+                boardString += "\n";
+            }
+            String halfSpace = " ".repeat(FIGURES_SYMBOLS.getFirst().length() / 2 + 3);
+            boardString += halfSpace;
+            for (int i = SQUARES_IN_A_ROW - 1; i >= 0; --i) {
+                boardString += LETTERS.get(i) + halfSpace;
+            }
+        }
+        return boardString;
+    }
+}
